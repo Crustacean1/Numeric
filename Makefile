@@ -1,5 +1,5 @@
 PROJNAME := $(shell pwd | xargs basename)
-SOURCES := $(filter-out main.cpp, $(wildcard *.cpp))
+SOURCES := $(filter-out main.cpp, $(wildcard *.cpp) $(wildcard */*.cpp))
 OBJECTS := $(SOURCES:.cpp=.o)
 
 CXX = g++
