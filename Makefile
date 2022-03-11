@@ -1,13 +1,14 @@
 PROJNAME := $(shell pwd | xargs basename)
-SOURCES := $(filter-out main.cpp, $(wildcard *.cpp) $(wildcard */*.cpp))
+SOURCES := $(wildcard *.cpp) $(wildcard */*.cpp)
 OBJECTS := $(SOURCES:.cpp=.o)
 
-CXX = g++
-CXXFLAGS = -g -Wall -Werror -fmodules-ts -std=c++20
-DEPENDS = ${OBJECTS:.o=.d} main.d
+CXX := g++
+CXXFLAGS := -g -Wall  -Wextra -MMD -fmodules-ts -std=c++20 -c
+DEPENDS := ${OBJECTS:.o=.d} main.d
 
-${PROJNAME}: ${SOURCES} main.cpp
-	g++ ${CXXFLAGS} ${SOURCES} main.cpp -o  ${PROJNAME}
+${PROJNAME}: ${OBJECTS} 
+	g++ ${LDFLAGS}  ${OBJECTS} -o  ${PROJNAME}
+
 
 -include ${DEPENDS}
 

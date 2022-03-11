@@ -1,0 +1,4 @@
+test equality
+case 21 37 0
+case 420 420 1
+rand 2 2
