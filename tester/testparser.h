@@ -4,16 +4,16 @@
 #include <iostream>
 #include <random>
 #include "tester.h"
+#include "logger.h"
 
 template<typename T>
 class TestParser{
-    Tester<T> & _tester;
     std::default_random_engine _engine;
-    std::string _currentTest; 
+    std::string _currentTest;
     std::vector<T> _arguments;
 
-    std::ostream & _logStream;
-    std::ostream & _errStream;
+    Tester<T> & _tester;
+    Logger _logger;
 
     template<typename... Q>
     void logInfo(Q... q);
@@ -21,7 +21,7 @@ class TestParser{
     template<typename... Q>
     void logError(Q... q);
 
-    void parseCommand(std::istream & stream);
+    void parseCommand(const std::string & buffer,std::istream & stream);
     void startNewTest(std::istream & stream);
     void executeRandom(std::istream & stream);
     void executeLiteral(std::istream & stream);
@@ -30,35 +30,38 @@ class TestParser{
 
     public:
 
-    TestParser(Tester<T> & tester,std::ostream & _logStream,std::ostream & _errStream);
+    TestParser(Tester<T> & tester,Logger logger);
     void executeTests(std::istream & stream);
 };
 
 template<typename T>
-TestParser<T>::TestParser(Tester<T> & tester) : _tester(tester), _engine(2137)
-{
-
-}
+TestParser<T>::TestParser(Tester<T> & tester,Logger logger) :
+ _engine(2137), _tester(tester), _logger(logger)
+{}
 
 template<typename T>
 void TestParser<T>::executeTests(std::istream & stream){
+    std::string buffer;
+    stream>>buffer;
     while(stream){
-        parseCommand(stream);
+        parseCommand(buffer,stream);
+        stream>>buffer;
     }
 }
 
 template<typename T>
-void TestParser<T>::parseCommand(std::istream & stream){
-    std::string buffer;
-    stream >> buffer;
-    if(buffer == "test"){
+void TestParser<T>::parseCommand(const std::string& command,std::istream & stream){
+    if(command == "test"){
+        _logger.logInfo("Starting new test: ",command);
         startNewTest(stream);
-    }else if(buffer == "case"){
+    }else if(command == "case"){
+        _logger.logInfo("Trying to case");
         executeLiteral(stream);
-    }else if(buffer == "rand"){
+    }else if(command == "rand"){
+        _logger.logInfo("Trying to randomize");
         executeRandom(stream);
     }else{
-        throw std::runtime_error("Invalid syntax, keyword: "+buffer+ " not recognized");
+        throw std::runtime_error("Invalid syntax, keyword: '"+command+ "' not recognized");
     }
 }
 
@@ -70,7 +73,7 @@ void TestParser<T>::startNewTest(std::istream & stream)
 
 template<typename T>
 void TestParser<T>::executeLiteral(std::istream & stream){
-    auto size = 2137;//_tester.getArgumentCount(_currentTest);
+    auto size = _tester.getArgumentCount(_currentTest);
     std::vector<T> arguments;
     std::string buffer;
     while(size--){
@@ -79,7 +82,13 @@ void TestParser<T>::executeLiteral(std::istream & stream){
     }
     int expected;
     stream >> expected;
-    _tester.assert(_currentTest,arguments,expected == 1);
+    float testResult = _tester.assert(_currentTest,arguments,expected == 1);
+    if(testResult<0){
+        _logger.logError("Test case failed for:");
+        for(const auto & arg: arguments){
+            _logger.logError("Arg: ",arg);
+        }
+    }
 }
 
 template<typename T>
@@ -90,14 +99,16 @@ void TestParser<T>::executeRandom(std::istream & stream){
     while(argCount--){
         generateRandomArguments(arguments,_tester.getArgumentCount(_currentTest),argSize);
         _tester.assert(_currentTest,arguments,true);
+        _logger.logInfo("First arg: ",arguments[0]);
     }
 }
-    
+
 template<typename T>
 void TestParser<T>::generateRandomArguments(std::vector<T> & args,size_t count, size_t size){
     args.clear();
     while(count--){
         args.push_back(T::createRandom(size));
+        _logger.logInfo("created argument with size: ",args.back().size());
     }
 }
 #endif /*TESTPARSER*/

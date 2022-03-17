@@ -10,11 +10,16 @@
 #include "tester/testparser.h"
 #include "tester/tester.h"
 
-using Integer = KCrypt::Numeric<Arithm,BasicMul,BasicIo>;
+using Integer = KCrypt::Numeric<Arithm,BasicIo>;
 
 bool testEquality(Integer a,Integer b){
     return a == b;
 }
+
+bool testSelfEquality(Integer a){
+    return a == a;
+}
+
 int main(int argc,char ** argv)
 {
     if(argc != 2){
@@ -30,7 +35,11 @@ int main(int argc,char ** argv)
 
     Tester<Integer> tester;
     tester.addTest("equality",testEquality);
-    TestParser parser(tester);
+    tester.addTest("selfEquality",testSelfEquality);
+
+    Logger logger(std::cout,std::cerr);
+
+    TestParser parser(tester,logger);
 
     parser.executeTests(testFile);
 }
