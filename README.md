@@ -1,1 +1,1 @@
-# Simple airhtmetic library
+# Simple arithmetic library
