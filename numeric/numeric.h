@@ -33,6 +33,8 @@ public:
 
   size_t size() const;
   void randomize();
+  std::string toDec();
+  std::string toBin();
 
   Numeric &operator=(const Numeric &num);
   Numeric &operator=(Numeric &&num);
@@ -57,11 +59,12 @@ public:
   bool operator<(const Numeric &num) const;
   bool operator>(const Numeric &num) const;
 
+  operator std::string() const{return _ioModule.getDec(_buffer);}
+
   template <typename A, typename I>
   friend std::ostream &operator<<(std::ostream &stream,
                                   const Numeric<A, I> &num);
   template <typename A, typename I>
-
   friend std::istream &operator>>(std::istream &stream, Numeric<A, I> &num);
 
   ~Numeric();
@@ -85,7 +88,7 @@ Numeric<A, IO>::Numeric(Numeric &&num)
 
 template <typename A, typename IO>
 Numeric<A, IO>::Numeric(const std::string &str)
-    : _ioModule(IO::getInstance()), _buffer(_ioModule.parseToComplement(str)) {}
+    : _ioModule(IO::getInstance()), _buffer(_ioModule.toBuffer(str)) {}
 
 template <typename A, typename IO>
 Numeric<A, IO>::Numeric(const Numeric &num)
@@ -118,7 +121,7 @@ bool Numeric<A, IO>::operator>(const Numeric &num) const {
 
 template <typename A, typename IO>
 std::ostream &operator<<(std::ostream &stream, const Numeric<A, IO> &num) {
-  stream << num._ioModule.parseFromComplement(num._buffer);
+  stream << num._ioModule.getDec(num._buffer);
   return stream;
 }
 
@@ -126,7 +129,7 @@ template <typename A, typename IO>
 std::istream &operator<<(std::istream &stream, Numeric<A, IO> &num) {
   std::string buffer;
   stream >> buffer;
-  num._buffer = num._ioModule.parseToComplement(buffer);
+  num._buffer = num._ioModule.toBuffer(buffer);
   return stream;
 }
 
@@ -135,9 +138,7 @@ template <typename A, typename IO> size_t Numeric<A, IO>::size() const {
 }
 
 template <typename A, typename IO> void Numeric<A, IO>::randomize() {
-  //_ioModule.randomize(_buffer);
-  Buffer<BaseType>::clear(_buffer);
-  _buffer.data[0] = 2137;
+  _ioModule.randomize(_buffer);
 }
 
 template <typename A, typename IO>
@@ -149,6 +150,13 @@ Numeric<A, IO> Numeric<A, IO>::createRandom(size_t size) {
 
 template <typename A, typename Io> Numeric<A, Io>::~Numeric() {
   Buffer<BaseType>::releaseBuffer(_buffer);
+}
+
+template<typename A,typename Io> std::string Numeric<A,Io>::toDec(){
+  return _ioModule.getDec(_buffer);
+}
+template<typename A,typename Io> std::string Numeric<A,Io>::toBin(){
+  return _ioModule.getBin(_buffer);
 }
 
 };     // namespace KCrypt

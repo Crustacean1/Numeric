@@ -20,13 +20,14 @@ class BasicIo {
   size_t toBinSize(size_t size);
   size_t toDecSize(size_t size);
 
-  void normalize(unsigned char *input, size_t unitCount, BaseType correction);
+  void normalize(unsigned char *input, size_t unitCount,
+                 unsigned char threshold, unsigned char correction);
   void shiftLeft(unsigned char *input, size_t inputSize);
   void shiftRight(unsigned char *input, size_t inputSize);
-  char *decodeToAscii(unsigned char *input, size_t inputSize);
+  char *encodeToAscii(const unsigned char *input, size_t inputSize);
+  unsigned char *decodeFromAscii(const char *input, size_t inputSize);
 
-  void toBin(const char *input, size_t inputSize, BaseType *output,
-             size_t outputSize);
+  void toBin(unsigned char *input, size_t inputSize, unsigned char *output);
   void toDec(BaseType *input, size_t inputSize, unsigned char *output,
              size_t outputSize);
 
@@ -34,8 +35,9 @@ class BasicIo {
 
 public:
   void randomize(Buffer<BaseType> &buffer);
-  std::string parseFromComplement(const Buffer<BaseType> &buffer);
-  Buffer<BaseType> parseToComplement(const std::string &str);
+  std::string getDec(const Buffer<BaseType> &buffer);
+  std::string getBin(const Buffer<BaseType> &buffer);
+  Buffer<BaseType> toBuffer(const std::string &str);
   BasicIo();
 
   static BasicIo &getInstance();

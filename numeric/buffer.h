@@ -56,9 +56,9 @@ template <typename T> void Buffer<T>::disownBuffer(Buffer<T> &buffer) {
 
 template <typename T> Buffer<T> &Buffer<T>::operator=(const Buffer<T> &buffer) {
   if (size > buffer.size) {
-    memset(data + buffer.size, 0, size - buffer.size);
+    memset(data + buffer.size, 0, (size - buffer.size)) * sizeof(T);
   }
-  memcpy(data, buffer.data, KUtils::min(size, buffer.size));
+  memcpy(data, buffer.data, sizeof(T) * KUtils::min(size, buffer.size));
   return *this;
 }
 template <typename T> Buffer<T> &Buffer<T>::operator=(Buffer<T> &&buffer) {
@@ -69,12 +69,13 @@ template <typename T> Buffer<T> &Buffer<T>::operator=(Buffer<T> &&buffer) {
     return *this;
   }
   (*this) = buffer;
+  disownBuffer(buffer);
 }
 
 template <typename T>
 Buffer<T>::Buffer(const Buffer<T> &buffer)
     : data(new T[buffer.size]), size(buffer.size) {
-  memcpy(data, buffer.data, size);
+  memcpy(data, buffer.data, size * sizeof(T));
 }
 
 template <typename T>
@@ -83,7 +84,7 @@ Buffer<T>::Buffer(Buffer<T> &&buffer) : data(buffer.data), size(buffer.size) {
 }
 
 template <typename T> void Buffer<T>::clear(Buffer<T> &buffer) {
-  memset(buffer.data, 0, buffer.size);
+  memset(buffer.data, 0, buffer.size * sizeof(T));
 }
 
 #endif /*BUFFER*/

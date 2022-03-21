@@ -28,6 +28,7 @@ class TestParser{
 
     void generateRandomArguments(std::vector<T> & args,size_t count, size_t size);
 
+    void assess(float result,std::vector<T> & arguments);
     public:
 
     TestParser(Tester<T> & tester,Logger logger);
@@ -55,10 +56,10 @@ void TestParser<T>::parseCommand(const std::string& command,std::istream & strea
         _logger.logInfo("Starting new test: ",command);
         startNewTest(stream);
     }else if(command == "case"){
-        _logger.logInfo("Trying to case");
+        _logger.logInfo("Executing case test:\n");
         executeLiteral(stream);
     }else if(command == "rand"){
-        _logger.logInfo("Trying to randomize");
+        _logger.logInfo("Executing randomized test:\n");
         executeRandom(stream);
     }else{
         throw std::runtime_error("Invalid syntax, keyword: '"+command+ "' not recognized");
@@ -78,17 +79,13 @@ void TestParser<T>::executeLiteral(std::istream & stream){
     std::string buffer;
     while(size--){
         stream>>buffer;
-        arguments.push_back(T(buffer));
+        T arg(buffer);
+        arguments.push_back(std::move(arg));
     }
     int expected;
     stream >> expected;
     float testResult = _tester.assert(_currentTest,arguments,expected == 1);
-    if(testResult<0){
-        _logger.logError("Test case failed for:");
-        for(const auto & arg: arguments){
-            _logger.logError("Arg: ",arg);
-        }
-    }
+    assess(testResult,arguments);
 }
 
 template<typename T>
@@ -98,8 +95,10 @@ void TestParser<T>::executeRandom(std::istream & stream){
     std::vector<T> arguments;
     while(argCount--){
         generateRandomArguments(arguments,_tester.getArgumentCount(_currentTest),argSize);
-        _tester.assert(_currentTest,arguments,true);
-        _logger.logInfo("First arg: ",arguments[0]);
+        _logger.logInfo("dec: ",arguments[0]);
+        _logger.logInfo("bin: ",arguments[0].toBin());
+        //float result =_tester.assert(_currentTest,arguments,true);
+        //assess(result,arguments);
     }
 }
 
@@ -108,7 +107,24 @@ void TestParser<T>::generateRandomArguments(std::vector<T> & args,size_t count, 
     args.clear();
     while(count--){
         args.push_back(T::createRandom(size));
-        _logger.logInfo("created argument with size: ",args.back().size());
     }
 }
+
+template<typename T>
+void TestParser<T>::assess(float result,std::vector<T> & arguments){
+  if(result<0){
+    _logger.logError("\x1B[31mTEST FAILED\x1B[39;49m");
+    for(size_t i =0;i<arguments.size();++i){
+      _logger.logError(arguments[i]);
+    }
+  }
+  else{
+    _logger.logInfo("\x1B[92mTEST PASSED\x1B[39;49m");
+    for(size_t i =0;i<arguments.size();++i){
+      _logger.logInfo(arguments[i]);
+      _logger.logInfo(arguments[i].toBin());
+    }
+  }
+}
+
 #endif /*TESTPARSER*/
