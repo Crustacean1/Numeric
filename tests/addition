@@ -1,3 +1,8 @@
 test string_idempotency
-case 2137 1
-rand 1 2137
+rand 100 16
+test equality
+case 21 37 0
+case 69 69 1
+case 420 421 0
+test addition
+rand 10 8

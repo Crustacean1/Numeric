@@ -66,7 +66,7 @@ size_t BasicIo::toDecSize(size_t size) {
   return (size * sizeof(BaseType) * 4 + 2) / 3;
 }
 
-void BasicIo::shiftRight(unsigned char *input, size_t inputSize) {
+inline void BasicIo::shiftRight(unsigned char *input, size_t inputSize) {
   constexpr size_t wordSize = sizeof(char) * 8;
 
   BufferType buffer = input[0];
@@ -82,7 +82,7 @@ void BasicIo::shiftRight(unsigned char *input, size_t inputSize) {
   input[inputSize - 1] >>= 1;
 }
 
-void BasicIo::shiftLeft(unsigned char *input, size_t inputSize) {
+inline void BasicIo::shiftLeft(unsigned char *input, size_t inputSize) {
   BufferType buffer = input[inputSize - 1];
   constexpr size_t wordSize = sizeof(char) * 8;
   for (size_t i = inputSize - 1; i > 0; --i) {
@@ -93,8 +93,9 @@ void BasicIo::shiftLeft(unsigned char *input, size_t inputSize) {
   input[0] = (input[0] << 1);
 }
 
-void BasicIo::normalize(unsigned char *input, size_t inputSize,
-                        unsigned char threshold, unsigned char correction) {
+inline void BasicIo::normalize(unsigned char *input, size_t inputSize,
+                               unsigned char threshold,
+                               unsigned char correction) {
   size_t blocksInWord = sizeof(char) * 2;
 
   unsigned char accumulator = 0;

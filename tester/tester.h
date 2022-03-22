@@ -53,12 +53,11 @@ double Tester<T>::assert(const std::string & testName,std::vector<T> & arguments
     _timer.start();
     bool passed = _tests[testName].execute(arguments);
     auto time = _timer.read();
-    return passed  == expected ? time : -time;
+    return passed  == expected ? time : -1;
 }
 
 template<typename T>
 size_t Tester<T>::getArgumentCount(const std::string & testName){
-    
     auto test = _tests.find(testName);
     if(test == _tests.end()){
         throw std::runtime_error("Invalid test name: "+testName);

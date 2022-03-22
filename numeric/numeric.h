@@ -14,6 +14,7 @@ using BaseType = uint32_t;
 
 template <class ArthModule, class IoModule> class Numeric {
   IoModule &_ioModule;
+  ArthModule &_arthModule;
 
   Buffer<BaseType> _buffer;
   static constexpr size_t inSize = 8;
@@ -59,7 +60,7 @@ public:
   bool operator<(const Numeric &num) const;
   bool operator>(const Numeric &num) const;
 
-  operator std::string() const{return _ioModule.getDec(_buffer);}
+  operator std::string() const { return _ioModule.getDec(_buffer); }
 
   template <typename A, typename I>
   friend std::ostream &operator<<(std::ostream &stream,
@@ -72,27 +73,30 @@ public:
 
 template <typename A, typename IO>
 Numeric<A, IO>::Numeric()
-    : _ioModule(IO::getInstance()), _buffer(Buffer<BaseType>::createBuffer(0)) {
-}
+    : _ioModule(IO::getInstance()), _arthModule(A::getInstance()),
+      _buffer(Buffer<BaseType>::createBuffer(0)) {}
 
 template <typename A, typename IO>
 Numeric<A, IO>::Numeric(size_t size, BaseType defaultValue)
-    : _ioModule(IO::getInstance()),
+    : _ioModule(IO::getInstance()), _arthModule(A::getInstance()),
       _buffer(Buffer<BaseType>::createBuffer(size)) {
   _buffer.data[0] = defaultValue;
 }
 
 template <typename A, typename IO>
 Numeric<A, IO>::Numeric(Numeric &&num)
-    : _ioModule(num._ioModule), _buffer(num._buffer) {}
+    : _ioModule(num._ioModule), _arthModule(A::getInstance()),
+      _buffer(num._buffer) {}
 
 template <typename A, typename IO>
 Numeric<A, IO>::Numeric(const std::string &str)
-    : _ioModule(IO::getInstance()), _buffer(_ioModule.toBuffer(str)) {}
+    : _ioModule(IO::getInstance()), _arthModule(A::getInstance()),
+      _buffer(_ioModule.toBuffer(str)) {}
 
 template <typename A, typename IO>
 Numeric<A, IO>::Numeric(const Numeric &num)
-    : _ioModule(IO::getInstance()), _buffer(num._buffer) {}
+    : _ioModule(IO::getInstance()), _arthModule(A::getInstance()),
+      _buffer(num._buffer) {}
 
 template <typename A, typename IO>
 Numeric<A, IO> &Numeric<A, IO>::operator=(const Numeric &num) {
@@ -106,17 +110,17 @@ Numeric<A, IO> &Numeric<A, IO>::operator=(Numeric &&num) {
 
 template <typename A, typename IO>
 bool Numeric<A, IO>::operator==(const Numeric &num) const {
-  return A::equal(_buffer, num._buffer);
+  return _arthModule.equal(_buffer, num._buffer);
 }
 
 template <typename A, typename IO>
 bool Numeric<A, IO>::operator<(const Numeric &num) const {
-  return A::less(_buffer, num._buffer);
+  return _arthModule.less(_buffer, num._buffer);
 }
 
 template <typename A, typename IO>
 bool Numeric<A, IO>::operator>(const Numeric &num) const {
-  return A::greater(_buffer, num._buffer);
+  return _arthModule.greater(_buffer, num._buffer);
 }
 
 template <typename A, typename IO>
@@ -152,11 +156,34 @@ template <typename A, typename Io> Numeric<A, Io>::~Numeric() {
   Buffer<BaseType>::releaseBuffer(_buffer);
 }
 
-template<typename A,typename Io> std::string Numeric<A,Io>::toDec(){
+template <typename A, typename Io> std::string Numeric<A, Io>::toDec() {
   return _ioModule.getDec(_buffer);
 }
-template<typename A,typename Io> std::string Numeric<A,Io>::toBin(){
+template <typename A, typename Io> std::string Numeric<A, Io>::toBin() {
   return _ioModule.getBin(_buffer);
+}
+
+template <typename A, typename Io>
+Numeric<A, Io> Numeric<A, Io>::operator+(const Numeric &num) {
+  Numeric sum(KUtils::max(_buffer.size, num._buffer.size));
+  _arthModule.add(this->_buffer, num._buffer, sum._buffer);
+  return sum;
+}
+template <typename A, typename Io>
+Numeric<A, Io> Numeric<A, Io>::operator-(const Numeric &num) {
+  Numeric sum(KUtils::max(_buffer.size, num._buffer.size));
+  _arthModule.sub(this->_buffer, num._buffer, sum._buffer);
+  return sum;
+}
+template <typename A, typename Io>
+Numeric<A, Io> &Numeric<A, Io>::operator+=(const Numeric &num) {
+  _arthModule.add(this->_buffer, num._buffer, this->_buffer);
+  return *this;
+}
+template <typename A, typename Io>
+Numeric<A, Io> &Numeric<A, Io>::operator-=(const Numeric &num) {
+  _arthModule.sub(this->_buffer, num._buffer, this->_buffer);
+  return *this;
 }
 
 };     // namespace KCrypt

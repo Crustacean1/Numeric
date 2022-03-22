@@ -12,12 +12,22 @@
 
 using Integer = KCrypt::Numeric<Arithm, BasicIo>;
 
-bool testEquality(Integer a, Integer b) { return a == b; }
-
-bool testStringIdempotency(Integer a) {
+bool testStringIdempotency(Integer& a) {
   std::string ogInt(a);
 
   return a == Integer(ogInt);
+}
+
+bool testEquality(Integer& a,Integer &b)
+{
+  return a == b;
+}
+
+bool testAddition(Integer& a, Integer& b) {
+  auto c = a + b;
+  std::cout<<a<<"\n"<<b<<"\n"<<c<<std::endl;
+  c += b;
+  return (c == a);
 }
 
 int main(int argc, char **argv) {
@@ -37,6 +47,8 @@ int main(int argc, char **argv) {
 
   Tester<Integer> tester;
   tester.addTest("string_idempotency", testStringIdempotency);
+  tester.addTest("equality", testEquality);
+  tester.addTest("addition", testAddition);
 
   Logger logger(std::cout, std::cerr);
 
