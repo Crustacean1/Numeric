@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
   Logger logger(std::cout, std::cerr);
 
-  TestParser parser(tester, logger);
+  TestParser<Integer> parser(tester, logger);
 
   parser.executeTests(testFile);
 }

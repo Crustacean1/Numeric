@@ -1,5 +1,5 @@
 test string_idempotency
-rand 100 16
+rand 5 1024
 test equality
 case 21 37 0
 case 69 69 1

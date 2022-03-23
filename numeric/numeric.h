@@ -37,6 +37,8 @@ public:
   std::string toDec();
   std::string toBin();
 
+  bool isSigned();
+
   Numeric &operator=(const Numeric &num);
   Numeric &operator=(Numeric &&num);
 
@@ -184,6 +186,12 @@ template <typename A, typename Io>
 Numeric<A, Io> &Numeric<A, Io>::operator-=(const Numeric &num) {
   _arthModule.sub(this->_buffer, num._buffer, this->_buffer);
   return *this;
+}
+
+template<typename A, typename Io>
+bool Numeric<A,Io>::isSigned(){
+  constexpr size_t lastDigitPos = sizeof(BaseType)*8 -1;
+  return (_buffer.data[_buffer.size-1]>>lastDigitPos)&1;
 }
 
 };     // namespace KCrypt

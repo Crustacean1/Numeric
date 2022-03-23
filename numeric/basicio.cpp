@@ -1,4 +1,5 @@
 #include "basicio.h"
+#include "arithm.h"
 #include <iostream>
 #include <ostream>
 #include <string>
@@ -23,9 +24,11 @@ void BasicIo::randomize(Buffer<BaseType> &buffer) {
   }
 }
 
-Buffer<BaseType> BasicIo::toBuffer(const std::string &str) {
+Buffer<BaseType> BasicIo::toBuffer(const std::string &str, Arithm & arth) {
+  bool sign = str[0] == '-';
+
   auto sourceSize = (str.size() + 1) / 2;
-  auto bcdSource = decodeFromAscii(str.c_str(), str.size());
+  auto bcdSource = decodeFromAscii(str.c_str() + sign, str.size() - sign);
 
   auto buffer = Buffer<BaseType>::createBuffer(toBinSize(str.size()));
   Buffer<BaseType>::clear(buffer);
@@ -36,7 +39,10 @@ Buffer<BaseType> BasicIo::toBuffer(const std::string &str) {
   return buffer;
 }
 
-std::string BasicIo::getDec(const Buffer<BaseType> &buffer) {
+std::string BasicIo::getDec(const Buffer<BaseType> &buffer, Arithm & arth) {
+  constexpr size_t lastDigitPos = sizeof(BaseType) * 8 - 1;
+  bool sign = ((buffer.data[buffer.size-1]>>lastDigitPos)&1);
+
   size_t outputSize = toDecSize(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];
   memset(output, 0, outputSize);
@@ -48,7 +54,7 @@ std::string BasicIo::getDec(const Buffer<BaseType> &buffer) {
   return std::string(result);
 }
 
-std::string BasicIo::getBin(const Buffer<BaseType> &buffer) {
+std::string BasicIo::getBin(const Buffer<BaseType> &buffer, Arithm & arth) {
   constexpr size_t wordSize = sizeof(BaseType) * 8;
   std::string result;
   for (size_t i = 0; i < buffer.size; ++i) {
@@ -116,8 +122,7 @@ inline void BasicIo::normalize(unsigned char *input, size_t inputSize,
 }
 
 char *BasicIo::encodeToAscii(const unsigned char *input, size_t inputSize) {
-  for (; inputSize > 0 && input[inputSize - 1] == 0; --inputSize) {
-  }
+  for (; inputSize > 0 && input[inputSize - 1] == 0; --inputSize) {}
 
   char *asciiDecoded = new char[inputSize * 2 + 1];
 
@@ -134,6 +139,7 @@ unsigned char *BasicIo::decodeFromAscii(const char *input, size_t inputSize) {
   size_t bcdSize = (inputSize + 1) / 2;
   unsigned char *packedBcd = new unsigned char[bcdSize];
   memset(packedBcd, 0, bcdSize);
+
   for (size_t i = 0; i < inputSize; ++i) {
     packedBcd[i / 2] >>= 4;
     packedBcd[i / 2] += (((unsigned char)input[inputSize - 1 - i] - '0') << 4);

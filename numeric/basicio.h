@@ -8,6 +8,7 @@
 #include "buffer.h"
 
 class Logger;
+class Arithm;
 
 // TODO: Look into use of intriniscs in parallell correction of bcd
 class BasicIo {
@@ -35,9 +36,9 @@ class BasicIo {
 
 public:
   void randomize(Buffer<BaseType> &buffer);
-  std::string getDec(const Buffer<BaseType> &buffer);
-  std::string getBin(const Buffer<BaseType> &buffer);
-  Buffer<BaseType> toBuffer(const std::string &str);
+  std::string getDec(const Buffer<BaseType> &buffer, Arithm & arth);
+  std::string getBin(const Buffer<BaseType> &buffer, Arithm & arth);
+  Buffer<BaseType> toBuffer(const std::string &str, Arithm& arth);
   BasicIo();
 
   static BasicIo &getInstance();
