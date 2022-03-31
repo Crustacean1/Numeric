@@ -1,8 +1,4 @@
-test string_idempotency
-rand 5 1024
-test equality
-case 21 37 0
-case 69 69 1
-case 420 421 0
-test addition
-rand 10 8
+test addition{
+rand(100): unsigned(128), 2137 : verbose;
+rand(100): signed(21), unsigned(37);
+}

@@ -10,6 +10,7 @@
 
 using BaseType = uint32_t;
 using BufferType = uint64_t;
+constexpr size_t BaseWordSize = sizeof(BaseType) * 8;
 
 template <typename T> struct Buffer {
   static constexpr size_t minSize = 4;
@@ -18,7 +19,7 @@ template <typename T> struct Buffer {
   static Buffer<T> createBuffer(size_t bufSize);
   static void releaseBuffer(Buffer<T> &buffer);
   static void disownBuffer(Buffer<T> &buffer);
-  static void clear(Buffer<T> &buffer);
+  static void clear(Buffer<T> &buffer,unsigned char value = 0);
 
   T *data = nullptr;
   const size_t size = 0;
@@ -56,7 +57,7 @@ template <typename T> void Buffer<T>::disownBuffer(Buffer<T> &buffer) {
 
 template <typename T> Buffer<T> &Buffer<T>::operator=(const Buffer<T> &buffer) {
   if (size > buffer.size) {
-    memset(data + buffer.size, 0, (size - buffer.size)) * sizeof(T);
+    memset(data + buffer.size, 0, (size - buffer.size) * sizeof(T));
   }
   memcpy(data, buffer.data, sizeof(T) * KUtils::min(size, buffer.size));
   return *this;
@@ -70,6 +71,7 @@ template <typename T> Buffer<T> &Buffer<T>::operator=(Buffer<T> &&buffer) {
   }
   (*this) = buffer;
   disownBuffer(buffer);
+  return *this;
 }
 
 template <typename T>
@@ -83,8 +85,8 @@ Buffer<T>::Buffer(Buffer<T> &&buffer) : data(buffer.data), size(buffer.size) {
   disownBuffer(buffer);
 }
 
-template <typename T> void Buffer<T>::clear(Buffer<T> &buffer) {
-  memset(buffer.data, 0, buffer.size * sizeof(T));
+template <typename T> void Buffer<T>::clear(Buffer<T> &buffer,unsigned char value) {
+  memset(buffer.data, value, buffer.size * sizeof(T));
 }
 
 #endif /*BUFFER*/

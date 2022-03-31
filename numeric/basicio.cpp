@@ -17,10 +17,13 @@ void displayString(unsigned char *input, size_t inputSize) {
   std::cout << std::endl;
 }
 
-void BasicIo::randomize(Buffer<BaseType> &buffer) {
+void BasicIo::randomize(Buffer<BaseType> &buffer,bool isSigned) {
   std::uniform_int_distribution<BaseType> dist(0, -1);
   for (size_t i = 0; i < buffer.size; ++i) {
     buffer.data[i] = dist(_engine);
+  }
+  if(!isSigned){
+    buffer.data[buffer.size-1] >>= 1;// stupid hack to make sure number is unsigned
   }
 }
 
@@ -35,20 +38,23 @@ Buffer<BaseType> BasicIo::toBuffer(const std::string &str, Arithm & arth) {
 
   toBin(bcdSource, sourceSize, (unsigned char *)buffer.data);
 
+  if(sign){
+    arth.invert(buffer);
+  }
+
   delete[] bcdSource;
   return buffer;
 }
 
 std::string BasicIo::getDec(const Buffer<BaseType> &buffer, Arithm & arth) {
-  constexpr size_t lastDigitPos = sizeof(BaseType) * 8 - 1;
-  bool sign = ((buffer.data[buffer.size-1]>>lastDigitPos)&1);
+  bool sign = arth.isSigned(buffer);
 
   size_t outputSize = toDecSize(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];
   memset(output, 0, outputSize);
 
-  toDec(buffer.data, buffer.size, output, outputSize);
-  auto result = encodeToAscii(output, outputSize);
+  toDec(buffer.data, buffer.size, output, outputSize, sign);
+  auto result = encodeToAscii(output, outputSize,sign);
 
   delete[] output;
   return std::string(result);
@@ -68,6 +74,7 @@ std::string BasicIo::getBin(const Buffer<BaseType> &buffer, Arithm & arth) {
 size_t BasicIo::toBinSize(size_t size) {
   return (size * 3 + 3) / (4 * sizeof(BaseType));
 }
+
 size_t BasicIo::toDecSize(size_t size) {
   return (size * sizeof(BaseType) * 4 + 2) / 3;
 }
@@ -121,16 +128,21 @@ inline void BasicIo::normalize(unsigned char *input, size_t inputSize,
   }
 }
 
-char *BasicIo::encodeToAscii(const unsigned char *input, size_t inputSize) {
-  for (; inputSize > 0 && input[inputSize - 1] == 0; --inputSize) {}
+char *BasicIo::encodeToAscii(const unsigned char *input, size_t inputSize, bool sign) {
+  for (; inputSize > 1 && input[inputSize - 1] == 0; --inputSize) {}
 
-  char *asciiDecoded = new char[inputSize * 2 + 1];
+  char *asciiDecoded = new char[inputSize * 2 + 1 + sign];
+  asciiDecoded[0] = '-';
 
-  for (size_t i = 0; i < inputSize; ++i) {
-    asciiDecoded[(inputSize - i - 1) * 2] = '0' + ((input[i] >> 4));
-    asciiDecoded[(inputSize - i - 1) * 2 + 1] = '0' + (input[i] & 15);
+  size_t arrayPos;
+
+  for (size_t i = 0; i < inputSize ; ++i) {
+    arrayPos = ((inputSize -1 -i) * 2)+ sign;
+    asciiDecoded[arrayPos] = '0' + ((input[i] >> 4));
+    asciiDecoded[arrayPos + 1] = '0' + (input[i] & 15);
   }
-  asciiDecoded[inputSize * 2] = 0;
+
+  asciiDecoded[inputSize*2 + sign] = 0;
 
   return asciiDecoded;
 }
@@ -150,18 +162,42 @@ unsigned char *BasicIo::decodeFromAscii(const char *input, size_t inputSize) {
   return packedBcd;
 }
 
-void BasicIo::toDec(BaseType *input, size_t inputSize, unsigned char *output,
-                    size_t outputSize) {
+void BasicIo::toDec(BaseType *input, size_t inputSize, unsigned char *output, size_t outputSize,bool sign) {
   size_t wordBitSize = sizeof(BaseType) * 8;
   size_t correction = (binMax - decMax) / 2;
 
+  BaseType buffer = 0;
+
   for (size_t i = inputSize; i > 0; --i) {
-    BaseType buffer = input[i - 1];
+      if(sign){
+        buffer = ~input[i-1];
+      }else{
+        buffer = input[i-1];
+      }
     for (size_t j = wordBitSize; j > 0; --j) {
       normalize(output, outputSize, 4, correction);
       shiftLeft(output, outputSize);
       output[0] += (buffer >> (j - 1)) & 1;
     }
+  }
+  if(sign){
+    carrySign(output,inputSize);
+  }
+}
+
+void BasicIo::carrySign(unsigned char * input,size_t inputSize){
+  unsigned char carry = 1;
+  for(size_t i= 0;i<inputSize && carry != 0;++i){
+    if((input[i]&15) < 9){
+      input[i] += 1;
+      break;
+    }
+    input[i] &= 240;
+    if((input[i]>>4)<9){
+      input[i] += 16;
+      break;
+    }
+    input[i] &= 15;
   }
 }
 

@@ -10,7 +10,7 @@
 #include "tester/tester.h"
 #include "tester/testparser.h"
 
-using Integer = KCrypt::Numeric<Arithm, BasicIo>;
+using Integer = KCrypt::Numeric;
 
 bool testStringIdempotency(Integer& a) {
   std::string ogInt(a);
@@ -24,10 +24,33 @@ bool testEquality(Integer& a,Integer &b)
 }
 
 bool testAddition(Integer& a, Integer& b) {
-  auto c = a + b;
-  std::cout<<a<<"\n"<<b<<"\n"<<c<<std::endl;
+  auto c = a - b;
   c += b;
   return (c == a);
+}
+
+bool testShift(Integer& a,Integer &b){
+  a <<= b;
+  Integer c = a;
+  c>>=b;
+  c<<=b;
+  return (c == a);
+}
+
+bool testComparision(Integer & a,Integer &b ){
+  if(a<b || a>b){
+    if( a>b && a<b){
+      return false;
+    }
+    if(a == b){
+      return false;
+    }
+    return true;
+  }
+  if(a == b){
+      return true;
+  }
+  return false;
 }
 
 int main(int argc, char **argv) {
@@ -48,7 +71,9 @@ int main(int argc, char **argv) {
   Tester<Integer> tester;
   tester.addTest("string_idempotency", testStringIdempotency);
   tester.addTest("equality", testEquality);
+  tester.addTest("comparision", testComparision);
   tester.addTest("addition", testAddition);
+  tester.addTest("shift", testShift);
 
   Logger logger(std::cout, std::cerr);
 
