@@ -141,7 +141,7 @@ void Arithm::leftShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
   size_t majorOffset = offset / BaseWordSize;
   size_t minorOffset = offset - majorOffset * BaseWordSize;
   size_t compMinorOffset = BaseWordSize - minorOffset;
-  size_t leftPos = (a.size - 1 - majorOffset) * (a.size > majorOffset + 1);
+  size_t leftPos = a.size - 1 - majorOffset;
   size_t shiftBuffer;
   size_t i;
 

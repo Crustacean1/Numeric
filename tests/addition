@@ -1,4 +1,11 @@
-test addition{
-rand(100): unsigned(128), 2137 : verbose;
-rand(100): signed(21), unsigned(37);
+addition{
+  case(100): unsigned(22) signed(21);
+  case(10): signed(10) range(-10,10);
+}
+subtraction{
+  case(100): unsigned(23) signed(21);
+}
+equality{
+  assert: value(23) value(23);
+  !assert: value(-10) value(10);
 }

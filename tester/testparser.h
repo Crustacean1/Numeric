@@ -3,13 +3,30 @@
 
 #include "logger.h"
 #include "tester.h"
+
 #include <iostream>
 #include <random>
+#include <regex>
+
+class DataNode {
+public:
+  std::string data;
+  std::vector<DataNode> children;
+};
+
+class SyntaxNode {
+public:
+  std::string data;
+  std::vector<SyntaxNode> children;
+};
 
 template <typename T> class TestParser {
+
   std::default_random_engine _engine;
   std::string _currentTest;
   std::vector<T> _arguments;
+
+  using TestArgumentGenerator = std::function<T()>;
 
   float _totalTime;
   size_t _passed = 0;
@@ -25,23 +42,92 @@ template <typename T> class TestParser {
   void logTestResults();
 
   void resetState();
-  void parseCommand(const std::string &buffer, std::istream &stream);
-  void startNewTest(std::istream &stream);
-  void executeRandom(std::istream &stream);
-  void executeLiteral(std::istream &stream);
+  using ParsingStage = void (*)(SyntaxNode &, std::string &);
 
-  void generateRandomArguments(std::vector<T> &args, size_t count, size_t size);
+  static std::vector<SyntaxNode> parseLowerStage(std::string &source,
+                                                 const std::string &pattern,
+                                                 ParsingStage func);
+
+  static SyntaxNode iterateNode(std::string &data, ParsingStage func);
+
+  static void parseTests(SyntaxNode &node, std::string data);
+  static void parseCases(SyntaxNode &node, std::string data);
+  static void parseParams(SyntaxNode &node, std::string data);
+
+  std::vector<TestArgumentGenerator> parseArguments(SyntaxNode argNode);
+
+  void executeCase(size_t repetitionCount,
+                   std::vector<TestArgumentGenerator> &generator,
+                   std::vector<std::string> flags);
 
   void assess(float result, std::vector<T> &arguments);
+
+  std::string readTestStream(std::istream &stream);
 
 public:
   TestParser(Tester<T> &tester, Logger logger);
   void executeTests(std::istream &stream);
 };
 
+template <typename T> void TestParser<T>::executeTests(std::istream &stream) {
+  size_t length;
+  char *data;
+  stream.seekg(0, stream.end);
+  length = stream.tellg();
+  stream.seekg(0, stream.beg);
+  data = new char[length + 1];
+  stream.read(data, length);
+  data[length] = 0;
+
+  // parseTests(data);
+}
+
+template <typename T>
+void TestParser<T>::parseTests(SyntaxNode &node, std::string buffer) {
+
+  // remove to higher function
+  std::regex newlines("\\s");
+  std::string rawData = std::regex_replace(buffer, newlines, "");
+
+  std::string testNameRegex = "[a-z|A-Z]+";
+  std::string testBodyRegex = "[a-z|A-Z|\\-|!|0-9|\\s|;|:|,|\\(|\\)]+";
+  std::string testRegex("(" + testNameRegex + "\\{(" + testBodyRegex + ")\\})");
+
+  node.children = parseLowerStage(buffer, testRegex, parseCases);
+}
+
+template <typename T>
+void TestParser<T>::parseCases(SyntaxNode &node, std::string buffer) {
+
+  std::string operands = "(unsigned|signed|random|range|value)";
+  std::string argument = operands + "\\([0-9]+|,\\)";
+  std::string testCase("(case\\([0-9]+\\):(" + argument + ")+);");
+
+  node.children = parseLowerStage(buffer, testCase, parseParams);
+}
+
+template <typename T>
+std::vector<SyntaxNode> TestParser<T>::parseLowerStage(std::string &data,
+                                                 const std::string &regexStr,
+                                                 ParsingStage stageParser) {
+  std::vector<SyntaxNode> nodes;
+  std::regex reg(regexStr);
+  using RegexIterator = std::regex_token_iterator<std::string::iterator>;
+  auto testIterator = RegexIterator{data.begin(), data.end(), reg, {1, 2}};
+  for (; testIterator != RegexIterator{};) {
+    SyntaxNode node{*testIterator++};
+    node.children = stageParser(node, *testIterator);
+    nodes.push_back(node);
+  }
+  return nodes;
+}
+
 template <typename T>
 TestParser<T>::TestParser(Tester<T> &tester, Logger logger)
     : _engine(2137), _tester(tester), _logger(logger) {}
+
+/*
+
 
 template <typename T> void TestParser<T>::executeTests(std::istream &stream) {
   std::string buffer;
@@ -61,7 +147,7 @@ void TestParser<T>::parseCommand(const std::string &command,
     resetState();
 
     startNewTest(stream);
-    _logger.logInfo("Starting new test: <", _currentTest,">");
+    _logger.logInfo("Starting new test: <", _currentTest, ">");
   } else if (command == "case") {
     _logger.logInfo("Executing case test:\n");
     executeLiteral(stream);
@@ -78,14 +164,10 @@ template <typename T> void TestParser<T>::startNewTest(std::istream &stream) {
   stream >> _currentTest;
 }
 
-template <typename T> void TestParser<T>::executeLiteral(std::istream &stream) {
-  auto size = _tester.getArgumentCount(_currentTest);
-  std::vector<T> arguments;
-  std::string buffer;
-  while (size--) {
-    stream >> buffer;
-    T arg(buffer);
-    arguments.push_back(std::move(arg));
+template <typename T> void TestParser<T>::executeLiteral(std::istream &stream)
+{ auto size = _tester.getArgumentCount(_currentTest); std::vector<T>
+arguments; std::string buffer; while (size--) { stream >> buffer; T
+arg(buffer); arguments.push_back(std::move(arg));
   }
   int expected;
   stream >> expected;
@@ -93,23 +175,17 @@ template <typename T> void TestParser<T>::executeLiteral(std::istream &stream) {
   assess(testResult, arguments);
 }
 
-template <typename T> void TestParser<T>::executeRandom(std::istream &stream) {
-  size_t argCount, argSize;
-  stream >> argCount >> argSize;
-  std::vector<T> arguments;
-  while (argCount--) {
-    generateRandomArguments(arguments, _tester.getArgumentCount(_currentTest),
-                            argSize);
-    float result = _tester.assert(_currentTest, arguments, true);
-    assess(result, arguments);
+template <typename T> void TestParser<T>::executeRandom(std::istream &stream)
+{ size_t argCount, argSize; stream >> argCount >> argSize; std::vector<T>
+arguments; while (argCount--) { generateRandomArguments(arguments,
+_tester.getArgumentCount(_currentTest), argSize); float result =
+_tester.assert(_currentTest, arguments, true); assess(result, arguments);
   }
 }
 
 template <typename T>
-void TestParser<T>::generateRandomArguments(std::vector<T> &args, size_t count,
-                                            size_t size) {
-  args.clear();
-  while (count--) {
+void TestParser<T>::generateRandomArguments(std::vector<T> &args, size_t
+count, size_t size) { args.clear(); while (count--) {
     args.push_back(T::createRandom(size));
   }
 }
@@ -139,6 +215,6 @@ template <typename T> void TestParser<T>::logTestResults() {
     std::cout << "AVG TIME: " << ((_passed == 0) ? 0 : (_totalTime / _passed))
               << " ms" << std::endl;
   }
-}
+}*/
 
 #endif /*TESTPARSER*/
