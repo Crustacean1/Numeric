@@ -1,7 +1,21 @@
 # Simple arithmetic library
 ## Test file format description
-test [TESTNAME]
-[caseTest|randTest]
-caseTest ::= case: [A,B,...,N], params are decimal numbers
-randTest ::= rand(N): params...
-params ::= [unsigned(size),signed(size),range(a,b),]
+Quite self-explanatory - look at examples in tests/
+## Math operartions
+All math operations return integer with same size as left operand.
+Overflow management is left to the user.
+## Addition
+## Subtraction
+## Multiplication
+Karatsuba
+## Division
+Newton-Raphson
+Returns floor of a/b
+## Exponentiation
+Binary algorithm
+## Modular exponentation
+## GCD
+Euclidean algorithm
+# Operations in external modules
+## Miller Rabin primality test
+## RSA Key Generation
