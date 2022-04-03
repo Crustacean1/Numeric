@@ -63,7 +63,7 @@ template <typename T> Buffer<T> &Buffer<T>::operator=(const Buffer<T> &buffer) {
   return *this;
 }
 template <typename T> Buffer<T> &Buffer<T>::operator=(Buffer<T> &&buffer) {
-  if (size == buffer.size) {
+  if (size <= buffer.size) {
     releaseBuffer(*this);
     data = buffer.data;
     disownBuffer(buffer);

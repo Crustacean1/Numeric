@@ -6,13 +6,13 @@
 #include <cstring>
 #include <iostream>
 
+#include "arithm.h"
+#include "basicio.h"
 #include "buffer.h"
 #include "utils.h"
-#include "basicio.h"
-#include "arithm.h"
 
-namespace KCrypt{
-  class Numeric;
+namespace KCrypt {
+class Numeric;
 }
 
 std::ostream &operator<<(std::ostream &stream, const KCrypt::Numeric &num);
@@ -30,16 +30,13 @@ class Numeric {
   Buffer<BaseType> _buffer;
 
 public:
-  static Numeric createRandom(size_t size,bool isSigned = false);
-
   Numeric(size_t size, BaseType value = 0);
   Numeric(const std::string &number);
-  Numeric(const char *buffer);
+  Numeric(Buffer<BaseType>&& buffer);
   Numeric();
   Numeric(Numeric &&num);
   Numeric(const Numeric &num);
 
-  void randomize(bool isSigned = false);
   void debug();
   size_t size() const;
   bool isSigned();
@@ -93,13 +90,15 @@ public:
   bool operator<(const Numeric &num) const;
   bool operator>(const Numeric &num) const;
 
-  operator std::string() const { return _ioModule.getDec(_buffer,_arthModule); }
+  operator std::string() const {
+    return _ioModule.getDec(_buffer, _arthModule);
+  }
 
-  friend std::ostream &::operator<<(std::ostream &stream, const Numeric &num);
-  friend std::istream &::operator>>(std::istream &stream, Numeric &num);
+  friend std::ostream & ::operator<<(std::ostream &stream, const Numeric &num);
+  friend std::istream & ::operator>>(std::istream &stream, Numeric &num);
 
   ~Numeric();
-  };
-};     // namespace KCrypt
+};
+}; // namespace KCrypt
 
 #endif /*NUMERIC*/

@@ -2,53 +2,53 @@
 #include <iostream>
 #include <string>
 
-#include "numeric/arithm.h"
 #include "numeric/basicio.h"
-#include "numeric/basicmul.h"
 #include "numeric/numeric.h"
+#include "tester/logger.h"
 
 #include "tester/tester.h"
 #include "tester/testparser.h"
 
 using Integer = KCrypt::Numeric;
 
-bool testStringIdempotency(Integer& a) {
+bool testStringIdempotency(Integer &a) {
   std::string ogInt(a);
 
   return a == Integer(ogInt);
 }
 
-bool testEquality(Integer& a,Integer &b)
-{
-  return a == b;
-}
+bool testEquality(Integer &a, Integer &b) { return a == b; }
 
-bool testAddition(Integer& a, Integer& b) {
+bool testAddition(Integer &a, Integer &b) {
+  std::cout<<"a: "<<a<<"\tb: "<<b<<std::endl;
   auto c = a - b;
+  std::cout<<"c: "<<c<<std::endl;
   c += b;
+  std::cout<<std::endl;
   return (c == a);
 }
 
-bool testShift(Integer& a,Integer &b){
+bool testShift(Integer &a, Integer &b) {
   a <<= b;
   Integer c = a;
-  c>>=b;
-  c<<=b;
+  c >>= b;
+  c <<= b;
   return (c == a);
 }
 
-bool testComparision(Integer & a,Integer &b ){
-  if(a<b || a>b){
-    if( a>b && a<b){
+bool testComparision(Integer &a, Integer &b) {
+  std::cout<<"a: "<<a<<" and: "<<b<<std::endl;
+  if (a < b || a > b) {
+    if (a > b && a < b) {
       return false;
     }
-    if(a == b){
+    if (a == b) {
       return false;
     }
     return true;
   }
-  if(a == b){
-      return true;
+  if (a == b) {
+    return true;
   }
   return false;
 }
@@ -66,18 +66,16 @@ int main(int argc, char **argv) {
               << std::endl;
     return -1;
   }
-  Integer num;
 
-  Tester<Integer> tester;
+  Logger logger(std::cout, std::cerr);
+  Tester<Integer, BasicIo> tester(logger);
+
   tester.addTest("string_idempotency", testStringIdempotency);
   tester.addTest("equality", testEquality);
   tester.addTest("comparision", testComparision);
   tester.addTest("addition", testAddition);
   tester.addTest("shift", testShift);
 
-  Logger logger(std::cout, std::cerr);
-
-  TestParser<Integer> parser(tester, logger);
-
-  parser.executeTests(testFile);
+  tester.readStream(testFile);
+  return tester.execute();
 }

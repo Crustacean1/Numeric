@@ -2,67 +2,74 @@
 #define TESTER
 
 #include <functional>
-#include <chrono>
 #include <map>
 #include <random>
 
 #include "./normalizedtest.h"
+#include "testcase.h"
+#include "testparser.h"
 #include "timer.h"
 
-template<typename T>
-class Tester{
-    std::map<std::string,NormalizedTest<T>> _tests;
-    std::default_random_engine _engine;
+template <typename T, typename Q> class Tester {
+  Timer _timer;
+  Logger &_logger;
 
-    Timer _timer;
+  std::map<std::string, NormalizedTest<T>> _tests;
+  std::map<std::string, std::vector<TestCase<T, Q>>> _cases;
+  std::default_random_engine _engine;
 
-    template<typename... Q>
-    using TestFunc = bool(*)(Q...);
+  template <typename... R> using TestFunc = bool (*)(R...);
 
-    public:
+public:
+  Tester(Logger &logger);
+  template <typename... R>
 
-    Tester();
-    template<typename... Q>
+  void addTest(const std::string &name, TestFunc<R...> func);
+  void readStream(std::istream &stream);
 
-    void addTest(const std::string & name,TestFunc<Q...> func);
-    size_t getArgumentCount(const std::string & name);
-    double assert(const std::string & name,std::vector<T> & arguments,bool expected);
+  int execute();
 };
 
-template<typename T>
-Tester<T>::Tester() : _engine(2137)
-{}
+template <typename T, typename Q>
+Tester<T, Q>::Tester(Logger &logger) : _logger(logger), _engine(2137) {}
 
-template<typename T>
-template<typename... Q>
-void Tester<T>::addTest(const std::string & name,TestFunc<Q...> func)
-{
-    constexpr size_t paramCount = sizeof...(Q);
+template <typename T, typename Q>
+template <typename... R>
+void Tester<T, Q>::addTest(const std::string &name, TestFunc<R...> func) {
+  constexpr size_t paramCount = sizeof...(R);
 
-    auto testFunc = [func,paramCount](std::vector<T> params) -> bool{
-        return executeFunction<paramCount>(func,params);
-    };
-    _tests.emplace(name,NormalizedTest<T>(testFunc,paramCount));
+  auto testFunc = [func, paramCount](std::vector<T> params) -> bool {
+    return executeFunction<paramCount>(func, params);
+  };
+  _tests.emplace(name, NormalizedTest<T>(testFunc, paramCount));
 }
 
-template<typename T>
-double Tester<T>::assert(const std::string & testName,std::vector<T> & arguments, bool expected){
-    if(_tests.find(testName) == _tests.end()){
-        throw std::runtime_error("Invalid test name: "+testName);
+template <typename T, typename Q> int Tester<T, Q>::execute() {
+  bool allClear = true;
+  for (auto &[name, test] : _cases) {
+    _logger.logInfo("Executing test: ", name);
+    for (auto &testCase : test) {
+      testCase.execute();
+      allClear &= testCase.summarize();
     }
-    _timer.start();
-    bool passed = _tests[testName].execute(arguments);
-    auto time = _timer.read();
-    return passed  == expected ? time : -1;
+  }
+  return allClear ? 0 : -1;
 }
 
-template<typename T>
-size_t Tester<T>::getArgumentCount(const std::string & testName){
-    auto test = _tests.find(testName);
-    if(test == _tests.end()){
-        throw std::runtime_error("Invalid test name: "+testName);
+template <typename T, typename Q>
+void Tester<T, Q>::readStream(std::istream &stream) {
+  TestParser parser;
+  auto syntaxTree = parser.parseStream(stream);
+  for (auto &test : syntaxTree.children) {
+    if (_tests.find(test.data) == _tests.end()) {
+      throw std::runtime_error("Test with name: " + test.data +
+                               " does not exist");
     }
-    return test->second.getArgumentCount();
+    for (auto &testCase : test.children) {
+      _cases[test.data].push_back(
+          TestCase<T,Q>(_engine, testCase, _tests[test.data], _timer, _logger));
+    }
+  }
 }
 
 #endif /*TESTER*/
