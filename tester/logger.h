@@ -16,14 +16,15 @@ public:
 };
 
 template <typename... Q> void Logger::log(std::ostream &stream, Q... q) {
-  stream << "[LOGGER]: ";
   ((stream << std::forward<Q>(q) << "\t"), ...);
   stream << std::endl;
 }
 template <typename... Q> void Logger::logError(Q... q) {
+  _infoStream<<"[ERROR]: ";
   log(_errorStream, std::forward<Q>(q)...);
 }
 template <typename... Q> void Logger::logInfo(Q... q) {
+  _infoStream<<"[INFO]: ";
   log(_infoStream, std::forward<Q>(q)...);
 }
 

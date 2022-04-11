@@ -28,8 +28,6 @@ template <typename T, typename Q> class TestCase {
 
   std::vector<T> createArguments();
 
-  const std::vector<TestArgumentGenerator> _argumentGenerator;
-
   TestResult _result;
 
   std::default_random_engine &_engine;
@@ -38,20 +36,22 @@ template <typename T, typename Q> class TestCase {
   Logger &_logger;
   Timer &_timer;
 
+  const std::vector<TestArgumentGenerator> _argumentGenerator;
+
 public:
   TestCase(std::default_random_engine &engine, SyntaxNode &caseNode,
            NormalizedTest<T> &test, Timer &timer, Logger &logger);
   void execute();
-  bool summarize();
+  bool summarize(size_t index);
 };
 
 template <typename T, typename Q>
 TestCase<T, Q>::TestCase(std::default_random_engine &engine,
                          SyntaxNode &caseNode, NormalizedTest<T> &test,
                          Timer &timer, Logger &logger)
-    : _argumentGenerator(createArgumentGenerator(caseNode)),
-      _result(readCaseData(caseNode)), _engine(engine), _test(test),
-      _logger(logger), _timer(timer) {}
+    : _result(readCaseData(caseNode)), _engine(engine), _test(test),
+      _logger(logger), _timer(timer),
+      _argumentGenerator(createArgumentGenerator(caseNode)) {}
 
 template <typename T, typename Q> void TestCase<T, Q>::execute() {
   for (size_t i = 0; i < _result.total; ++i) {
@@ -66,8 +66,8 @@ template <typename T, typename Q> void TestCase<T, Q>::execute() {
   _result.totalTime /= _result.total;
 }
 
-template <typename T, typename Q> bool TestCase<T, Q>::summarize() {
-  _logger.logInfo("SUMMARY OF CASE:", "\nTOTAL:\t", _result.total,
+template <typename T, typename Q> bool TestCase<T, Q>::summarize(size_t index) {
+  _logger.logInfo("SUMMARY OF CASE: ", index, "\nTOTAL:\t", _result.total,
                   "\nPASSED:\t ", _result.passed, "\nFAILED:\t ",
                   _result.total - _result.passed, "\nAVG TIME:\t",
                   _result.totalTime);
@@ -159,7 +159,6 @@ std::function<T()> TestCase<T, Q>::createRange(const std::string &min,
 template <typename T, typename Q>
 std::function<T()> TestCase<T, Q>::createValue(const std::string &source) {
   T argSource(source);
-  _logger.logInfo("Created source: ", argSource);
   return [argSource]() { return argSource; };
 }
 

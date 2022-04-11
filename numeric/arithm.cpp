@@ -1,4 +1,5 @@
 #include "arithm.h"
+#include <iostream>
 
 Arithm Arithm::_instance;
 
@@ -10,18 +11,19 @@ size_t Arithm::min(size_t a, size_t b) {
 }
 
 bool Arithm::equal(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
+  BaseType fill = isSigned(a) * BaseType(~0);
   for (size_t i = 0; i < min(a.size, b.size); ++i) {
     if (a.data[i] != b.data[i]) {
       return false;
     }
   }
   for (size_t i = a.size; i < b.size; ++i) {
-    if (b.data[i] != 0) {
+    if (b.data[i] != fill) {
       return false;
     }
   }
   for (size_t i = b.size; i < a.size; ++i) {
-    if (a.data[i] != 0) {
+    if (a.data[i] != fill) {
       return false;
     }
   }
@@ -109,6 +111,7 @@ void Arithm::sub(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
   }
   for (; i < a.size; ++i) {
     _buffer += a.data[i];
+    _buffer += BaseType(~0);
     s.data[i] = _buffer;
     _buffer >>= wordSize;
   }
@@ -137,53 +140,45 @@ bool Arithm::isSigned(const Buffer<BaseType> &buffer) {
 }
 
 void Arithm::leftShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
-                       size_t offset) {
-  size_t majorOffset = offset / BaseWordSize;
-  size_t minorOffset = offset - majorOffset * BaseWordSize;
-  size_t compMinorOffset = BaseWordSize - minorOffset;
-  size_t leftPos = a.size - 1 - majorOffset;
-  size_t shiftBuffer;
-  size_t i;
+                       size_t shift) {
+  constexpr size_t wordSize = sizeof(BaseType) * 8;
+  size_t majorShift = shift / wordSize;
+  size_t minorShift = (shift - majorShift * shift);
+  size_t complShift = wordSize  - minorShift;
 
-  _buffer = a.data[leftPos--];
-  _buffer <<= minorOffset;
-
-  /*for(i = a.size;i>=majorOffset;--i,--leftPos){
-    shiftBuffer = a.data[leftPos];
-    shiftBuffer >>= compMinorOffset;
-    _buffer += shiftBuffer;
-    b.data[i-1] = _buffer;
-    _buffer <<= BaseWordSize;
+  size_t i = a.size - 1;
+  size_t j = a.size - majorShift;
+  _buffer = a.data[j - 1];
+  _buffer <<= wordSize;
+  for (j = j - 1; j > 0; --i, --j) {
+    _buffer += a.data[j - 1];
+    b.data[i] = (_buffer >> complShift);
+    _buffer <<= wordSize;
   }
-  for(;i>0;--i){
-    b.data[i-1] = 0;
+  b.data[majorShift] = (a.data[majorShift] << shift);
+  for (;i>0;--i) {
+    b.data[i - 1] = 0;
   }
-
-  memset(b.data,0,majorOffset*sizeof(BaseType));*/
 }
 void Arithm::rightShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
-                        size_t offset) {
-  /*size_t minorOffset = offset%BaseWordSize;
-  size_t compMinorOffset = BaseWordSize - minorOffset;
-  size_t majorOffset = offset/BaseWordSize;
-  size_t shiftBuffer;
+                        size_t shift) {
+  constexpr size_t wordSize = sizeof(BaseType) * 8;
+  size_t majorShift = shift / wordSize;
+  size_t minorShift = (shift - majorShift * shift);
+  size_t complShift = wordSize  - minorShift;
 
-  size_t i;
+  size_t i = 0;
+  size_t j = majorShift;
+  _buffer = a.data[j];
+  _buffer <<= wordSize;
 
-  _buffer = a.data[majorOffset];
-  _buffer<<=minorOffset;
-
-  for(size_t i = 0;i<=a.size - majorOffset ;++i){
-    shiftBuffer = a.data[i + majorOffset];
-    shiftBuffer >>= compMinorOffset;
-    _buffer += shiftBuffer;
-    b.data[i] = _buffer;
-    _buffer <<= BaseWordSize;*
+  for (j = j + 1; j < a.size; ++i, ++j) {
+    _buffer += a.data[j];
+    b.data[i] = (_buffer >> minorShift);
+    _buffer >>= wordSize;
   }
-  for(;i<a.size;++i){
+  b.data[i++] = (a.data[majorShift] >> shift);
+  for (;i<a.size;++i) {
     b.data[i] = 0;
   }
-  memset(b.data + a.size - majorOffset,
-      majorOffset,
-      majorOffset*sizeof(BaseType));*/
 }

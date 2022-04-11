@@ -19,7 +19,7 @@ Numeric::Numeric(Numeric &&num)
 
 Numeric::Numeric(Buffer<BaseType> &&buffer)
     : _ioModule(BasicIo::getInstance()), _arthModule(Arithm::getInstance()),
-      _buffer(buffer) {}
+      _buffer(std::move(buffer)) {}
 
 Numeric::Numeric(const std::string &str)
     : _ioModule(BasicIo::getInstance()), _arthModule(Arithm::getInstance()),
@@ -65,7 +65,7 @@ size_t Numeric::size() const { return _buffer.size; }
 Numeric::~Numeric() { Buffer<BaseType>::releaseBuffer(_buffer); }
 
 std::string Numeric::toDec() { return _ioModule.getDec(_buffer, _arthModule); }
-std::string Numeric::toBin() {std::cout<<"binary of size: "<<_buffer.size<<std::endl;return _ioModule.getBin(_buffer, _arthModule); }
+std::string Numeric::toBin() { return _ioModule.getBin(_buffer, _arthModule); }
 
 Numeric Numeric::operator+(const Numeric &num) {
   Numeric sum(KUtils::max(_buffer.size, num._buffer.size));

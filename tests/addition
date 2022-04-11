@@ -1,3 +1,0 @@
-addition{
-  case(10): unsigned(8) range(0,10);
-}

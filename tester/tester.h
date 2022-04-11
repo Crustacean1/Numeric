@@ -48,9 +48,9 @@ template <typename T, typename Q> int Tester<T, Q>::execute() {
   bool allClear = true;
   for (auto &[name, test] : _cases) {
     _logger.logInfo("Executing test: ", name);
-    for (auto &testCase : test) {
-      testCase.execute();
-      allClear &= testCase.summarize();
+    for (size_t i = 0;i<test.size();++i) {
+      test[i].execute();
+      allClear &= test[i].summarize(i+1); // TODO: Make one summary for entire test
     }
   }
   return allClear ? 0 : -1;

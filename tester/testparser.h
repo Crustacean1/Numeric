@@ -41,7 +41,9 @@ std::string TestParser::loadFromStream(std::istream &file) {
   data = new char[length + 1];
   file.read(data, length);
   data[length] = 0;
-  return std::string(data);
+  auto result = std::string(data);
+  delete [] data;
+  return result;
 }
 
 SyntaxNode TestParser::parseStream(std::istream &stream) {
