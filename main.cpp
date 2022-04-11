@@ -27,11 +27,15 @@ int main(int argc, char **argv) {
   Logger logger(std::cout, std::cerr, 1);
   Tester<Tests::Integer, BasicIo> tester(logger);
 
-  tester.addTest("string_idempotency", Tests::testStringIdempotency);
+  tester.addTest("stringIdempotency", Tests::testStringIdempotency);
+
   tester.addTest("equality", Tests::testEquality);
   tester.addTest("comparision", Tests::testComparision);
+
   tester.addTest("addition", Tests::testAddition);
-  tester.addTest("leftShiftLiteral", Tests::testLeftShiftLiteral);
+  tester.addTest("leftShift", Tests::testLeftShift);
+  tester.addTest("rightShift", Tests::testRightShift);
+  tester.addTest("anyShift", Tests::testAnyShift);
 
   tester.readStream(testFile);
   return tester.execute();

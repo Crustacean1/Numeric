@@ -12,6 +12,7 @@ size_t Arithm::min(size_t a, size_t b) {
 
 bool Arithm::equal(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
   BaseType fill = isSigned(a) * BaseType(~0);
+
   for (size_t i = 0; i < min(a.size, b.size); ++i) {
     if (a.data[i] != b.data[i]) {
       return false;
@@ -71,91 +72,91 @@ bool Arithm::less(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
 void Arithm::add(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
                  Buffer<BaseType> &s) {
   constexpr size_t wordSize = sizeof(BaseType) * 8;
-  _buffer = 0;
+  _buffer.majorBuffer = 0;
   size_t minSize = min(a.size, b.size);
   size_t i = 0;
 
   for (i = 0; i < minSize; ++i) {
-    _buffer += a.data[i];
-    _buffer += b.data[i];
-    s.data[i] = _buffer;
-    _buffer >>= wordSize;
+    _buffer.majorBuffer += a.data[i];
+    _buffer.majorBuffer += b.data[i];
+    s.data[i] = _buffer.minorBuffer[0];
+    _buffer.majorBuffer >>= wordSize;
   }
   for (; i < a.size; ++i) {
-    _buffer += a.data[i];
-    s.data[i] = _buffer;
-    _buffer >>= wordSize;
+    _buffer.majorBuffer += a.data[i];
+    s.data[i] = _buffer.minorBuffer[0];
+    _buffer.majorBuffer >>= wordSize;
   }
   for (; i < b.size; ++i) {
-    _buffer += b.data[i];
-    s.data[i] = _buffer;
-    _buffer >>= wordSize;
+    _buffer.majorBuffer += b.data[i];
+    s.data[i] = _buffer.minorBuffer[0];
+    _buffer.majorBuffer >>= wordSize;
   }
   if (i < s.size) {
-    s.data[++i] = _buffer;
+    s.data[++i] = _buffer.minorBuffer[0];
   }
 }
 
 void Arithm::sub(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
                  Buffer<BaseType> &s) {
   constexpr size_t wordSize = sizeof(BaseType) * 8;
-  _buffer = 1;
+  _buffer.majorBuffer = 1;
   size_t minSize = min(a.size, b.size);
   size_t i = 0;
 
   for (i = 0; i < minSize; ++i) {
-    _buffer += a.data[i];
-    _buffer += (~b.data[i]);
-    s.data[i] = _buffer;
-    _buffer >>= wordSize;
+    _buffer.majorBuffer += a.data[i];
+    _buffer.majorBuffer += (~b.data[i]);
+    s.data[i] = _buffer.minorBuffer[0];
+    _buffer.majorBuffer >>= wordSize;
   }
   for (; i < a.size; ++i) {
-    _buffer += a.data[i];
-    _buffer += BaseType(~0);
-    s.data[i] = _buffer;
-    _buffer >>= wordSize;
+    _buffer.majorBuffer += a.data[i];
+    _buffer.majorBuffer += BaseType(~0);
+    s.data[i] = _buffer.minorBuffer[0];
+    _buffer.majorBuffer >>= wordSize;
   }
   for (; i < b.size; ++i) {
-    _buffer += (~b.data[i]);
-    s.data[i] = _buffer;
-    _buffer >>= wordSize;
+    _buffer.majorBuffer += (~b.data[i]);
+    s.data[i] = _buffer.minorBuffer[0];
+    _buffer.majorBuffer >>= wordSize;
   }
   if (i < s.size) {
-    s.data[++i] = _buffer;
+    s.data[++i] = _buffer.minorBuffer[0];
   }
 }
 void Arithm::invert(Buffer<BaseType> &integer) {
-  _buffer = 1;
+  _buffer.majorBuffer = 1;
   constexpr size_t wordSize = sizeof(BaseType) * 8;
   for (size_t i = 0; i < integer.size; ++i) {
-    _buffer += integer.data[i];
-    integer.data[i] = _buffer;
-    _buffer >>= wordSize;
+    _buffer.majorBuffer += ~integer.data[i];
+    integer.data[i] = _buffer.minorBuffer[0];
+    _buffer.majorBuffer >>= wordSize;
   }
 }
 
 bool Arithm::isSigned(const Buffer<BaseType> &buffer) {
   constexpr size_t signPos = sizeof(BaseType) * 8 - 1;
-  return (buffer.data[buffer.size - 1] >> signPos) & 1;
+  return (buffer.data[buffer.size - 1] >> signPos);
 }
 
 void Arithm::leftShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
                        size_t shift) {
   constexpr size_t wordSize = sizeof(BaseType) * 8;
   size_t majorShift = shift / wordSize;
-  size_t minorShift = (shift - majorShift * shift);
+  size_t minorShift = (shift - majorShift * wordSize);
   size_t complShift = wordSize  - minorShift;
 
   size_t i = a.size - 1;
   size_t j = a.size - majorShift;
-  _buffer = a.data[j - 1];
-  _buffer <<= wordSize;
+  _buffer.majorBuffer = a.data[j - 1];
+  _buffer.majorBuffer <<= wordSize;
   for (j = j - 1; j > 0; --i, --j) {
-    _buffer += a.data[j - 1];
-    b.data[i] = (_buffer >> complShift);
-    _buffer <<= wordSize;
+    _buffer.majorBuffer += a.data[j - 1];
+    b.data[i] = (_buffer.majorBuffer >> complShift);
+    _buffer.majorBuffer <<= wordSize;
   }
-  b.data[majorShift] = (a.data[majorShift] << shift);
+  b.data[majorShift] = (a.data[j] << minorShift);
   for (;i>0;--i) {
     b.data[i - 1] = 0;
   }
@@ -164,21 +165,20 @@ void Arithm::rightShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
                         size_t shift) {
   constexpr size_t wordSize = sizeof(BaseType) * 8;
   size_t majorShift = shift / wordSize;
-  size_t minorShift = (shift - majorShift * shift);
-  size_t complShift = wordSize  - minorShift;
+  size_t minorShift = (shift - majorShift * wordSize);
 
   size_t i = 0;
   size_t j = majorShift;
-  _buffer = a.data[j];
-  _buffer <<= wordSize;
+  _buffer.majorBuffer = a.data[j];
 
   for (j = j + 1; j < a.size; ++i, ++j) {
-    _buffer += a.data[j];
-    b.data[i] = (_buffer >> minorShift);
-    _buffer >>= wordSize;
+    _buffer.minorBuffer[1] = a.data[j];
+    b.data[i] = (_buffer.majorBuffer >> minorShift);
+    _buffer.majorBuffer >>= wordSize;
   }
-  b.data[i++] = (a.data[majorShift] >> shift);
-  for (;i<a.size;++i) {
-    b.data[i] = 0;
+
+  b.data[i++] = (_buffer.minorBuffer[0] >> minorShift);
+  for (;i<b.size;++i) {
+    //b.data[i] = 0;
   }
 }

@@ -3,6 +3,7 @@ equality{
   !assert: value(10) value(-10);
   assert: value(37) value(37);
   assert: value(-34) value(-34);
+  !assert: value(-35) value(-34);
   assert: value(0) value(0);
   assert: value(-0) value(0);
 }
@@ -13,9 +14,21 @@ addition{
   case0(10): signed(4) unsigned(4);
 }
 
-leftShiftLiteral{
+leftShift{
   assert: value(256) value(4) value(4096);
   assert: value(3) value(2) value(12);
   assert: value(0) value(4) value(0);
   assert: value(2137) value(0) value(2137);
+}
+
+rightShift{
+  assert: value(256) value(4) value(16);
+  assert: value(3) value(2) value(0);
+  assert: value(10) value(2) value(2);
+  assert: value(0) value(4) value(0);
+  assert: value(2137) value(0) value(2137);
+}
+
+anyShift{
+  case(1000): unsigned(1024) range(0,100);
 }

@@ -24,11 +24,10 @@ Buffer<BaseType> BasicIo::createRandom(size_t size, bool isSigned) {
     buffer.data[i] = dist(_engine);
   }
   if (isSigned) {
-    buffer.data[buffer.size - 1] |=
-        (BaseType(1) << (sizeof(BaseType) * 8 - 1));
+    buffer.data[buffer.size - 1] |= (BaseType(1) << (sizeof(BaseType) * 8 - 1));
   } else {
     buffer.data[buffer.size - 1] &=
-       (~(BaseType(1) << (sizeof(BaseType) * 8 - 1)));
+        (~(BaseType(1) << (sizeof(BaseType) * 8 - 1)));
   }
   return buffer;
 }
@@ -41,6 +40,7 @@ Buffer<BaseType> BasicIo::createRandom(size_t size) {
   }
   return buffer;
 }
+
 Buffer<BaseType> BasicIo::createRandom(size_t min, size_t max) {
   auto buffer = Buffer<BaseType>::createBuffer(1);
   Buffer<BaseType>::clear(buffer);
@@ -51,7 +51,7 @@ Buffer<BaseType> BasicIo::createRandom(size_t min, size_t max) {
 Buffer<BaseType> BasicIo::toBuffer(const std::string &str, Arithm &arth) {
   bool sign = str[0] == '-';
 
-  auto sourceSize = (str.size() + 1) / 2;
+  auto sourceSize = (str.size() - 2 * sign + 1) / 2;
   auto bcdSource = decodeFromAscii(str.c_str() + sign, str.size() - sign);
 
   auto buffer = Buffer<BaseType>::createBuffer(toBinSize(str.size()));
