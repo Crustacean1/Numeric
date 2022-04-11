@@ -11,17 +11,13 @@ bool Tests::testStringIdempotency(Integer &a) {
 bool Tests::testEquality(Integer &a, Integer &b) { return a == b; }
 
 bool Tests::testAddition(Integer &a, Integer &b) {
-  std::cout << "a: " << a << "\tb: " << b << std::endl;
   auto c = a - b;
-  std::cout << "c: " << c << std::endl;
   c += b;
-  std::cout << std::endl;
   return (c == a);
 }
 
 bool Tests::testLeftShiftLiteral(Integer &a, Integer &shift, Integer &b) {
   a <<= shift;
-  std::cout << "A: " << a << "\tShift: " << shift << "\tB: " << b << std::endl;
   return (b == a);
 }
 

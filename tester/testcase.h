@@ -42,7 +42,7 @@ public:
   TestCase(std::default_random_engine &engine, SyntaxNode &caseNode,
            NormalizedTest<T> &test, Timer &timer, Logger &logger);
   void execute();
-  bool summarize(size_t index);
+  TestResult summary();
 };
 
 template <typename T, typename Q>
@@ -66,12 +66,12 @@ template <typename T, typename Q> void TestCase<T, Q>::execute() {
   _result.totalTime /= _result.total;
 }
 
-template <typename T, typename Q> bool TestCase<T, Q>::summarize(size_t index) {
-  _logger.logInfo("SUMMARY OF CASE: ", index, "\nTOTAL:\t", _result.total,
+template <typename T, typename Q> TestResult TestCase<T, Q>::summary() {
+  _logger.logInfo(3, "SUMMARY OF CASE: ", "\nTOTAL:\t", _result.total,
                   "\nPASSED:\t ", _result.passed, "\nFAILED:\t ",
                   _result.total - _result.passed, "\nAVG TIME:\t",
                   _result.totalTime);
-  return _result.total == _result.passed;
+  return _result;
 }
 
 template <typename T, typename Q>

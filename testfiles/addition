@@ -6,11 +6,13 @@ equality{
   assert: value(0) value(0);
   assert: value(-0) value(0);
 }
+
 addition{
   case(100): unsigned(8) range(0,10);
   case(100): unsigned(10) signed(8);
   case0(10): signed(4) unsigned(4);
 }
+
 leftShiftLiteral{
   assert: value(256) value(4) value(4096);
   assert: value(3) value(2) value(12);

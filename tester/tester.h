@@ -20,6 +20,9 @@ template <typename T, typename Q> class Tester {
 
   template <typename... R> using TestFunc = bool (*)(R...);
 
+  bool summary(const std ::string &name,
+               const std::vector<TestResult> &results);
+
 public:
   Tester(Logger &logger);
   template <typename... R>
@@ -45,15 +48,35 @@ void Tester<T, Q>::addTest(const std::string &name, TestFunc<R...> func) {
 }
 
 template <typename T, typename Q> int Tester<T, Q>::execute() {
-  bool allClear = true;
+  bool passed = true;
   for (auto &[name, test] : _cases) {
-    _logger.logInfo("Executing test: ", name);
-    for (size_t i = 0;i<test.size();++i) {
+    _logger.logInfo(3, "Executing test: ", name);
+    std::vector<TestResult> caseResults;
+    for (size_t i = 0; i < test.size(); ++i) {
       test[i].execute();
-      allClear &= test[i].summarize(i+1); // TODO: Make one summary for entire test
+      caseResults.emplace_back(test[i].summary());
+    }
+    passed &= summary(name, caseResults);
+  }
+  return passed ? 0 : -1;
+}
+
+template <typename T, typename Q>
+bool Tester<T, Q>::summary(const std::string &name,
+                           const std::vector<TestResult> &results) {
+  bool passed = true;
+  for (size_t i = 0; i < results.size(); ++i) {
+    if (results[i].total != results[i].passed) {
+      passed = false;
+      _logger.fail(1, "Test case no.", i + 1, " in test ", name);
     }
   }
-  return allClear ? 0 : -1;
+  if (passed) {
+    _logger.success(0, name, " Test suite passed");
+  } else {
+    _logger.fail(0, name, " Test suite failed");
+  }
+  return passed;
 }
 
 template <typename T, typename Q>
@@ -66,8 +89,8 @@ void Tester<T, Q>::readStream(std::istream &stream) {
                                " does not exist");
     }
     for (auto &testCase : test.children) {
-      _cases[test.data].push_back(
-          TestCase<T,Q>(_engine, testCase, _tests[test.data], _timer, _logger));
+      _cases[test.data].push_back(TestCase<T, Q>(
+          _engine, testCase, _tests[test.data], _timer, _logger));
     }
   }
 }

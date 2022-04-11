@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  Logger logger(std::cout, std::cerr);
+  Logger logger(std::cout, std::cerr, 1);
   Tester<Tests::Integer, BasicIo> tester(logger);
 
   tester.addTest("string_idempotency", Tests::testStringIdempotency);
