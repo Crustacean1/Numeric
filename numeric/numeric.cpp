@@ -9,7 +9,7 @@ Numeric::Numeric()
 Numeric::Numeric(size_t size, BaseType defaultValue)
     : _ioModule(BasicIo::getInstance()), _arthModule(Arithm::getInstance()),
       _buffer(Buffer<BaseType>::createBuffer(size)) {
-  Buffer<BaseType>::clear(_buffer);
+  _buffer.clear();
   _buffer.data[0] = defaultValue;
 }
 
@@ -62,7 +62,7 @@ bool Numeric::operator>(const Numeric &num) const {
 
 size_t Numeric::size() const { return _buffer.size; }
 
-Numeric::~Numeric() { Buffer<BaseType>::releaseBuffer(_buffer); }
+Numeric::~Numeric() { _buffer.releaseBuffer(); }
 
 std::string Numeric::toDec() { return _ioModule.getDec(_buffer, _arthModule); }
 std::string Numeric::toBin() { return _ioModule.getBin(_buffer, _arthModule); }
@@ -80,10 +80,6 @@ Numeric Numeric::operator-(const Numeric &num) {
 }
 
 Numeric &Numeric::operator+=(const Numeric &num) {
-  if (_buffer.size > num._buffer.size) {
-    _arthModule.add(_buffer, num._buffer, _buffer);
-    return *this;
-  }
   _arthModule.add(num._buffer, _buffer, _buffer);
   return *this;
 }
@@ -102,15 +98,29 @@ Numeric &Numeric::operator>>=(const Numeric &num) {
   _arthModule.rightShift(_buffer, _buffer, num._buffer.data[0]);
   return *this;
 }
+Numeric Numeric::operator*(const Numeric &num) {
+  Numeric result(size());
+  _arthModule.mul(_buffer, num._buffer, result._buffer);
+  return result;
+}
+
+Numeric &Numeric::operator*=(const Numeric &num) {
+  _arthModule.mul(_buffer, num._buffer, _buffer);
+  return *this;
+}
+
+Numeric Numeric::operator/(const Numeric &num) {
+  Numeric result(size());
+  _arthModule.div(_buffer, num._buffer, result._buffer);
+  return result;
+}
+
+Numeric& Numeric::operator/=(const Numeric &num) {
+  _arthModule.div(_buffer, num._buffer, _buffer);
+  return *this;
+}
 
 bool Numeric::isSigned() { return _arthModule.isSigned(_buffer); }
-
-void Numeric::debug() {
-  std::cout << "Numeric dump:\n";
-  std::cout << "Size: " << _buffer.size << "\n";
-  std::cout << "Binary: " << toBin() << "\n";
-  std::cout << "Dec: " << toDec() << "\n";
-}
 
 std::ostream &operator<<(std::ostream &stream, const Numeric &num) {
   stream << num._ioModule.getDec(num._buffer, num._arthModule);

@@ -2,4 +2,4 @@
 *.o
 */*.d
 */*.o
-./Numeric
+Numeric

@@ -1,40 +1,38 @@
 #include "arithm_tests.h"
 #include <string>
 
-bool Tests::testStringIdempotency(Integer &a) {
+bool Tests::stringIdempotency(Integer &a) {
   std::string ogInt(a);
 
   return a == Integer(ogInt);
 }
 
-bool Tests::testEquality(Integer &a, Integer &b) {
-  return a == b;
-}
+bool Tests::equality(Integer &a, Integer &b) { return a == b; }
 
-bool Tests::testAddition(Integer &a, Integer &b) {
+bool Tests::addition(Integer &a, Integer &b) {
   auto c = a - b;
   c += b;
   return (c == a);
 }
 
-bool Tests::testLeftShift(Integer &a, Integer &shift, Integer &b) {
+bool Tests::leftShift(Integer &a, Integer &shift, Integer &b) {
   a <<= shift;
   return (b == a);
 }
-bool Tests::testRightShift(Integer &a, Integer &shift, Integer &b) {
+bool Tests::rightShift(Integer &a, Integer &shift, Integer &b) {
   a >>= shift;
   return (b == a);
 }
 
-bool Tests::testAnyShift(Integer &a, Integer &shift){
-  Integer b(a.size()*2);
+bool Tests::anyShift(Integer &a, Integer &shift) {
+  Integer b(a.size() * 2);
   b = a;
   b <<= shift;
   b >>= shift;
   return b == a;
 }
 
-bool Tests::testComparision(Integer &a, Integer &b) {
+bool Tests::comparision(Integer &a, Integer &b) {
   std::cout << "a: " << a << " and: " << b << std::endl;
   if (a < b || a > b) {
     if (a > b && a < b) {
@@ -49,4 +47,22 @@ bool Tests::testComparision(Integer &a, Integer &b) {
     return true;
   }
   return false;
+}
+
+bool Tests::basicMultiplication(Integer &a, Integer &b, Integer &c) {
+  auto d = a * b;
+  return d == c;
+}
+
+bool Tests::basicDivision(Integer &a,Integer &b,Integer &c){
+  auto d = a/b;
+  return d == c;
+}
+
+bool Tests::mulDivReciprocity(Integer &a,Integer &b){
+  Integer c(a.size() + b.size());
+  c = a;
+  c *= b;
+  c /= b;
+  return c == a;
 }

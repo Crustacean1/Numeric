@@ -17,9 +17,11 @@ template <typename T> struct Buffer {
   static constexpr size_t blockSize = 2;
 
   static Buffer<T> createBuffer(size_t bufSize);
-  static void releaseBuffer(Buffer<T> &buffer);
-  static void disownBuffer(Buffer<T> &buffer);
-  static void clear(Buffer<T> &buffer,unsigned char value = 0);
+  static Buffer<T> reserve(Buffer<T> & buffer,size_t capacity);
+
+  void releaseBuffer();
+  void disownBuffer();
+  void clear(unsigned char value = 0);
 
   T *data = nullptr;
   const size_t size = 0;
@@ -36,25 +38,6 @@ private:
 template <typename T>
 Buffer<T>::Buffer(T *newData, size_t newSize) : data(newData), size(newSize) {}
 
-template <typename T> Buffer<T> Buffer<T>::createBuffer(size_t bufSize) {
-  size_t newSize = 1;
-  while (newSize < bufSize || newSize < minSize) {
-    newSize <<= blockSize;
-  }
-  auto data = new T[newSize];
-  return Buffer<BaseType>(data, newSize);
-}
-
-template <typename T> void Buffer<T>::releaseBuffer(Buffer<T> &buffer) {
-  if (buffer.data != nullptr) {
-    delete[] buffer.data;
-  }
-}
-
-template <typename T> void Buffer<T>::disownBuffer(Buffer<T> &buffer) {
-  buffer.data = nullptr;
-}
-
 template <typename T> Buffer<T> &Buffer<T>::operator=(const Buffer<T> &buffer) {
   if (size > buffer.size) {
     memset(data + buffer.size, 0, (size - buffer.size) * sizeof(T));
@@ -64,13 +47,16 @@ template <typename T> Buffer<T> &Buffer<T>::operator=(const Buffer<T> &buffer) {
 }
 template <typename T> Buffer<T> &Buffer<T>::operator=(Buffer<T> &&buffer) {
   if (size <= buffer.size) {
-    releaseBuffer(*this);
+    if (buffer.data == data) {
+      return *this;
+    }
+    releaseBuffer();
     data = buffer.data;
-    disownBuffer(buffer);
+    buffer.disownBuffer();
     return *this;
   }
   (*this) = buffer;
-  disownBuffer(buffer);
+  buffer.disownBuffer();
   return *this;
 }
 
@@ -82,11 +68,34 @@ Buffer<T>::Buffer(const Buffer<T> &buffer)
 
 template <typename T>
 Buffer<T>::Buffer(Buffer<T> &&buffer) : data(buffer.data), size(buffer.size) {
-  disownBuffer(buffer);
+  buffer.disownBuffer();
 }
 
-template <typename T> void Buffer<T>::clear(Buffer<T> &buffer,unsigned char value) {
-  memset(buffer.data, value, buffer.size * sizeof(T));
+template <typename T> Buffer<T> Buffer<T>::createBuffer(size_t bufSize) {
+  size_t newSize = 1;
+  while (newSize < bufSize || newSize < minSize) {
+    newSize <<= blockSize;
+  }
+  auto data = new T[newSize];
+  return Buffer<BaseType>(data, newSize);
 }
 
+template <typename T> void Buffer<T>::releaseBuffer() {
+  if (data != nullptr) {
+    delete[] data;
+  }
+}
+
+template <typename T> void Buffer<T>::disownBuffer() { data = nullptr; }
+
+template <typename T> void Buffer<T>::clear(unsigned char value) {
+  memset(data, value, size * sizeof(T));
+}
+
+template <typename T> Buffer<T> Buffer<T>::reserve(Buffer<T> & buffer, size_t capacity) {
+  if(buffer.size<capacity){
+    return createBuffer(capacity);
+  }
+  return buffer;
+}
 #endif /*BUFFER*/

@@ -27,15 +27,17 @@ int main(int argc, char **argv) {
   Logger logger(std::cout, std::cerr, 1);
   Tester<Tests::Integer, BasicIo> tester(logger);
 
-  tester.addTest("stringIdempotency", Tests::testStringIdempotency);
+  tester.addTest("stringIdempotency", Tests::stringIdempotency);
 
-  tester.addTest("equality", Tests::testEquality);
-  tester.addTest("comparision", Tests::testComparision);
+  tester.addTest("equality", Tests::equality);
+  tester.addTest("comparision", Tests::comparision);
 
-  tester.addTest("addition", Tests::testAddition);
-  tester.addTest("leftShift", Tests::testLeftShift);
-  tester.addTest("rightShift", Tests::testRightShift);
-  tester.addTest("anyShift", Tests::testAnyShift);
+  tester.addTest("addition", Tests::addition);
+  tester.addTest("leftShift", Tests::leftShift);
+  tester.addTest("rightShift", Tests::rightShift);
+  tester.addTest("anyShift", Tests::anyShift);
+  tester.addTest("basicMul", Tests::basicMultiplication);
+  tester.addTest("basicDiv", Tests::basicDivision);
 
   tester.readStream(testFile);
   return tester.execute();

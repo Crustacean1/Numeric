@@ -43,7 +43,7 @@ Buffer<BaseType> BasicIo::createRandom(size_t size) {
 
 Buffer<BaseType> BasicIo::createRandom(size_t min, size_t max) {
   auto buffer = Buffer<BaseType>::createBuffer(1);
-  Buffer<BaseType>::clear(buffer);
+  buffer.clear();
   buffer.data[0] = std::uniform_int_distribution<BaseType>(min, max)(_engine);
   return buffer;
 }
@@ -55,7 +55,7 @@ Buffer<BaseType> BasicIo::toBuffer(const std::string &str, Arithm &arth) {
   auto bcdSource = decodeFromAscii(str.c_str() + sign, str.size() - sign);
 
   auto buffer = Buffer<BaseType>::createBuffer(toBinSize(str.size()));
-  Buffer<BaseType>::clear(buffer);
+  buffer.clear();
 
   toBin(bcdSource, sourceSize, (unsigned char *)buffer.data);
 
