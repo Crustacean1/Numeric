@@ -5,8 +5,9 @@ Arithm Arithm::_instance;
 
 Arithm &Arithm::getInstance() { return _instance; }
 
-Arithm::Arithm() : _aBuffer(BaseBuffer::createBuffer(1)),
-_bBuffer(BaseBuffer::createBuffer(1)){}
+Arithm::Arithm()
+    : _aBuffer(BaseBuffer::createBuffer(1)),
+      _bBuffer(BaseBuffer::createBuffer(1)) {}
 
 size_t Arithm::min(size_t a, size_t b) {
   bool min = a < b;
@@ -73,24 +74,24 @@ bool Arithm::less(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
 }
 
 size_t Arithm::leftOffset(SourceBuffer a) {
-  size_t i, j;
-  for (i = 1; i <= a.size && a.data[a.size - i] == 0; ++i) {
+  int i, j;
+  for (i = a.size - 1; i > -1 && a.data[i] == 0; --i) {
   }
-  for (j = 1; i <= wordSize && ((a.data[i] >> (wordSize - j)) & 1) == 0; ++i) {
+  for (j = wordSize - 1; j > -1 && ((a.data[i] >> j) & 1) == 0; --j) {
   }
-  return (i-1)*wordSize + j -1;
-}
-size_t Arithm::rightOffset(SourceBuffer a) {
-  size_t i, j;
-  for (i = 0; i < a.size && a.data[i] == 0; ++i) {
-  }
-  for (j = 0; i < wordSize && ((a.data[i] >> j) & 1) == 0; ++i) {
-  }
-  return (i-1)*wordSize + j -1;
+  return (a.size - i - 1) * wordSize + (wordSize - j - 1);
 }
 
-void Arithm::add(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
-                 Buffer<BaseType> &s) {
+size_t Arithm::rightOffset(SourceBuffer a) {
+  int i, j;
+  for (i = 0; i < a.size && a.data[i] == 0; ++i) {
+  }
+  for (j = 0; j < wordSize && ((a.data[i] >> j) & 1) == 0; ++j) {
+  }
+  return (i - 1) * wordSize + (j - 1);
+}
+
+void Arithm::add(SourceBuffer a, SourceBuffer b, OutputBuffer s) {
   _wordBuffer.major = 0;
   size_t minSize = min(a.size, b.size);
   size_t i = 0;
@@ -214,20 +215,34 @@ void Arithm::mul(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
 }
 
 void Arithm::div(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
+  size_t shift = leftOffset(b) + 1;
+  shift -= leftOffset(a);
+
+  if (((int)shift) < 1) {
+    return;
+  }
+
   _aBuffer = BaseBuffer::reserve(_aBuffer, a.size);
-  _bBuffer = BaseBuffer::reserve(_bBuffer,a.size);
+  _bBuffer = BaseBuffer::reserve(_bBuffer, a.size);
   _aBuffer = a;
+  _bBuffer = b;
   c.clear();
 
-  int shift = leftOffset(b);
-  shift -= leftOffset(a);
-  std::cout<<"shift: "<<shift<<std::endl;
+  leftShift(_bBuffer, _bBuffer, shift);
 
-  if(shift<0){return;}
-  leftShift(_bBuffer,_bBuffer,shift);
-
-  for(size_t i = 0;i<shift;++i){
-    if(isSigned(_aBuffer)){
+  for (size_t i = 0; i < shift + 1; ++i) {
+    leftShift(c, c, 1);
+    rightShift(_bBuffer, _bBuffer, 1);
+    // std::cout << "a: " << _aBuffer.data[0] << std::endl;
+    if (isSigned(_aBuffer)) {
+      // std::cout << "add: " << _bBuffer.data[0] << std::endl;
+      add(_aBuffer, _bBuffer, _aBuffer);
+      continue;
     }
+    // std::cout << "sub: " << _bBuffer.data[0] << std::endl;
+    sub(_aBuffer, _bBuffer, _aBuffer);
+    c.data[0] += 1;
   }
+  _wordBuffer.minor[0] = wordSize - ((shift) % wordSize);
+  (c.data[shift / wordSize] <<= _wordBuffer.minor[0]) >>= _wordBuffer.minor[0];
 }

@@ -33,7 +33,6 @@ bool Tests::anyShift(Integer &a, Integer &shift) {
 }
 
 bool Tests::comparision(Integer &a, Integer &b) {
-  std::cout << "a: " << a << " and: " << b << std::endl;
   if (a < b || a > b) {
     if (a > b && a < b) {
       return false;
@@ -56,13 +55,17 @@ bool Tests::basicMultiplication(Integer &a, Integer &b, Integer &c) {
 
 bool Tests::basicDivision(Integer &a,Integer &b,Integer &c){
   auto d = a/b;
+  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tD: "<<d<<std::endl;
+     
   return d == c;
 }
 
 bool Tests::mulDivReciprocity(Integer &a,Integer &b){
   Integer c(a.size() + b.size());
+  std::cout<<"A: "<<a<<"\tB: "<<b<<std::endl;
   c = a;
-  c *= b;
+  c = a * b;
+  std::cout<<"C = A*B = "<<c<<std::endl;
   c /= b;
   return c == a;
 }

@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
   tester.addTest("anyShift", Tests::anyShift);
   tester.addTest("basicMul", Tests::basicMultiplication);
   tester.addTest("basicDiv", Tests::basicDivision);
+  tester.addTest("mulDivReciprocity", Tests::mulDivReciprocity);
 
   tester.readStream(testFile);
   return tester.execute();
