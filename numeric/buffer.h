@@ -14,7 +14,6 @@ constexpr size_t BaseWordSize = sizeof(BaseType) * 8;
 
 template <typename T> struct Buffer {
   static constexpr size_t minSize = 4;
-  static constexpr size_t blockSize = 2;
 
   static Buffer<T> createBuffer(size_t bufSize);
   static Buffer<T> reserve(Buffer<T> & buffer,size_t capacity);
@@ -74,7 +73,7 @@ Buffer<T>::Buffer(Buffer<T> &&buffer) : data(buffer.data), size(buffer.size) {
 template <typename T> Buffer<T> Buffer<T>::createBuffer(size_t bufSize) {
   size_t newSize = 1;
   while (newSize < bufSize || newSize < minSize) {
-    newSize <<= blockSize;
+    newSize <<= 1;
   }
   auto data = new T[newSize];
   return Buffer<BaseType>(data, newSize);

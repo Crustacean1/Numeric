@@ -9,6 +9,8 @@ Numeric::Numeric()
 Numeric::Numeric(size_t size, BaseType defaultValue)
     : _ioModule(BasicIo::getInstance()), _arthModule(Arithm::getInstance()),
       _buffer(Buffer<BaseType>::createBuffer(size)) {
+  std::cout << "created buffer of size: " << _buffer.size << "\t"
+            << " with origin: " << size << std::endl;
   _buffer.clear();
   _buffer.data[0] = defaultValue;
 }
@@ -98,14 +100,16 @@ Numeric &Numeric::operator>>=(const Numeric &num) {
   _arthModule.rightShift(_buffer, _buffer, num._buffer.data[0]);
   return *this;
 }
+
 Numeric Numeric::operator*(const Numeric &num) {
   Numeric result(size());
-  _arthModule.mul(_buffer, num._buffer, result._buffer);
+  result = *this;
+  _arthModule.mul(result._buffer, num._buffer);
   return result;
 }
 
 Numeric &Numeric::operator*=(const Numeric &num) {
-  _arthModule.mul(_buffer, num._buffer, _buffer);
+  _arthModule.mul(_buffer, num._buffer);
   return *this;
 }
 
@@ -115,7 +119,7 @@ Numeric Numeric::operator/(const Numeric &num) {
   return result;
 }
 
-Numeric& Numeric::operator/=(const Numeric &num) {
+Numeric &Numeric::operator/=(const Numeric &num) {
   _arthModule.div(_buffer, num._buffer, _buffer);
   return *this;
 }

@@ -9,7 +9,10 @@ class Arithm {
 
   union DoubleBuffer {
     BufferType major;
-    BaseType minor[2];
+    struct {
+    BaseType low;
+    BaseType high;
+    } minor;
   };
 
   DoubleBuffer _wordBuffer = {0};
@@ -45,7 +48,7 @@ public:
   void rightShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
                   size_t offset);
 
-  void mul(const Buffer<BaseType> &a,const Buffer<BaseType> &b,Buffer<BaseType> &c);
+  void mul(OutputBuffer a,SourceBuffer b);
   void div(const Buffer<BaseType> &a,const Buffer<BaseType> &b,Buffer<BaseType> &c);
   void mod(SourceBuffer a,SourceBuffer b,OutputBuffer c);
 

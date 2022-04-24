@@ -20,7 +20,7 @@ void displayString(unsigned char *input, size_t inputSize) {
 Buffer<BaseType> BasicIo::createRandom(size_t size, bool isSigned) {
   auto buffer = Buffer<BaseType>::createBuffer(size);
   std::uniform_int_distribution<BaseType> dist(0, -1);
-  for (size_t i = 0; i < buffer.size; ++i) {
+  for (size_t i = 0; i < size; ++i) {
     buffer.data[i] = dist(_engine);
   }
   if (isSigned) {

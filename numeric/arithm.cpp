@@ -99,21 +99,21 @@ void Arithm::add(SourceBuffer a, SourceBuffer b, OutputBuffer s) {
   for (i = 0; i < minSize; ++i) {
     _wordBuffer.major += a.data[i];
     _wordBuffer.major += b.data[i];
-    s.data[i] = _wordBuffer.minor[0];
+    s.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
   for (; i < a.size; ++i) {
     _wordBuffer.major += a.data[i];
-    s.data[i] = _wordBuffer.minor[0];
+    s.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
   for (; i < b.size; ++i) {
     _wordBuffer.major += b.data[i];
-    s.data[i] = _wordBuffer.minor[0];
+    s.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
   if (i < s.size) {
-    s.data[++i] = _wordBuffer.minor[0];
+    s.data[++i] = _wordBuffer.minor.low;
   }
 }
 
@@ -126,29 +126,29 @@ void Arithm::sub(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
   for (i = 0; i < minSize; ++i) {
     _wordBuffer.major += a.data[i];
     _wordBuffer.major += (~b.data[i]);
-    s.data[i] = _wordBuffer.minor[0];
+    s.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
   for (; i < a.size; ++i) {
     _wordBuffer.major += a.data[i];
     _wordBuffer.major += BaseType(~0);
-    s.data[i] = _wordBuffer.minor[0];
+    s.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
   for (; i < b.size; ++i) {
     _wordBuffer.major += (~b.data[i]);
-    s.data[i] = _wordBuffer.minor[0];
+    s.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
   if (i < s.size) {
-    s.data[++i] = _wordBuffer.minor[0];
+    s.data[++i] = _wordBuffer.minor.low;
   }
 }
 void Arithm::invert(Buffer<BaseType> &integer) {
   _wordBuffer.major = 1;
   for (size_t i = 0; i < integer.size; ++i) {
     _wordBuffer.major += ~integer.data[i];
-    integer.data[i] = _wordBuffer.minor[0];
+    integer.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
 }
@@ -188,29 +188,28 @@ void Arithm::rightShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
   _wordBuffer.major = a.data[j];
 
   for (j = j + 1; j < a.size; ++i, ++j) {
-    _wordBuffer.minor[1] = a.data[j];
+    _wordBuffer.minor.high = a.data[j];
     b.data[i] = (_wordBuffer.major >> minorShift);
     _wordBuffer.major >>= wordSize;
   }
 
-  b.data[i++] = (_wordBuffer.minor[0] >> minorShift);
+  b.data[i++] = (_wordBuffer.minor.low >> minorShift);
   for (; i < b.size; ++i) {
     b.data[i] = 0;
   }
 }
 
-void Arithm::mul(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
-  _wordBuffer.major = 0;
+void Arithm::mul(OutputBuffer a, SourceBuffer b) {
   BufferType mulCache;
-  for (size_t i = 0; i < c.size; ++i) {
-    for (size_t j = (i > b.size) * (i - 1 - b.size); j < a.size && j <= i;
-         ++j) {
-      mulCache = a.data[j];
-      mulCache *= b.data[i - j];
-      _wordBuffer.major += mulCache;
+  for(int i = a.size -1;i>=0;--i){
+      mulCache = a.data[i];
+      _wordBuffer.major = 0;
+    for(size_t j = 0;j+i < a.size & j< b.size;++j){
+      _wordBuffer.major += mulCache * b.data[j];
+      a.data[i+j] = _wordBuffer.major;
+      _wordBuffer.major >>= wordSize;
+      _wordBuffer.major += a.data[i+j +1];
     }
-    c.data[i] = _wordBuffer.minor[0];
-    _wordBuffer.major >>= wordSize;
   }
 }
 
@@ -233,16 +232,13 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
   for (size_t i = 0; i < shift + 1; ++i) {
     leftShift(c, c, 1);
     rightShift(_bBuffer, _bBuffer, 1);
-    // std::cout << "a: " << _aBuffer.data[0] << std::endl;
     if (isSigned(_aBuffer)) {
-      // std::cout << "add: " << _bBuffer.data[0] << std::endl;
       add(_aBuffer, _bBuffer, _aBuffer);
       continue;
     }
-    // std::cout << "sub: " << _bBuffer.data[0] << std::endl;
     sub(_aBuffer, _bBuffer, _aBuffer);
     c.data[0] += 1;
   }
-  _wordBuffer.minor[0] = wordSize - ((shift) % wordSize);
-  (c.data[shift / wordSize] <<= _wordBuffer.minor[0]) >>= _wordBuffer.minor[0];
+  _wordBuffer.minor.low = wordSize - ((shift) % wordSize);
+  (c.data[shift / wordSize] <<= _wordBuffer.minor.low) >>= _wordBuffer.minor.low;
 }

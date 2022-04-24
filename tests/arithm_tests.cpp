@@ -56,16 +56,22 @@ bool Tests::basicMultiplication(Integer &a, Integer &b, Integer &c) {
 bool Tests::basicDivision(Integer &a,Integer &b,Integer &c){
   auto d = a/b;
   std::cout<<"A: "<<a<<"\tB: "<<b<<"\tD: "<<d<<std::endl;
-     
   return d == c;
 }
 
 bool Tests::mulDivReciprocity(Integer &a,Integer &b){
   Integer c(a.size() + b.size());
-  std::cout<<"A: "<<a<<"\tB: "<<b<<std::endl;
+  Integer zero(a.size());
+  std::cout<<"A: "<<a<<"\nB: "<<b<<std::endl;
+  std::cout<<"A: "<<a.size()<<"\tB: "<<b.size()<<"\tC: "<<c.size()<<std::endl;
+
   c = a;
-  c = a * b;
+  c *= b;
+
   std::cout<<"C = A*B = "<<c<<std::endl;
   c /= b;
+
+  std::cout<<"Div: "<<c<<"\t src: "<<a<<std::endl;
+
   return c == a;
 }
