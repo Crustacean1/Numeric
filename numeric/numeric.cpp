@@ -9,8 +9,6 @@ Numeric::Numeric()
 Numeric::Numeric(size_t size, BaseType defaultValue)
     : _ioModule(BasicIo::getInstance()), _arthModule(Arithm::getInstance()),
       _buffer(Buffer<BaseType>::createBuffer(size)) {
-  std::cout << "created buffer of size: " << _buffer.size << "\t"
-            << " with origin: " << size << std::endl;
   _buffer.clear();
   _buffer.data[0] = defaultValue;
 }

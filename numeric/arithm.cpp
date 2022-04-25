@@ -221,8 +221,6 @@ void Arithm::mul(OutputBuffer a, SourceBuffer b) {
 }
 
 void Arithm::div(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
-  BasicIo & io = BasicIo::getInstance();
-
   size_t aShift = a.size * wordSize - leftOffset(a);
   size_t bShift = b.size * wordSize - leftOffset(b);
   size_t shift = aShift - bShift;
