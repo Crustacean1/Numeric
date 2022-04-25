@@ -55,6 +55,7 @@ template <typename T, typename Q> int Tester<T, Q>::execute() {
     for (size_t i = 0; i < test.size(); ++i) {
       test[i].execute();
       caseResults.emplace_back(test[i].summary());
+      //_logger.logProgress(i,test.size());
     }
     passed &= summary(name, caseResults);
   }

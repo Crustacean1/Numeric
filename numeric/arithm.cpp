@@ -1,4 +1,5 @@
 #include "arithm.h"
+#include "basicio.h"
 #include <iostream>
 
 Arithm Arithm::_instance;
@@ -201,44 +202,60 @@ void Arithm::rightShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
 
 void Arithm::mul(OutputBuffer a, SourceBuffer b) {
   BufferType mulCache;
-  for(int i = a.size -1;i>=0;--i){
-      mulCache = a.data[i];
-      _wordBuffer.major = 0;
-    for(size_t j = 0;j+i < a.size & j< b.size;++j){
+  for (int i = a.size - 1,j = 0; i >= 0; --i) {
+    mulCache = a.data[i];
+    _wordBuffer.major = 0;
+    a.data[i] = 0;
+    for (j = 0; j + i < a.size & j < b.size; ++j) {
+      _wordBuffer.major += a.data[i + j ];
       _wordBuffer.major += mulCache * b.data[j];
-      a.data[i+j] = _wordBuffer.major;
+      a.data[i + j] = _wordBuffer.major;
       _wordBuffer.major >>= wordSize;
-      _wordBuffer.major += a.data[i+j +1];
+    }
+    for(;j+i<a.size && _wordBuffer.major != 0;++j){
+      _wordBuffer.major += a.data[i+j];
+      a.data[i+j] = _wordBuffer.major;
+      _wordBuffer.major>>= wordSize;
     }
   }
 }
 
 void Arithm::div(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
-  size_t shift = leftOffset(b) + 1;
-  shift -= leftOffset(a);
+  BasicIo & io = BasicIo::getInstance();
 
-  if (((int)shift) < 1) {
+  size_t aShift = a.size * wordSize - leftOffset(a);
+  size_t bShift = b.size * wordSize - leftOffset(b);
+  size_t shift = aShift - bShift;
+
+  if (((int)shift) < 0) {
     return;
   }
 
   _aBuffer = BaseBuffer::reserve(_aBuffer, a.size);
   _bBuffer = BaseBuffer::reserve(_bBuffer, a.size);
+
   _aBuffer = a;
   _bBuffer = b;
+
   c.clear();
 
   leftShift(_bBuffer, _bBuffer, shift);
 
-  for (size_t i = 0; i < shift + 1; ++i) {
+  for (size_t i = 0; i < shift + 2; ++i) {
     leftShift(c, c, 1);
-    rightShift(_bBuffer, _bBuffer, 1);
     if (isSigned(_aBuffer)) {
       add(_aBuffer, _bBuffer, _aBuffer);
-      continue;
+    } else {
+      sub(_aBuffer, _bBuffer, _aBuffer);
+      c.data[0] += 1;
     }
-    sub(_aBuffer, _bBuffer, _aBuffer);
-    c.data[0] += 1;
+    rightShift(_bBuffer, _bBuffer, 1);
   }
-  _wordBuffer.minor.low = wordSize - ((shift) % wordSize);
-  (c.data[shift / wordSize] <<= _wordBuffer.minor.low) >>= _wordBuffer.minor.low;
+
+
+  _wordBuffer.minor.low = wordSize - ((shift + 1) % wordSize);
+
+  (c.data[(shift +1)/ wordSize] <<= _wordBuffer.minor.low) >>=
+      _wordBuffer.minor.low;
+  c.data[(shift+1)/wordSize] *= (_wordBuffer.minor.low != 32);
 }

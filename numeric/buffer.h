@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <utility>
 
 #include "utils.h"
@@ -16,14 +17,14 @@ template <typename T> struct Buffer {
   static constexpr size_t minSize = 4;
 
   static Buffer<T> createBuffer(size_t bufSize);
-  static Buffer<T> reserve(Buffer<T> & buffer,size_t capacity);
+  static Buffer<T> reserve(Buffer<T> &buffer, size_t capacity);
 
   void releaseBuffer();
   void disownBuffer();
   void clear(unsigned char value = 0);
 
   T *data = nullptr;
-  const size_t size = 0;
+  size_t size = 0;
   Buffer<T> &operator=(const Buffer<T> &buffer);
   Buffer<T> &operator=(Buffer<T> &&buffer);
 
@@ -45,16 +46,8 @@ template <typename T> Buffer<T> &Buffer<T>::operator=(const Buffer<T> &buffer) {
   return *this;
 }
 template <typename T> Buffer<T> &Buffer<T>::operator=(Buffer<T> &&buffer) {
-  if (size <= buffer.size) {
-    if (buffer.data == data) {
-      return *this;
-    }
-    releaseBuffer();
-    data = buffer.data;
-    buffer.disownBuffer();
-    return *this;
-  }
-  (*this) = buffer;
+  data = buffer.data;
+  size = buffer.size;
   buffer.disownBuffer();
   return *this;
 }
@@ -91,8 +84,9 @@ template <typename T> void Buffer<T>::clear(unsigned char value) {
   memset(data, value, size * sizeof(T));
 }
 
-template <typename T> Buffer<T> Buffer<T>::reserve(Buffer<T> & buffer, size_t capacity) {
-  if(buffer.size<capacity){
+template <typename T>
+Buffer<T> Buffer<T>::reserve(Buffer<T> &buffer, size_t capacity) {
+  if (buffer.size < capacity) {
     return createBuffer(capacity);
   }
   return buffer;
