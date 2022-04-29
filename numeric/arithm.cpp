@@ -15,7 +15,7 @@ size_t Arithm::min(size_t a, size_t b) {
   return a * min + (!min) * b;
 }
 
-bool Arithm::equal(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
+bool Arithm::equal(SourceBuffer a, SourceBuffer b) {
   BaseType fill = isSigned(a) * BaseType(~0);
 
   for (size_t i = 0; i < min(a.size, b.size); ++i) {
@@ -36,7 +36,7 @@ bool Arithm::equal(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
   return true;
 }
 
-bool Arithm::greater(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
+bool Arithm::greater(SourceBuffer a, SourceBuffer b) {
   size_t i;
   for (i = a.size - 1; i > b.size - 1 && a.data[i] >= b.data[i]; --i) {
   }
@@ -55,7 +55,7 @@ bool Arithm::greater(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
   return false;
 }
 
-bool Arithm::less(const Buffer<BaseType> &a, const Buffer<BaseType> &b) {
+bool Arithm::less(SourceBuffer a, SourceBuffer b) {
   size_t i;
   for (i = a.size - 1; i > b.size - 1 && a.data[i] < -b.data[i]; --i) {
   }
@@ -92,7 +92,7 @@ size_t Arithm::rightOffset(SourceBuffer a) {
   return (i - 1) * wordSize + (j - 1);
 }
 
-void Arithm::add(SourceBuffer a, SourceBuffer b, OutputBuffer s) {
+void Arithm::add(SourceBuffer a, SourceBuffer b, SourceBuffer s) {
   _wordBuffer.major = 0;
   size_t minSize = min(a.size, b.size);
   size_t i = 0;
@@ -118,8 +118,7 @@ void Arithm::add(SourceBuffer a, SourceBuffer b, OutputBuffer s) {
   }
 }
 
-void Arithm::sub(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
-                 Buffer<BaseType> &s) {
+void Arithm::sub(SourceBuffer a, SourceBuffer b, SourceBuffer s) {
   _wordBuffer.major = 1;
   size_t minSize = min(a.size, b.size);
   size_t i = 0;
@@ -145,7 +144,7 @@ void Arithm::sub(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
     s.data[++i] = _wordBuffer.minor.low;
   }
 }
-void Arithm::invert(Buffer<BaseType> &integer) {
+void Arithm::invert(SourceBuffer integer) {
   _wordBuffer.major = 1;
   for (size_t i = 0; i < integer.size; ++i) {
     _wordBuffer.major += ~integer.data[i];
@@ -154,13 +153,12 @@ void Arithm::invert(Buffer<BaseType> &integer) {
   }
 }
 
-bool Arithm::isSigned(const Buffer<BaseType> &buffer) {
+bool Arithm::isSigned(SourceBuffer buffer) {
   constexpr size_t signPos = sizeof(BaseType) * 8 - 1;
   return (buffer.data[buffer.size - 1] >> signPos);
 }
 
-void Arithm::leftShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
-                       size_t shift) {
+void Arithm::leftShift(SourceBuffer a, SourceBuffer b, size_t shift) {
   size_t majorShift = shift / wordSize;
   size_t minorShift = (shift - majorShift * wordSize);
   size_t complShift = wordSize - minorShift;
@@ -179,8 +177,7 @@ void Arithm::leftShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
     b.data[i - 1] = 0;
   }
 }
-void Arithm::rightShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
-                        size_t shift) {
+void Arithm::rightShift(SourceBuffer a, SourceBuffer b, size_t shift) {
   size_t majorShift = shift / wordSize;
   size_t minorShift = (shift - majorShift * wordSize);
 
@@ -200,27 +197,27 @@ void Arithm::rightShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
   }
 }
 
-void Arithm::mul(OutputBuffer a, SourceBuffer b) {
+void Arithm::mul(SourceBuffer b, SourceBuffer a) {
   BufferType mulCache;
-  for (int i = a.size - 1,j = 0; i >= 0; --i) {
+  for (int i = a.size - 1, j = 0; i >= 0; --i) {
     mulCache = a.data[i];
     _wordBuffer.major = 0;
     a.data[i] = 0;
     for (j = 0; j + i < a.size & j < b.size; ++j) {
-      _wordBuffer.major += a.data[i + j ];
+      _wordBuffer.major += a.data[i + j];
       _wordBuffer.major += mulCache * b.data[j];
       a.data[i + j] = _wordBuffer.major;
       _wordBuffer.major >>= wordSize;
     }
-    for(;j+i<a.size && _wordBuffer.major != 0;++j){
-      _wordBuffer.major += a.data[i+j];
-      a.data[i+j] = _wordBuffer.major;
-      _wordBuffer.major>>= wordSize;
+    for (; j + i < a.size && _wordBuffer.major != 0; ++j) {
+      _wordBuffer.major += a.data[i + j];
+      a.data[i + j] = _wordBuffer.major;
+      _wordBuffer.major >>= wordSize;
     }
   }
 }
 
-void Arithm::div(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
+void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   size_t aShift = a.size * wordSize - leftOffset(a);
   size_t bShift = b.size * wordSize - leftOffset(b);
   size_t shift = aShift - bShift;
@@ -229,8 +226,8 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
     return;
   }
 
-  _aBuffer = BaseBuffer::reserve(_aBuffer, a.size);
-  _bBuffer = BaseBuffer::reserve(_bBuffer, a.size);
+  BaseBuffer::reserve(_aBuffer, a.size);
+  BaseBuffer::reserve(_bBuffer, a.size);
 
   _aBuffer = a;
   _bBuffer = b;
@@ -250,10 +247,67 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, OutputBuffer c) {
     rightShift(_bBuffer, _bBuffer, 1);
   }
 
-
   _wordBuffer.minor.low = wordSize - ((shift + 1) % wordSize);
 
-  (c.data[(shift +1)/ wordSize] <<= _wordBuffer.minor.low) >>=
+  (c.data[(shift + 1) / wordSize] <<= _wordBuffer.minor.low) >>=
       _wordBuffer.minor.low;
-  c.data[(shift+1)/wordSize] *= (_wordBuffer.minor.low != 32);
+  c.data[(shift + 1) / wordSize] *= (_wordBuffer.minor.low != 32);
+}
+
+void Arithm::kar(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
+  Buffer<BaseType>::reserve(_aBuffer, a.size + b.size);
+  karIt(a, b, c);
+}
+void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
+  size_t pivot = (a.size >> 1);
+  std::cout<<"Rolllin: "<<pivot<<std::endl;
+
+  if(pivot == 1){
+    std::cout<<"Screeeeeetch"<<std::endl;
+    _wordBuffer.major = a.data[0];
+    _wordBuffer.major *= b.data[0];
+    c.data[0] = _wordBuffer.minor.low;
+    c.data[1] = _wordBuffer.minor.high;
+    return;
+  }
+
+  auto la = a.splice(0, pivot);
+  auto ha = a.splice(pivot, pivot);
+  auto lb = b.splice(0, pivot);
+  auto hb = b.splice(pivot, pivot);
+
+  auto lc = c.splice(0, (pivot << 1));
+  auto hc = c.splice((pivot << 1), (pivot << 1));
+
+  karIt(la, lb, lc);
+  karIt(ha, hb, hc);
+
+  auto lBuffer = _aBuffer.splice(0, pivot);
+  auto hBuffer = _aBuffer.splice(pivot, pivot);
+  auto xBuffer = _aBuffer.splice((pivot << 1), (pivot << 1));
+
+  bool lSign, hSign;
+
+  sub(la, lb, lBuffer);
+  sub(ha, hb, hBuffer);
+
+  lSign = isSigned(lBuffer);
+  hSign = isSigned(hBuffer);
+
+  if (lSign) {
+    invert(lBuffer);
+  }
+  if (hSign) {
+    invert(hBuffer);
+  }
+
+  karIt(lBuffer, hBuffer, xBuffer);
+
+  if (!(lSign ^ hSign)) {
+    invert(xBuffer);
+  }
+  sub(xBuffer, lc, xBuffer);
+  sub(xBuffer, hc, xBuffer);
+  auto c34 = c.splice(pivot,pivot*3);
+  add(c34,xBuffer,c34);
 }

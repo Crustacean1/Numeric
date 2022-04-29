@@ -55,7 +55,6 @@ template <typename T, typename Q> int Tester<T, Q>::execute() {
     for (size_t i = 0; i < test.size(); ++i) {
       test[i].execute();
       caseResults.emplace_back(test[i].summary());
-      //_logger.logProgress(i,test.size());
     }
     passed &= summary(name, caseResults);
   }
@@ -69,7 +68,7 @@ bool Tester<T, Q>::summary(const std::string &name,
   for (size_t i = 0; i < results.size(); ++i) {
     if (results[i].total != results[i].passed) {
       passed = false;
-      _logger.fail(1, "Test case no.", i + 1, " in test ", name, results[i].passed, " out of ",results[i].total);
+      //_logger.fail(1, "Test case no.", i + 1, " in test ", name, results[i].passed, " out of ",results[i].total);
     }
   }
   if (passed) {

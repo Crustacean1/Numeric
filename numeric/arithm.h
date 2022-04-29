@@ -5,7 +5,6 @@
 class Arithm {
   using BaseBuffer = Buffer<BaseType>;
   using SourceBuffer = const Buffer<BaseType>&;
-  using OutputBuffer = Buffer<BaseType>&;
 
   union DoubleBuffer {
     BufferType major;
@@ -25,32 +24,37 @@ class Arithm {
   static size_t min(size_t a, size_t b);
 
   Arithm();
+void karIt(SourceBuffer a,SourceBuffer b, SourceBuffer c);
 
 public:
-  bool equal(const Buffer<BaseType> &a, const Buffer<BaseType> &b);
-  bool less(const Buffer<BaseType> &a, const Buffer<BaseType> &b);
-  bool greater(const Buffer<BaseType> &a, const Buffer<BaseType> &b);
+  bool equal(SourceBuffer a, SourceBuffer b);
+  bool less(SourceBuffer a, SourceBuffer b);
+  bool greater(SourceBuffer a, SourceBuffer b);
 
-  bool isSigned(const Buffer<BaseType> &b);
+  bool isSigned(SourceBuffer b);
 
   size_t leftOffset(SourceBuffer a);
   size_t rightOffset(SourceBuffer a);
 
   // Operators
-  void sub(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
-           Buffer<BaseType> &s);
+  void sub(SourceBuffer a, SourceBuffer b,
+           SourceBuffer s);
 
-  void add(const Buffer<BaseType> &a, const Buffer<BaseType> &b,
-           Buffer<BaseType> &s);
-  void invert(Buffer<BaseType> &b);
+  void add(SourceBuffer a, SourceBuffer b,
+           SourceBuffer s);
+  void invert(SourceBuffer b);
 
-  void leftShift(const Buffer<BaseType> &a, Buffer<BaseType> &b, size_t offset);
-  void rightShift(const Buffer<BaseType> &a, Buffer<BaseType> &b,
+  void leftShift(SourceBuffer a, SourceBuffer b, size_t offset);
+  void rightShift(SourceBuffer a, SourceBuffer b,
                   size_t offset);
 
-  void mul(OutputBuffer a,SourceBuffer b);
-  void div(const Buffer<BaseType> &a,const Buffer<BaseType> &b,Buffer<BaseType> &c);
-  void mod(SourceBuffer a,SourceBuffer b,OutputBuffer c);
+  void mul(SourceBuffer b, SourceBuffer a);
+  void div(SourceBuffer a,SourceBuffer b,SourceBuffer c);
+  void mod(SourceBuffer a,SourceBuffer b,SourceBuffer c);
+
+  void kar(SourceBuffer a,SourceBuffer b,  SourceBuffer c);
+
+  void newRaph(SourceBuffer a,SourceBuffer b);
 
   static Arithm &getInstance(); // Will be moved to arithm provider
 };

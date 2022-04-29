@@ -9,17 +9,10 @@
 #include "tester/tester.h"
 #include "tests/arithm_tests.h"
 
-
 int main(int argc, char **argv) {
   if (argc != 2) {
     std::cerr << "Invalid argument count, proper syntax is: ./Numeric "
                  "[test_file_name]"
-              << std::endl;
-    return -1;
-  }
-  std::ifstream testFile(argv[1]);
-  if (!testFile) {
-    std::cerr << "Failed to open test file: " << argv[1] << " now closing"
               << std::endl;
     return -1;
   }
@@ -28,10 +21,8 @@ int main(int argc, char **argv) {
   Tester<Tests::Integer, BasicIo> tester(logger);
 
   tester.addTest("stringIdempotency", Tests::stringIdempotency);
-
   tester.addTest("equality", Tests::equality);
   tester.addTest("comparision", Tests::comparision);
-
   tester.addTest("addition", Tests::addition);
   tester.addTest("leftShift", Tests::leftShift);
   tester.addTest("rightShift", Tests::rightShift);
@@ -40,6 +31,16 @@ int main(int argc, char **argv) {
   tester.addTest("basicDiv", Tests::basicDivision);
   tester.addTest("mulDivReciprocity", Tests::mulDivReciprocity);
 
-  tester.readStream(testFile);
-  return tester.execute();
+  int result = 0;
+  for (int i = 1; i < argc && result == 0; ++i) {
+    std::ifstream testFile(argv[i]);
+    if (!testFile) {
+      std::cerr << "Failed to open test file: " << argv[i] << " now closing"
+                << std::endl;
+      return -1;
+    }
+    tester.readStream(testFile);
+    result = tester.execute();
+  }
+  return result;
 }

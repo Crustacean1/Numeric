@@ -17,11 +17,13 @@ template <typename T> struct Buffer {
   static constexpr size_t minSize = 4;
 
   static Buffer<T> createBuffer(size_t bufSize);
-  static Buffer<T> reserve(Buffer<T> &buffer, size_t capacity);
+  static void reserve(Buffer<T> &buffer, size_t capacity);
 
   void releaseBuffer();
   void disownBuffer();
-  void clear(unsigned char value = 0);
+  void clear(unsigned char value = 0) const;
+  size_t resize(size_t capacity);
+  Buffer<T> splice(size_t beg, size_t size) const;
 
   T *data = nullptr;
   size_t size = 0;
@@ -32,11 +34,15 @@ template <typename T> struct Buffer {
   Buffer(Buffer<T> &&buffer);
 
 private:
+  Buffer(size_t newSize);
   Buffer(T *newData, size_t newSize);
 };
 
 template <typename T>
 Buffer<T>::Buffer(T *newData, size_t newSize) : data(newData), size(newSize) {}
+
+template <typename T>
+Buffer<T>::Buffer(size_t newSize) : size(resize(newSize)) {}
 
 template <typename T> Buffer<T> &Buffer<T>::operator=(const Buffer<T> &buffer) {
   if (size > buffer.size) {
@@ -64,12 +70,17 @@ Buffer<T>::Buffer(Buffer<T> &&buffer) : data(buffer.data), size(buffer.size) {
 }
 
 template <typename T> Buffer<T> Buffer<T>::createBuffer(size_t bufSize) {
+  return Buffer<T>(bufSize);
+}
+
+template <typename T> size_t Buffer<T>::resize(size_t capacity) {
   size_t newSize = 1;
-  while (newSize < bufSize || newSize < minSize) {
+  while (newSize < capacity || newSize < minSize) {
     newSize <<= 1;
   }
-  auto data = new T[newSize];
-  return Buffer<BaseType>(data, newSize);
+  releaseBuffer();
+  data = new T[newSize];
+  return newSize;
 }
 
 template <typename T> void Buffer<T>::releaseBuffer() {
@@ -80,15 +91,18 @@ template <typename T> void Buffer<T>::releaseBuffer() {
 
 template <typename T> void Buffer<T>::disownBuffer() { data = nullptr; }
 
-template <typename T> void Buffer<T>::clear(unsigned char value) {
+template <typename T> void Buffer<T>::clear(unsigned char value) const{
   memset(data, value, size * sizeof(T));
 }
 
 template <typename T>
-Buffer<T> Buffer<T>::reserve(Buffer<T> &buffer, size_t capacity) {
+void Buffer<T>::reserve(Buffer<T> &buffer, size_t capacity) {
   if (buffer.size < capacity) {
-    return createBuffer(capacity);
+    buffer.size = buffer.resize(capacity);
   }
-  return buffer;
+}
+template <typename T>
+Buffer<T> Buffer<T>::splice(size_t beg, size_t size) const {
+  return Buffer<T>{data + beg, size};
 }
 #endif /*BUFFER*/

@@ -2,7 +2,6 @@
 #define TESTCASE
 
 #include <functional>
-#include <iostream>
 #include <random>
 #include <vector>
 
@@ -62,7 +61,9 @@ template <typename T, typename Q> void TestCase<T, Q>::execute() {
     if (passed == _result.expected) {
       ++_result.passed;
     }
+    _logger.progress(i+1,_result.total);
   }
+  _logger.newline();
   _result.totalTime /= _result.total;
 }
 

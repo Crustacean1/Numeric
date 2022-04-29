@@ -101,13 +101,15 @@ Numeric &Numeric::operator>>=(const Numeric &num) {
 
 Numeric Numeric::operator*(const Numeric &num) {
   Numeric result(size());
-  result = *this;
-  _arthModule.mul(result._buffer, num._buffer);
+  //_arthModule.mul(num._buffer,result._buffer);
+  _arthModule.kar(_buffer,num._buffer,_buffer);
   return result;
 }
 
 Numeric &Numeric::operator*=(const Numeric &num) {
-  _arthModule.mul(_buffer, num._buffer);
+  //_arthModule.mul(num._buffer,_buffer);
+  Buffer<BaseType> buffer(_buffer);
+  _arthModule.kar(num._buffer,buffer,_buffer);
   return *this;
 }
 

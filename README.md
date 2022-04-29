@@ -1,4 +1,7 @@
 # Simple arithmetic library
+## Usage
+`cmake -S ./ -B ./build`/
+`cmake --build ./build`
 ## Test file format description
 Quite self-explanatory - look at examples in tests/
 ## Math operartions
