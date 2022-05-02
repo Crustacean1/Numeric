@@ -13,3 +13,6 @@ addition{
   case(100): unsigned(10) signed(8);
   case0(10): signed(4) unsigned(4);
 }
+subtraction{
+  assert: value(850395763712691800) value(850395763712691800) value(0);
+}

@@ -14,6 +14,12 @@ bool Tests::addition(Integer &a, Integer &b) {
   c += b;
   return (c == a);
 }
+bool Tests::subtraction(Integer &a,Integer &b,Integer &c){
+  auto d = a;
+  d -= b;
+  std::cout<<"D: "<<d<<"A: "<<a<<"B: "<<b<<std::endl;
+  return (d==c);
+}
 
 bool Tests::leftShift(Integer &a, Integer &shift, Integer &b) {
   a <<= shift;
@@ -68,6 +74,8 @@ bool Tests::mulDivReciprocity(Integer &a,Integer &b){
   std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
 
   c /= b;
+
+  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
 
   return c == a;
 }

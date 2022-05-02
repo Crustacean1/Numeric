@@ -19,14 +19,15 @@ void displayString(unsigned char *input, size_t inputSize) {
 
 Buffer<BaseType> BasicIo::createRandom(size_t size, bool isSigned) {
   auto buffer = Buffer<BaseType>::createBuffer(size);
+  buffer.clear();
   std::uniform_int_distribution<BaseType> dist(0, -1);
   for (size_t i = 0; i < size; ++i) {
     buffer.data[i] = dist(_engine);
   }
   if (isSigned) {
-    buffer.data[buffer.size - 1] |= (BaseType(1) << (sizeof(BaseType) * 8 - 1));
+    buffer.data[size-1] |= (BaseType(1) << (sizeof(BaseType) * 8 - 1));
   } else {
-    buffer.data[buffer.size - 1] &=
+    buffer.data[size-1] &=
         (~(BaseType(1) << (sizeof(BaseType) * 8 - 1)));
   }
   return buffer;
@@ -34,6 +35,7 @@ Buffer<BaseType> BasicIo::createRandom(size_t size, bool isSigned) {
 
 Buffer<BaseType> BasicIo::createRandom(size_t size) {
   auto buffer = Buffer<BaseType>::createBuffer(size);
+  buffer.clear();
   std::uniform_int_distribution<BaseType> dist(0, -1);
   for (size_t i = 0; i < buffer.size; ++i) {
     buffer.data[i] = dist(_engine);

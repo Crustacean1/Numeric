@@ -24,6 +24,7 @@ int main(int argc, char **argv) {
   tester.addTest("equality", Tests::equality);
   tester.addTest("comparision", Tests::comparision);
   tester.addTest("addition", Tests::addition);
+  tester.addTest("subtraction", Tests::subtraction);
   tester.addTest("leftShift", Tests::leftShift);
   tester.addTest("rightShift", Tests::rightShift);
   tester.addTest("anyShift", Tests::anyShift);

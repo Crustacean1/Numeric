@@ -1,3 +1,9 @@
+#define __DEBUG(depth, x)                                                      \
+  for (int dpth = 0; dpth < depth; ++dpth) {                                   \
+    std::cout << " ";                                                          \
+  }                                                                            \
+  std::cout << "at: " << __LINE__ << ", " << #x << " = "                       \
+            << io.getDec(x, *this) << std::endl;
 #include "arithm.h"
 #include "basicio.h"
 #include <iostream>
@@ -259,22 +265,32 @@ void Arithm::kar(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   karIt(a, b, c);
 }
 void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
-  size_t pivot = (a.size >> 1);
-  std::cout<<"Rolllin: "<<pivot<<std::endl;
+  BasicIo &io = BasicIo::getInstance();
 
-  if(pivot == 1){
-    std::cout<<"Screeeeeetch"<<std::endl;
+  size_t pivot = (a.size >> 1);
+
+  if (pivot == 0) {
+    std::cout<<"   "<< a.data[0];
+    std::cout<<"   "<< b.data[0];
     _wordBuffer.major = a.data[0];
     _wordBuffer.major *= b.data[0];
+    c.clear();
     c.data[0] = _wordBuffer.minor.low;
     c.data[1] = _wordBuffer.minor.high;
+    __DEBUG(2 - pivot, c);
     return;
   }
+  _aBuffer.clear();
 
   auto la = a.splice(0, pivot);
   auto ha = a.splice(pivot, pivot);
   auto lb = b.splice(0, pivot);
   auto hb = b.splice(pivot, pivot);
+
+  __DEBUG(2 - pivot, la);
+  __DEBUG(2 - pivot, ha);
+  __DEBUG(2 - pivot, lb);
+  __DEBUG(2 - pivot, hb);
 
   auto lc = c.splice(0, (pivot << 1));
   auto hc = c.splice((pivot << 1), (pivot << 1));
@@ -288,8 +304,8 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
 
   bool lSign, hSign;
 
-  sub(la, lb, lBuffer);
-  sub(ha, hb, hBuffer);
+  sub(ha, la, lBuffer);
+  sub(hb, lb, hBuffer);
 
   lSign = isSigned(lBuffer);
   hSign = isSigned(hBuffer);
@@ -302,12 +318,16 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   }
 
   karIt(lBuffer, hBuffer, xBuffer);
-
   if (!(lSign ^ hSign)) {
     invert(xBuffer);
   }
-  sub(xBuffer, lc, xBuffer);
-  sub(xBuffer, hc, xBuffer);
-  auto c34 = c.splice(pivot,pivot*3);
-  add(c34,xBuffer,c34);
+
+  add(xBuffer, lc, xBuffer);
+
+  add(xBuffer, hc, xBuffer);
+
+  auto c34 = c.splice(pivot, pivot * 3);
+
+  add(c34, xBuffer, c34);
+  __DEBUG(2 - pivot, c);
 }
