@@ -75,7 +75,7 @@ bool Tests::mulDivReciprocity(Integer &a,Integer &b){
 
   c /= b;
 
-  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
+  //std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
 
   return c == a;
 }

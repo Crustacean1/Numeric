@@ -4,13 +4,13 @@
 
 class Arithm {
   using BaseBuffer = Buffer<BaseType>;
-  using SourceBuffer = const Buffer<BaseType>&;
+  using SourceBuffer = const Buffer<BaseType> &;
 
   union DoubleBuffer {
     BufferType major;
     struct {
-    BaseType low;
-    BaseType high;
+      BaseType low;
+      BaseType high;
     } minor;
   };
 
@@ -24,7 +24,8 @@ class Arithm {
   static size_t min(size_t a, size_t b);
 
   Arithm();
-void karIt(SourceBuffer a,SourceBuffer b, SourceBuffer c);
+  bool overflow();
+  void karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, int level = 0);
 
 public:
   bool equal(SourceBuffer a, SourceBuffer b);
@@ -37,24 +38,22 @@ public:
   size_t rightOffset(SourceBuffer a);
 
   // Operators
-  void sub(SourceBuffer a, SourceBuffer b,
-           SourceBuffer s);
+  void sub(SourceBuffer a, SourceBuffer b, SourceBuffer s);
 
-  void add(SourceBuffer a, SourceBuffer b,
-           SourceBuffer s);
+  void add(SourceBuffer a, SourceBuffer b, SourceBuffer s);
+  void unsigned_add(SourceBuffer a, SourceBuffer b, SourceBuffer s);
   void invert(SourceBuffer b);
 
   void leftShift(SourceBuffer a, SourceBuffer b, size_t offset);
-  void rightShift(SourceBuffer a, SourceBuffer b,
-                  size_t offset);
+  void rightShift(SourceBuffer a, SourceBuffer b, size_t offset);
 
   void mul(SourceBuffer b, SourceBuffer a);
-  void div(SourceBuffer a,SourceBuffer b,SourceBuffer c);
-  void mod(SourceBuffer a,SourceBuffer b,SourceBuffer c);
+  void div(SourceBuffer a, SourceBuffer b, SourceBuffer c);
+  void mod(SourceBuffer a, SourceBuffer b, SourceBuffer c);
 
-  void kar(SourceBuffer a,SourceBuffer b,  SourceBuffer c);
+  void kar(SourceBuffer a, SourceBuffer b, SourceBuffer c);
 
-  void newRaph(SourceBuffer a,SourceBuffer b);
+  void newRaph(SourceBuffer a, SourceBuffer b);
 
   static Arithm &getInstance(); // Will be moved to arithm provider
 };

@@ -61,14 +61,18 @@ template <typename T, typename Q> void TestCase<T, Q>::execute() {
     if (passed == _result.expected) {
       ++_result.passed;
     }
-    _logger.progress(i+1,_result.total);
   }
-  _logger.newline();
   _result.totalTime /= _result.total;
 }
 
 template <typename T, typename Q> TestResult TestCase<T, Q>::summary() {
-  _logger.logInfo(3, "SUMMARY OF CASE: ", "\nTOTAL:\t", _result.total,
+  _logger.logInfo(2, "SUMMARY OF CASE PASS:", "\n");
+    if(_result.total != _result.passed){
+      _logger.fail(2,"FAILED");
+    }else{
+      _logger.success(2,"PASSED");
+    }
+    _logger.logInfo(3,"TOTAL:\t", _result.total,
                   "\nPASSED:\t ", _result.passed, "\nFAILED:\t ",
                   _result.total - _result.passed, "\nAVG TIME:\t",
                   _result.totalTime);

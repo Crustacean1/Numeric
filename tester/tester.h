@@ -68,13 +68,8 @@ bool Tester<T, Q>::summary(const std::string &name,
   for (size_t i = 0; i < results.size(); ++i) {
     if (results[i].total != results[i].passed) {
       passed = false;
-      //_logger.fail(1, "Test case no.", i + 1, " in test ", name, results[i].passed, " out of ",results[i].total);
+      break;
     }
-  }
-  if (passed) {
-    _logger.success(0, name, " Test suite passed");
-  } else {
-    _logger.fail(0, name, " Test suite failed");
   }
   return passed;
 }
