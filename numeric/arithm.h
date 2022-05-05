@@ -25,7 +25,8 @@ class Arithm {
 
   Arithm();
   bool overflow();
-  void karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, int level = 0);
+  void karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d,
+             int level = 0);
 
 public:
   bool equal(SourceBuffer a, SourceBuffer b);
@@ -41,6 +42,7 @@ public:
   void sub(SourceBuffer a, SourceBuffer b, SourceBuffer s);
 
   void add(SourceBuffer a, SourceBuffer b, SourceBuffer s);
+  void add(SourceBuffer a, SourceBuffer b);
   void unsigned_add(SourceBuffer a, SourceBuffer b, SourceBuffer s);
   void invert(SourceBuffer b);
 

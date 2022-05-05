@@ -70,12 +70,13 @@ bool Tests::mulDivReciprocity(Integer &a,Integer &b){
 
   c = a;
   c *= b;
-
-  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
+  Integer d(c);
 
   c /= b;
 
-  //std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
-
-  return c == a;
+  if(c == a){
+    return true;
+  }
+  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<d<<std::endl;
+  return false;
 }
