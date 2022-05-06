@@ -333,6 +333,7 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   //__DEBUG(level, lc);
   //__DEBUG(level, hc);
 
+  //TODO: try reordering sub operands instead of inverting posteriori
   sub(ha, la, lBuffer);
   bool lSign = !overflow();
   sub(lb, hb, hBuffer);
@@ -368,6 +369,5 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
 
   unsigned_add(yBuffer, lc);
   unsigned_add(yBuffer, hc);
-
   unsigned_add(c34, yBuffer);
 }

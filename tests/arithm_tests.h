@@ -18,6 +18,7 @@ bool anyShift(Integer &a, Integer &shift);
 bool basicMultiplication(Integer &a, Integer &b,Integer &c);
 bool basicDivision(Integer &a,Integer &b,Integer &c);
 bool mulDivReciprocity(Integer &a, Integer &b);
+bool mulPerf(Integer &a, Integer &b);
 
 }; // namespace Tests
 

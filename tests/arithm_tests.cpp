@@ -74,6 +74,12 @@ bool Tests::mulDivReciprocity(Integer &a,Integer &b){
 
   c /= b;
 
-  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<d<<std::endl;
+  //std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<d<<std::endl;
   return c == a;
+}
+bool Tests::mulPerf(Integer & a,Integer & b){
+  Integer c(a.size() + b.size());
+  c = a;
+  c*= a;
+  return true;
 }

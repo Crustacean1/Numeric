@@ -7,9 +7,8 @@ basicDiv{
 
 mulDivReciprocity{
   assert: value(18074629505984758438) value(2879870653673697250);
-  case(100): unsigned(32) unsigned(32);
+  case(10): unsigned(32) unsigned(32);
+  case(10): unsigned(16) unsigned(32);
+  case(10): unsigned(16) unsigned(64);
 }
 
-base without xbuffer 52052595009290532830786462964990824588
-
-52052595090310221883841110315594895500
