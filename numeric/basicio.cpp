@@ -87,9 +87,9 @@ std::string BasicIo::getDec(const Buffer<BaseType> &buffer, Arithm &arth) {
 std::string BasicIo::getBin(const Buffer<BaseType> &buffer, Arithm &arth) {
   constexpr size_t wordSize = sizeof(BaseType) * 8;
   std::string result;
-  for (size_t i = buffer.size - 1; i >= 0; --i) {
-    for (size_t j = 0; j < wordSize; ++j) {
-      result.insert(result.begin(), (char)(((buffer.data[i] >> j) & 1) + '0'));
+  for (size_t i = buffer.size ; i > 0; --i) {
+    for (size_t j = wordSize ; j > 0; --j) {
+      result.insert(result.begin(), (char)(((buffer.data[i - 1] >> (j-1)) & 1) + '0'));
     }
   }
   return result;

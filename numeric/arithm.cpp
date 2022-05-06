@@ -4,7 +4,8 @@
       std::cout << " ";                                                        \
     }                                                                          \
     std::cout << "at: " << __LINE__ << ",\t" << #x << "\t=\t" << x.size        \
-              << ": " << io.getDec(x, *this) <<" "<<isSigned(x)<< std::endl;                     \
+              << ": " << io.getDec(x, *this) << " " << isSigned(x)             \
+              << std::endl;                                                    \
   }
 #include "arithm.h"
 #include "basicio.h"
@@ -290,8 +291,8 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
 
   BasicIo &io = BasicIo::getInstance();
 
-  __DEBUG(level, a);
-  __DEBUG(level, b);
+  //__DEBUG(level, a);
+  //__DEBUG(level, b);
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -303,7 +304,7 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
     c.clear();
     c.data[0] = _wordBuffer.minor.low;
     c.data[1] = _wordBuffer.minor.high;
-    __DEBUG(level, c);
+    //__DEBUG(level, c);
     return;
   }
 
@@ -319,25 +320,26 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   SourceBuffer hBuffer = d.splice(pivot, pivot);
   SourceBuffer xBuffer = d.splice(majorPivot, majorPivot);
   SourceBuffer rBuffer = d.splice(bufferPivot, bufferPivot);
+  SourceBuffer yBuffer = d.splice(majorPivot, majorPivot + 1);
 
-  __DEBUG(level, la);
-  __DEBUG(level, ha);
-  __DEBUG(level, lb);
-  __DEBUG(level, hb);
+  //__DEBUG(level, la);
+  //__DEBUG(level, ha);
+  //__DEBUG(level, lb);
+  //__DEBUG(level, hb);
 
   karIt(la, lb, lc, rBuffer, level + 1);
   karIt(ha, hb, hc, rBuffer, level + 1);
 
-  __DEBUG(level, lc);
-  __DEBUG(level, hc);
+  //__DEBUG(level, lc);
+  //__DEBUG(level, hc);
 
   sub(ha, la, lBuffer);
   bool lSign = !overflow();
   sub(lb, hb, hBuffer);
   bool hSign = !overflow();
 
-  __DEBUG(level, lBuffer);
-  __DEBUG(level, hBuffer);
+  //__DEBUG(level, lBuffer);
+  //__DEBUG(level, hBuffer);
 
   if (lSign) {
     invert(lBuffer);
@@ -346,30 +348,26 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
     invert(hBuffer);
   }
 
-  __DEBUG(level, lBuffer);
-  __DEBUG(level, hBuffer);
+  //__DEBUG(level, lBuffer);
+  //__DEBUG(level, hBuffer);
 
   karIt(lBuffer, hBuffer, xBuffer, rBuffer, level + 1);
 
-  __DEBUG(level, xBuffer);
+  //__DEBUG(level, xBuffer);
 
-  if (lSign != hSign) {
-    invert(xBuffer);
+  yBuffer.data[yBuffer.size-1] = 0;
+  //__DEBUG(level, yBuffer);
+
+  if(lSign != hSign){
+    invert(yBuffer);
   }
 
-  __DEBUG(level, xBuffer);
+  //__DEBUG(level, yBuffer);
 
   SourceBuffer c34 = c.splice(pivot, pivot * 3);
 
-  __DEBUG(level, c34);
-  __DEBUG(level, lc);
-  unsigned_add(c34, lc);
-  __DEBUG(level, c34);
-  __DEBUG(level, hc);
-  unsigned_add(c34, hc);
-  __DEBUG(level, c34);
-  __DEBUG(level, xBuffer);
-  unsigned_add(c34, xBuffer);
-  __DEBUG(level, c34);
-  __DEBUG(level, c);
+  unsigned_add(yBuffer, lc);
+  unsigned_add(yBuffer, hc);
+
+  unsigned_add(c34, yBuffer);
 }
