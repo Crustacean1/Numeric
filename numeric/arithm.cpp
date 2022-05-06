@@ -4,7 +4,7 @@
       std::cout << " ";                                                        \
     }                                                                          \
     std::cout << "at: " << __LINE__ << ",\t" << #x << "\t=\t" << x.size        \
-              << ": " << io.getDec(x, *this) << std::endl;                     \
+              << ": " << io.getDec(x, *this) <<" "<<isSigned(x)<< std::endl;                     \
   }
 #include "arithm.h"
 #include "basicio.h"
@@ -127,7 +127,7 @@ void Arithm::add(SourceBuffer a, SourceBuffer b, SourceBuffer s) {
     s.data[++i] = _wordBuffer.minor.low;
   }
 }
-void Arithm::add(SourceBuffer a, SourceBuffer b) {
+void Arithm::unsigned_add(SourceBuffer a, SourceBuffer b) {
   _wordBuffer.major = 0;
   size_t minSize = min(a.size, b.size);
   size_t i = 0;
@@ -363,13 +363,13 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
 
   __DEBUG(level, c34);
   __DEBUG(level, lc);
-  add(c34, lc);
+  unsigned_add(c34, lc);
   __DEBUG(level, c34);
   __DEBUG(level, hc);
-  add(c34, hc);
+  unsigned_add(c34, hc);
   __DEBUG(level, c34);
   __DEBUG(level, xBuffer);
-  add(c34, xBuffer);
+  unsigned_add(c34, xBuffer);
   __DEBUG(level, c34);
   __DEBUG(level, c);
 }

@@ -42,8 +42,7 @@ public:
   void sub(SourceBuffer a, SourceBuffer b, SourceBuffer s);
 
   void add(SourceBuffer a, SourceBuffer b, SourceBuffer s);
-  void add(SourceBuffer a, SourceBuffer b);
-  void unsigned_add(SourceBuffer a, SourceBuffer b, SourceBuffer s);
+  void unsigned_add(SourceBuffer a, SourceBuffer b);
   void invert(SourceBuffer b);
 
   void leftShift(SourceBuffer a, SourceBuffer b, size_t offset);
