@@ -10,5 +10,6 @@ mulDivReciprocity{
   case(10): unsigned(32) unsigned(32);
   case(10): unsigned(16) unsigned(32);
   case(10): unsigned(16) unsigned(64);
+  case(10): unsigned(16) unsigned(64);
 }
 

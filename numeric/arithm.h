@@ -38,10 +38,13 @@ public:
   size_t leftOffset(SourceBuffer a);
   size_t rightOffset(SourceBuffer a);
 
-  // Operators
-  void sub(SourceBuffer a, SourceBuffer b, SourceBuffer s);
+  // Arithmetic functions, size of operands is in descending order from left
+  void subLeft(SourceBuffer a, SourceBuffer b);
+  void subRight(SourceBuffer a, SourceBuffer b);
 
-  void add(SourceBuffer a, SourceBuffer b, SourceBuffer s);
+  void addLeft(SourceBuffer a, SourceBuffer b);
+  void addRight(SourceBuffer a, SourceBuffer b);
+
   void unsigned_add(SourceBuffer a, SourceBuffer b);
   void invert(SourceBuffer b);
 
@@ -55,6 +58,8 @@ public:
   void kar(SourceBuffer a, SourceBuffer b, SourceBuffer c);
 
   void newRaph(SourceBuffer a, SourceBuffer b);
+  void modExp(SourceBuffer a,SourceBuffer b,SourceBuffer c);
+  void gcd(SourceBuffer a, SourceBuffer b);
 
   static Arithm &getInstance(); // Will be moved to arithm provider
 };

@@ -21,6 +21,7 @@ template <typename T> struct Buffer {
 
   void releaseBuffer();
   void disownBuffer();
+  void copy(const Buffer<T> &buffer) const;
   void clear(unsigned char value = 0) const;
   size_t resize(size_t capacity);
   Buffer<T> splice(size_t beg, size_t size) const;
@@ -91,7 +92,7 @@ template <typename T> void Buffer<T>::releaseBuffer() {
 
 template <typename T> void Buffer<T>::disownBuffer() { data = nullptr; }
 
-template <typename T> void Buffer<T>::clear(unsigned char value) const{
+template <typename T> void Buffer<T>::clear(unsigned char value) const {
   memset(data, value, size * sizeof(T));
 }
 
@@ -104,5 +105,14 @@ void Buffer<T>::reserve(Buffer<T> &buffer, size_t capacity) {
 template <typename T>
 Buffer<T> Buffer<T>::splice(size_t beg, size_t size) const {
   return Buffer<T>{data + beg, size};
+}
+template <typename T> void Buffer<T>::copy(const Buffer<T> &buffer) const {
+  if (buffer.size < size) {
+    memcpy(data, buffer.data, buffer.size * BaseWordSize);
+    memset(data + buffer.size * BaseWordSize, 0,
+           (size - buffer.size) * BaseWordSize);
+    return;
+  }
+  memcpy(data, buffer.data, size * BaseWordSize);
 }
 #endif /*BUFFER*/

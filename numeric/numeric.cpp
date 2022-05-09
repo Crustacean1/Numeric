@@ -68,24 +68,44 @@ std::string Numeric::toDec() { return _ioModule.getDec(_buffer, _arthModule); }
 std::string Numeric::toBin() { return _ioModule.getBin(_buffer, _arthModule); }
 
 Numeric Numeric::operator+(const Numeric &num) {
-  Numeric sum(KUtils::max(_buffer.size, num._buffer.size));
-  _arthModule.add(_buffer, num._buffer, sum._buffer);
+  Numeric sum(_buffer.size);
+  sum._buffer.copy(_buffer);
+  if (sum._buffer.size < num._buffer.size) {
+    _arthModule.addRight(num._buffer, sum._buffer);
+    return sum;
+  }
+  _arthModule.addLeft(sum._buffer, num._buffer);
   return sum;
 }
 
 Numeric Numeric::operator-(const Numeric &num) {
-  Numeric sum(KUtils::max(_buffer.size, num._buffer.size));
-  _arthModule.sub(_buffer, num._buffer, sum._buffer);
+  Numeric sum(_buffer.size);
+  sum._buffer.copy(_buffer);
+  if (sum._buffer.size < num._buffer.size) {
+    _arthModule.subRight(num._buffer, sum._buffer);
+    return sum;
+  }
+  std::cout<<"left: "<<sum._buffer.size<<" "<<num._buffer.size<<std::endl;
+  _arthModule.subLeft(sum._buffer, num._buffer);
+  std::cout<<"done"<<std::endl;
   return sum;
 }
 
 Numeric &Numeric::operator+=(const Numeric &num) {
-  _arthModule.add(num._buffer, _buffer, _buffer);
+  if (_buffer.size < num._buffer.size) {
+    _arthModule.addRight(num._buffer, _buffer);
+    return *this;
+  }
+  _arthModule.addLeft(_buffer, num._buffer);
   return *this;
 }
 
 Numeric &Numeric::operator-=(const Numeric &num) {
-  _arthModule.sub(this->_buffer, num._buffer, this->_buffer);
+  if (_buffer.size < num._buffer.size) {
+    _arthModule.subRight(num._buffer, _buffer);
+    return *this;
+  }
+  _arthModule.subLeft(_buffer, num._buffer);
   return *this;
 }
 
@@ -101,15 +121,14 @@ Numeric &Numeric::operator>>=(const Numeric &num) {
 
 Numeric Numeric::operator*(const Numeric &num) {
   Numeric result(size());
-  //_arthModule.mul(num._buffer,result._buffer);
-  _arthModule.kar(_buffer,num._buffer,_buffer);
+  _arthModule.kar(_buffer, num._buffer, _buffer);
   return result;
 }
 
 Numeric &Numeric::operator*=(const Numeric &num) {
   //_arthModule.mul(num._buffer,_buffer);
   Buffer<BaseType> buffer(_buffer);
-  _arthModule.kar(num._buffer,buffer,_buffer);
+  _arthModule.kar(num._buffer, buffer, _buffer);
   return *this;
 }
 

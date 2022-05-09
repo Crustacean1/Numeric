@@ -103,31 +103,38 @@ size_t Arithm::rightOffset(SourceBuffer a) {
   return (i - 1) * wordSize + (j - 1);
 }
 
-void Arithm::add(SourceBuffer a, SourceBuffer b, SourceBuffer s) {
+void Arithm::addLeft(SourceBuffer a, SourceBuffer b) {
+  return;
   _wordBuffer.major = 0;
-  size_t minSize = min(a.size, b.size);
   size_t i = 0;
 
-  for (i = 0; i < minSize; ++i) {
+  for (i = 0; i < b.size; ++i) {
     _wordBuffer.major += a.data[i];
     _wordBuffer.major += b.data[i];
-    s.data[i] = _wordBuffer.minor.low;
+    a.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
-  for (; i < a.size; ++i) {
+  BaseType padding = isSigned(b) * BaseType(~0);
+  for (; _wordBuffer.major != 0 && i < a.size ; ++i) {
     _wordBuffer.major += a.data[i];
-    s.data[i] = _wordBuffer.minor.low;
+    _wordBuffer.major += padding;
+    a.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
-  }
-  for (; i < b.size; ++i) {
-    _wordBuffer.major += b.data[i];
-    s.data[i] = _wordBuffer.minor.low;
-    _wordBuffer.major >>= wordSize;
-  }
-  if (i < s.size) {
-    s.data[++i] = _wordBuffer.minor.low;
   }
 }
+
+void Arithm::addRight(SourceBuffer a,SourceBuffer b){
+  return;
+  _wordBuffer.major = 0;
+  size_t i = 0;
+  for (i = 0; i < b.size; ++i) {
+    _wordBuffer.major += a.data[i];
+    _wordBuffer.major += b.data[i];
+    b.data[i] = _wordBuffer.minor.low;
+    _wordBuffer.major >>= wordSize;
+  }
+}
+
 void Arithm::unsigned_add(SourceBuffer a, SourceBuffer b) {
   _wordBuffer.major = 0;
   size_t minSize = min(a.size, b.size);
@@ -145,33 +152,38 @@ void Arithm::unsigned_add(SourceBuffer a, SourceBuffer b) {
   }
 }
 
-void Arithm::sub(SourceBuffer a, SourceBuffer b, SourceBuffer s) {
+void Arithm::subLeft(SourceBuffer a, SourceBuffer b) {
+  return;
   _wordBuffer.major = 1;
-  size_t minSize = min(a.size, b.size);
   size_t i = 0;
 
-  for (i = 0; i < minSize; ++i) {
+  for (i = 0; i < b.size; ++i) {
     _wordBuffer.major += a.data[i];
     _wordBuffer.major += (~b.data[i]);
-    s.data[i] = _wordBuffer.minor.low;
+    a.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
-  for (; i < a.size; ++i) {
+  BaseType padding = (!isSigned(b)) * BaseType(~0);
+  for (; i < a.size && _wordBuffer.major; ++i) {
     _wordBuffer.major += a.data[i];
-    _wordBuffer.major += BaseType(~0);
-    s.data[i] = _wordBuffer.minor.low;
-    _wordBuffer.major >>= wordSize;
-  }
-  for (; i < b.size; ++i) {
-    _wordBuffer.major += (~b.data[i]);
-    s.data[i] = _wordBuffer.minor.low;
-    _wordBuffer.major >>= wordSize;
-  }
-  if (i < s.size) {
-    s.data[++i] = _wordBuffer.minor.low;
+    _wordBuffer.major += padding;
+    a.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
   }
 }
+
+void Arithm::subRight(SourceBuffer a, SourceBuffer b) {
+  _wordBuffer.major = 1;
+  size_t i = 0;
+
+  for (i = 0; i < b.size; ++i) {
+    _wordBuffer.major += (~a.data[i]);
+    _wordBuffer.major += b.data[i];
+    b.data[i] = _wordBuffer.minor.low;
+    _wordBuffer.major >>= wordSize;
+  }
+}
+
 void Arithm::invert(SourceBuffer integer) {
   _wordBuffer.major = 1;
   for (size_t i = 0; i < integer.size; ++i) {
@@ -267,9 +279,9 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   for (size_t i = 0; i < shift + 2; ++i) {
     leftShift(c, c, 1);
     if (isSigned(_aBuffer)) {
-      add(_aBuffer, _bBuffer, _aBuffer);
+      addLeft(_aBuffer, _bBuffer);
     } else {
-      sub(_aBuffer, _bBuffer, _aBuffer);
+      subLeft(_aBuffer, _bBuffer);
       c.data[0] += 1;
     }
     rightShift(_bBuffer, _bBuffer, 1);
@@ -334,9 +346,11 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   //__DEBUG(level, hc);
 
   //TODO: try reordering sub operands instead of inverting posteriori
-  sub(ha, la, lBuffer);
+  lBuffer.copy(ha);
+  subLeft(lBuffer, la);
   bool lSign = !overflow();
-  sub(lb, hb, hBuffer);
+  hBuffer.copy(lb);
+  subLeft(lBuffer, hb);
   bool hSign = !overflow();
 
   //__DEBUG(level, lBuffer);

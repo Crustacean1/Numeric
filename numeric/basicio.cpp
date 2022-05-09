@@ -71,7 +71,6 @@ Buffer<BaseType> BasicIo::toBuffer(const std::string &str, Arithm &arth) {
 
 std::string BasicIo::getDec(const Buffer<BaseType> &buffer, Arithm &arth) {
   bool sign = arth.isSigned(buffer);
-  sign = false;
 
   size_t outputSize = toDecSize(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];

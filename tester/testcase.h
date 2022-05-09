@@ -62,7 +62,7 @@ template <typename T, typename Q> void TestCase<T, Q>::execute() {
       ++_result.passed;
     }
   }
-  _result.totalTime /= _result.total;
+  _result.totalTime /= (1000*_result.total);
 }
 
 template <typename T, typename Q> TestResult TestCase<T, Q>::summary() {
