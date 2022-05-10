@@ -6,10 +6,6 @@ basicDiv{
 }
 
 mulDivReciprocity{
-  assert: value(18074629505984758438) value(2879870653673697250);
-  case(10): unsigned(32) unsigned(32);
-  case(10): unsigned(16) unsigned(32);
-  case(10): unsigned(16) unsigned(64);
-  case(10): unsigned(16) unsigned(64);
+  case(1) : unsigned(1) unsigned(1);
 }
 

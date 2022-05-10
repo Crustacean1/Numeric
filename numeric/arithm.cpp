@@ -1,5 +1,5 @@
 #define __DEBUG(depth, x)                                                      \
-  if (depth == 1) {                                                            \
+  if (true) {                                                            \
     for (int dpth = 0; dpth < depth; ++dpth) {                                 \
       std::cout << " ";                                                        \
     }                                                                          \
@@ -104,7 +104,6 @@ size_t Arithm::rightOffset(SourceBuffer a) {
 }
 
 void Arithm::addLeft(SourceBuffer a, SourceBuffer b) {
-  return;
   _wordBuffer.major = 0;
   size_t i = 0;
 
@@ -115,7 +114,7 @@ void Arithm::addLeft(SourceBuffer a, SourceBuffer b) {
     _wordBuffer.major >>= wordSize;
   }
   BaseType padding = isSigned(b) * BaseType(~0);
-  for (; _wordBuffer.major != 0 && i < a.size ; ++i) {
+  for (; i < a.size; ++i) {
     _wordBuffer.major += a.data[i];
     _wordBuffer.major += padding;
     a.data[i] = _wordBuffer.minor.low;
@@ -123,8 +122,7 @@ void Arithm::addLeft(SourceBuffer a, SourceBuffer b) {
   }
 }
 
-void Arithm::addRight(SourceBuffer a,SourceBuffer b){
-  return;
+void Arithm::addRight(SourceBuffer a, SourceBuffer b) {
   _wordBuffer.major = 0;
   size_t i = 0;
   for (i = 0; i < b.size; ++i) {
@@ -135,7 +133,7 @@ void Arithm::addRight(SourceBuffer a,SourceBuffer b){
   }
 }
 
-void Arithm::unsigned_add(SourceBuffer a, SourceBuffer b) {
+void Arithm::unsignedAddLeft(SourceBuffer a, SourceBuffer b) {
   _wordBuffer.major = 0;
   size_t minSize = min(a.size, b.size);
   size_t i = 0;
@@ -153,7 +151,6 @@ void Arithm::unsigned_add(SourceBuffer a, SourceBuffer b) {
 }
 
 void Arithm::subLeft(SourceBuffer a, SourceBuffer b) {
-  return;
   _wordBuffer.major = 1;
   size_t i = 0;
 
@@ -164,11 +161,12 @@ void Arithm::subLeft(SourceBuffer a, SourceBuffer b) {
     _wordBuffer.major >>= wordSize;
   }
   BaseType padding = (!isSigned(b)) * BaseType(~0);
-  for (; i < a.size && _wordBuffer.major; ++i) {
+  for (; i < a.size; ++i) {
     _wordBuffer.major += a.data[i];
     _wordBuffer.major += padding;
     a.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
+    _wordBuffer.major += padding;
   }
 }
 
@@ -302,9 +300,8 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
                    SourceBuffer d, int level) {
 
   BasicIo &io = BasicIo::getInstance();
-
-  //__DEBUG(level, a);
-  //__DEBUG(level, b);
+  __DEBUG(level, a);
+  __DEBUG(level, b);
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -316,7 +313,7 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
     c.clear();
     c.data[0] = _wordBuffer.minor.low;
     c.data[1] = _wordBuffer.minor.high;
-    //__DEBUG(level, c);
+    __DEBUG(level, c);
     return;
   }
 
@@ -334,54 +331,38 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   SourceBuffer rBuffer = d.splice(bufferPivot, bufferPivot);
   SourceBuffer yBuffer = d.splice(majorPivot, majorPivot + 1);
 
-  //__DEBUG(level, la);
-  //__DEBUG(level, ha);
-  //__DEBUG(level, lb);
-  //__DEBUG(level, hb);
-
   karIt(la, lb, lc, rBuffer, level + 1);
   karIt(ha, hb, hc, rBuffer, level + 1);
 
-  //__DEBUG(level, lc);
-  //__DEBUG(level, hc);
+  // TODO: try reordering sub operands instead of inverting posteriori
 
-  //TODO: try reordering sub operands instead of inverting posteriori
   lBuffer.copy(ha);
   subLeft(lBuffer, la);
   bool lSign = !overflow();
+
   hBuffer.copy(lb);
-  subLeft(lBuffer, hb);
+  subLeft(hBuffer, hb);
   bool hSign = !overflow();
 
-  //__DEBUG(level, lBuffer);
-  //__DEBUG(level, hBuffer);
-
-  if (lSign) {
-    invert(lBuffer);
-  }
   if (hSign) {
     invert(hBuffer);
   }
-
-  //__DEBUG(level, lBuffer);
-  //__DEBUG(level, hBuffer);
+  if (lSign) {
+    invert(lBuffer);
+  }
 
   karIt(lBuffer, hBuffer, xBuffer, rBuffer, level + 1);
 
-  //__DEBUG(level, xBuffer);
+  yBuffer.data[yBuffer.size - 1] = 0;
 
-  yBuffer.data[yBuffer.size-1] = 0;
-  //__DEBUG(level, yBuffer);
-
-  if(lSign != hSign){
+  if (lSign != hSign) {
     invert(yBuffer);
   }
 
-  //__DEBUG(level, yBuffer);
-
   SourceBuffer c34 = c.splice(pivot, pivot * 3);
 
-  unsigned_add(yBuffer, lc);
-  unsigned_add(yBuffer, hc);
-  unsigned_add(c34, yBuffer);
+  unsignedAddLeft(yBuffer, lc);
+  unsignedAddLeft(yBuffer, hc);
+  unsignedAddLeft(c34, yBuffer);
+  __DEBUG(level, c);
 }

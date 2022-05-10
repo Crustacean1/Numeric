@@ -85,9 +85,7 @@ Numeric Numeric::operator-(const Numeric &num) {
     _arthModule.subRight(num._buffer, sum._buffer);
     return sum;
   }
-  std::cout<<"left: "<<sum._buffer.size<<" "<<num._buffer.size<<std::endl;
   _arthModule.subLeft(sum._buffer, num._buffer);
-  std::cout<<"done"<<std::endl;
   return sum;
 }
 
@@ -126,9 +124,10 @@ Numeric Numeric::operator*(const Numeric &num) {
 }
 
 Numeric &Numeric::operator*=(const Numeric &num) {
-  //_arthModule.mul(num._buffer,_buffer);
-  Buffer<BaseType> buffer(_buffer);
-  _arthModule.kar(num._buffer, buffer, _buffer);
+  Buffer<BaseType> buffer = Buffer<BaseType>::createBuffer(_buffer.size);
+  buffer.copy(_buffer);
+  std::cout<<"Numeric: "<<size()<<" "<<buffer.size<<" "<<num.size()<<std::endl;
+  _arthModule.kar(buffer,num._buffer, _buffer);
   return *this;
 }
 

@@ -12,13 +12,20 @@ bool Tests::equality(Integer &a, Integer &b) { return a == b; }
 bool Tests::addition(Integer &a, Integer &b) {
   auto c = a - b;
   c += b;
-  return (c == a);
+  if(c==a){
+    return true;
+  }
+  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<"\tD: "<<(a-b)<<std::endl;
+  return false;
 }
 bool Tests::subtraction(Integer &a,Integer &b,Integer &c){
   auto d = a;
   d -= b;
+  if(d == c){
+    return true;
+  }
   std::cout<<"D: "<<d<<"A: "<<a<<"B: "<<b<<std::endl;
-  return (d==c);
+  return false;
 }
 
 bool Tests::leftShift(Integer &a, Integer &shift, Integer &b) {
@@ -70,12 +77,15 @@ bool Tests::mulDivReciprocity(Integer &a,Integer &b){
 
   c = a;
   c *= b;
-  Integer d(c);
+  //Integer d(c);
 
   c /= b;
 
+  if(c == a){
+    return true;
+  }
   //std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<d<<std::endl;
-  return c == a;
+  return false;
 }
 bool Tests::mulPerf(Integer & a,Integer & b){
   Integer c(a.size() + b.size());
