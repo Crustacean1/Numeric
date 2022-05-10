@@ -84,7 +84,7 @@ bool Tests::mulDivReciprocity(Integer &a,Integer &b){
   if(c == a){
     return true;
   }
-  //std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<d<<std::endl;
+  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
   return false;
 }
 bool Tests::mulPerf(Integer & a,Integer & b){
