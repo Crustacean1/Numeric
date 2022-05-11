@@ -12,5 +12,4 @@ addition{
 }
 subtraction{
   assert: value(850395763712691800) value(850395763712691800) value(0);
-  assert: value(94647040) value(2258079320);
 }

@@ -109,7 +109,7 @@ Buffer<T> Buffer<T>::splice(size_t beg, size_t size) const {
 template <typename T> void Buffer<T>::copy(const Buffer<T> &buffer) const {
   if (buffer.size < size) {
     memcpy(data, buffer.data, buffer.size * sizeof(T));
-    memset(data + buffer.size * sizeof(T), 0,
+    memset(data + buffer.size , 0,
            (size - buffer.size) * sizeof(T));
     return;
   }

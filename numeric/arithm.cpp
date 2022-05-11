@@ -29,7 +29,9 @@ size_t Arithm::min(size_t a, size_t b) {
 bool Arithm::equal(SourceBuffer a, SourceBuffer b) {
   BaseType fill = isSigned(a) * BaseType(~0);
 
-  for (size_t i = 0; i < min(a.size, b.size); ++i) {
+  size_t minSize = min(a.size,b.size);
+
+  for (size_t i = 0; i < minSize; ++i) {
     if (a.data[i] != b.data[i]) {
       return false;
     }
@@ -166,7 +168,6 @@ void Arithm::subLeft(SourceBuffer a, SourceBuffer b) {
     _wordBuffer.major += padding;
     a.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
-    _wordBuffer.major += padding;
   }
 }
 
@@ -260,15 +261,15 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   size_t bShift = b.size * wordSize - leftOffset(b);
   size_t shift = aShift - bShift;
 
-  if (((int)shift) < 0) {
+  if(shift>>(sizeof(size_t)*8 -1)){
     return;
   }
 
   BaseBuffer::reserve(_aBuffer, a.size);
   BaseBuffer::reserve(_bBuffer, a.size);
 
-  _aBuffer = a;
-  _bBuffer = b;
+  _aBuffer.copy(a);
+  _bBuffer.copy(b);
 
   c.clear();
 
@@ -300,8 +301,8 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
                    SourceBuffer d, int level) {
 
   BasicIo &io = BasicIo::getInstance();
-  __DEBUG(level, a);
-  __DEBUG(level, b);
+  //__DEBUG(level, a);
+  //__DEBUG(level, b);
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -313,7 +314,7 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
     c.clear();
     c.data[0] = _wordBuffer.minor.low;
     c.data[1] = _wordBuffer.minor.high;
-    __DEBUG(level, c);
+    //__DEBUG(level, c);
     return;
   }
 
@@ -321,6 +322,8 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   SourceBuffer ha = a.splice(pivot, pivot);
   SourceBuffer lb = b.splice(0, pivot);
   SourceBuffer hb = b.splice(pivot, pivot);
+
+  //__DEBUG(level,hb);
 
   SourceBuffer lc = c.splice(0, majorPivot);
   SourceBuffer hc = c.splice(majorPivot, majorPivot);
@@ -336,6 +339,11 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
 
   // TODO: try reordering sub operands instead of inverting posteriori
 
+  //__DEBUG(level,la);
+  //__DEBUG(level,ha);
+  //__DEBUG(level,lb);
+  //__DEBUG(level,hb);
+
   lBuffer.copy(ha);
   subLeft(lBuffer, la);
   bool lSign = !overflow();
@@ -344,12 +352,15 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   subLeft(hBuffer, hb);
   bool hSign = !overflow();
 
+
   if (hSign) {
     invert(hBuffer);
   }
   if (lSign) {
     invert(lBuffer);
   }
+  //__DEBUG(level,lBuffer);
+  //__DEBUG(level,hBuffer);
 
   karIt(lBuffer, hBuffer, xBuffer, rBuffer, level + 1);
 
@@ -364,5 +375,5 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   unsignedAddLeft(yBuffer, lc);
   unsignedAddLeft(yBuffer, hc);
   unsignedAddLeft(c34, yBuffer);
-  __DEBUG(level, c);
+  //__DEBUG(level, c);
 }

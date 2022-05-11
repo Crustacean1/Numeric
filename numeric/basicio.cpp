@@ -24,11 +24,12 @@ Buffer<BaseType> BasicIo::createRandom(size_t size, bool isSigned) {
   for (size_t i = 0; i < size; ++i) {
     buffer.data[i] = dist(_engine);
   }
+  BaseType signbit = (BaseType(1) << (sizeof(BaseType) * 8 - 1));
   if (isSigned) {
-    buffer.data[size-1] |= (BaseType(1) << (sizeof(BaseType) * 8 - 1));
+    buffer.data[size-1] |= signbit;
   } else {
     buffer.data[size-1] &=
-        (~(BaseType(1) << (sizeof(BaseType) * 8 - 1)));
+        (~signbit);
   }
   return buffer;
 }
@@ -71,7 +72,6 @@ Buffer<BaseType> BasicIo::toBuffer(const std::string &str, Arithm &arth) {
 
 std::string BasicIo::getDec(const Buffer<BaseType> &buffer, Arithm &arth) {
   bool sign = arth.isSigned(buffer);
-  sign = false;
 
   size_t outputSize = toDecSize(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];
