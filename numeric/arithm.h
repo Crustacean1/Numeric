@@ -57,7 +57,7 @@ public:
 
   void kar(SourceBuffer a, SourceBuffer b, SourceBuffer c);
 
-  void newRaph(SourceBuffer a, SourceBuffer b);
+  void newRaph(SourceBuffer a, SourceBuffer b, SourceBuffer c);
   void modExp(SourceBuffer a,SourceBuffer b,SourceBuffer c);
   void gcd(SourceBuffer a, SourceBuffer b);
 

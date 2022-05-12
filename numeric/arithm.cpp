@@ -267,23 +267,25 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
 
   BaseBuffer::reserve(_aBuffer, a.size);
   BaseBuffer::reserve(_bBuffer, a.size);
+  BaseBuffer aBuf = _aBuffer.splice(0,a.size);
+  BaseBuffer bBuf = _bBuffer.splice(0,a.size);
 
-  _aBuffer.copy(a);
-  _bBuffer.copy(b);
+  aBuf.copy(a);
+  bBuf.copy(b);
 
   c.clear();
 
-  leftShift(_bBuffer, _bBuffer, shift);
+  leftShift(bBuf, bBuf, shift);
 
   for (size_t i = 0; i < shift + 2; ++i) {
     leftShift(c, c, 1);
-    if (isSigned(_aBuffer)) {
-      addLeft(_aBuffer, _bBuffer);
+    if (isSigned(aBuf)) {
+      addLeft(aBuf, bBuf);
     } else {
-      subLeft(_aBuffer, _bBuffer);
+      subLeft(aBuf, bBuf);
       c.data[0] += 1;
     }
-    rightShift(_bBuffer, _bBuffer, 1);
+    rightShift(bBuf, bBuf, 1);
   }
 
   _wordBuffer.minor.low = wordSize - ((shift + 1) % wordSize);
@@ -301,8 +303,6 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
                    SourceBuffer d, int level) {
 
   BasicIo &io = BasicIo::getInstance();
-  //__DEBUG(level, a);
-  //__DEBUG(level, b);
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -314,7 +314,6 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
     c.clear();
     c.data[0] = _wordBuffer.minor.low;
     c.data[1] = _wordBuffer.minor.high;
-    //__DEBUG(level, c);
     return;
   }
 
@@ -322,8 +321,6 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   SourceBuffer ha = a.splice(pivot, pivot);
   SourceBuffer lb = b.splice(0, pivot);
   SourceBuffer hb = b.splice(pivot, pivot);
-
-  //__DEBUG(level,hb);
 
   SourceBuffer lc = c.splice(0, majorPivot);
   SourceBuffer hc = c.splice(majorPivot, majorPivot);
@@ -338,11 +335,6 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   karIt(ha, hb, hc, rBuffer, level + 1);
 
   // TODO: try reordering sub operands instead of inverting posteriori
-
-  //__DEBUG(level,la);
-  //__DEBUG(level,ha);
-  //__DEBUG(level,lb);
-  //__DEBUG(level,hb);
 
   lBuffer.copy(ha);
   subLeft(lBuffer, la);
@@ -359,8 +351,6 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   if (lSign) {
     invert(lBuffer);
   }
-  //__DEBUG(level,lBuffer);
-  //__DEBUG(level,hBuffer);
 
   karIt(lBuffer, hBuffer, xBuffer, rBuffer, level + 1);
 
@@ -375,5 +365,7 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
   unsignedAddLeft(yBuffer, lc);
   unsignedAddLeft(yBuffer, hc);
   unsignedAddLeft(c34, yBuffer);
-  //__DEBUG(level, c);
+}
+void Arithm::newRaph(SourceBuffer a, SourceBuffer b, SourceBuffer c){
+  
 }
