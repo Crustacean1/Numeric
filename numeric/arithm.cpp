@@ -310,7 +310,7 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
 // Modifies contents of _buffer[0], destroying previous contents
 void Arithm::kar(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   Buffer<BaseType>::reserve(_buffer[0], 4 * a.size);
-  Buffer<BaseType>::reserve(_buffer[1], 4 * a.size);
+  Buffer<BaseType>::reserve(_buffer[1], 2 * a.size);
   karIt(a, b, _buffer[1], _buffer[0]);
   c.copy(_buffer[1]);
 }
@@ -410,7 +410,7 @@ void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize){ 
 
   x.clear();
 
-  _buffer[1].reserve(_buffer[1],(a.size << 1));
+  _buffer[2].reserve(_buffer[2],(a.size << 1));
   _buffer[3].reserve(_buffer[3],(a.size << 2));
 
   size_t aSignificantDigit =  (aRightOffset/wordSize);
@@ -426,9 +426,10 @@ void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize){ 
   std::cout<<"Significant: "<<cSignificantDigit<<" And + 1"<<std::endl;
   std::cout<<x.data[cSignificantDigit+1]<<" "<<x.data[cSignificantDigit]<<std::endl;
   
+
   __DEBUG(0,a);
   __DEBUG(0,x);
-  for(size_t i = 0;i<1;++i){
+  for(size_t i = 0;i<100;++i){
       newtonIteration(a,x);
     __DEBUG(0,x);
   }
@@ -436,27 +437,34 @@ void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize){ 
 
 void Arithm::newtonIteration(SourceBuffer a, SourceBuffer x){
   BasicIo & io = BasicIo::getInstance();
-  SourceBuffer lBuff = _buffer[1].splice(0,x.size);
-  SourceBuffer hBuff = _buffer[1].splice(x.size,x.size);
+  SourceBuffer lBuff = _buffer[2].splice(0,x.size);
+  SourceBuffer hBuff = _buffer[2].splice(x.size,x.size);
 
-  __DEBUG(0,a);
-  __DEBUG(0,x);
-  kar(a,x,_buffer[1]);
-  __DEBUG(0,_buffer[1]);
-  invert(_buffer[1]);
-  __DEBUG(0,_buffer[1]);
+  //__DEBUG(0,a);
+  //__DEBUG(0,x);
+
+  if(a.size>x.size){
+    kar(a,x,_buffer[2]);
+  }else{
+    kar(x,a,_buffer[2]);
+  }
+
+  //__DEBUG(0,_buffer[2]);
+  invert(_buffer[2]);
+  //__DEBUG(0,_buffer[2]);
   add(hBuff, 2);
-  __DEBUG(0,_buffer[1]);
+  //__DEBUG(0,_buffer[2]);
 
-  if(isSigned(_buffer[1])){
+  if(isSigned(_buffer[2])){
      std::cout<<"Error: unexpected signedness"<<std::endl;
   }
-  __DEBUG(0,x)
 
+  //__DEBUG(0,x)
 
-  kar(x,_buffer[1],_buffer[3]);
-  __DEBUG(0,_buffer[3]);
+  kar(_buffer[2],x,_buffer[3]);
+  //__DEBUG(0,_buffer[1]);
+  //__DEBUG(0,_buffer[3]);
   rightShift(_buffer[3],_buffer[3],x.size* wordSize);
-  __DEBUG(0,_buffer[3]);
+  //__DEBUG(0,_buffer[3]);
   x.copy(_buffer[3]);
 }

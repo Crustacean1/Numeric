@@ -139,8 +139,8 @@ Numeric Numeric::operator/(const Numeric &num) {
 }
 
 Numeric &Numeric::operator/=(const Numeric &num) {
-  _arthModule.div(_buffer, num._buffer, _buffer);
-  //_arthModule.newtonDiv(_buffer,num._buffer,_buffer);
+  //_arthModule.div(_buffer, num._buffer, _buffer);
+  _arthModule.newtonDiv(_buffer,num._buffer,_buffer);
   return *this;
 }
 
