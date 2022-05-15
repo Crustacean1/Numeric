@@ -124,17 +124,11 @@ Numeric Numeric::operator*(const Numeric &num) {
 }
 
 Numeric &Numeric::operator*=(const Numeric &num) {
-
-  Buffer<BaseType> buffer = Buffer<BaseType>::createBuffer(_buffer.size);
-  buffer.copy(_buffer);
-
-  if(buffer.size > num._buffer.size){
-    _arthModule.kar(buffer, num._buffer, _buffer);
-    buffer.releaseBuffer();
+  if(_buffer.size > num._buffer.size){
+    _arthModule.kar(_buffer, num._buffer, _buffer);
     return *this;
   }
-  _arthModule.kar(num._buffer, buffer, _buffer);
-  buffer.releaseBuffer();
+  _arthModule.kar(num._buffer, _buffer, _buffer);
   return *this;
 }
 

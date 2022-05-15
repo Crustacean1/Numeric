@@ -15,9 +15,10 @@ Arithm Arithm::_instance;
 Arithm &Arithm::getInstance() { return _instance; }
 
 Arithm::Arithm()
-    : _aBuffer(BaseBuffer::createBuffer(1)),
-      _bBuffer(BaseBuffer::createBuffer(1)),
-      _cBuffer(BaseBuffer::createBuffer(1)){}
+    : _buffer{Buffer<BaseType>::createBuffer(1),
+              Buffer<BaseType>::createBuffer(1),
+              Buffer<BaseType>::createBuffer(1),
+              Buffer<BaseType>::createBuffer(1)}{}
 
 bool Arithm::overflow() { return _wordBuffer.major & 1; }
 
@@ -275,10 +276,10 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
     return;
   }
 
-  BaseBuffer::reserve(_aBuffer, a.size);
-  BaseBuffer::reserve(_bBuffer, a.size);
-  BaseBuffer aBuf = _aBuffer.splice(0,a.size);
-  BaseBuffer bBuf = _bBuffer.splice(0,a.size);
+  BaseBuffer::reserve(_buffer[0], a.size);
+  BaseBuffer::reserve(_buffer[1], a.size);
+  BaseBuffer aBuf = _buffer[0].splice(0,a.size);
+  BaseBuffer bBuf = _buffer[1].splice(0,a.size);
 
   aBuf.copy(a);
   bBuf.copy(b);
@@ -306,16 +307,16 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
 }
 
 // Implementation note:
-// Modifies contents of _aBuffer, destroying previous contents
+// Modifies contents of _buffer[0], destroying previous contents
 void Arithm::kar(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
-  Buffer<BaseType>::reserve(_aBuffer, 4 * a.size);
-  karIt(a, b, c, _aBuffer);
+  Buffer<BaseType>::reserve(_buffer[0], 4 * a.size);
+  Buffer<BaseType>::reserve(_buffer[1], 4 * a.size);
+  karIt(a, b, _buffer[1], _buffer[0]);
+  c.copy(_buffer[1]);
 }
 void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, size_t level) {
 
   BasicIo &io = BasicIo::getInstance();
-  //__DEBUG(level, a);
-  //__DEBUG(level, b);
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -324,19 +325,17 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer 
   if (pivot == 0 || b.size == 0) {
     c.clear();
     if(b.size == 0){
-      //__DEBUG(level, c);
       return;
     } 
     _wordBuffer.major = a.data[0];
     _wordBuffer.major *= b.data[0];
     c.data[0] = _wordBuffer.minor.low;
     c.data[1] = _wordBuffer.minor.high;
-    //__DEBUG(level, c);
     return;
   }
 
   SourceBuffer la = a.splice(0, pivot);
-  SourceBuffer ha = a.splice(la.size, pivot);
+  SourceBuffer ha = a.splice(pivot, pivot);
   SourceBuffer lb = b.splice(0, min(pivot,b.size));
   SourceBuffer hb = b.splice(lb.size, min(b.size - lb.size,pivot));
 
@@ -352,8 +351,6 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer 
 
   karIt(la, lb, lc, rBuffer, level + 1);
   karIt(ha, hb, hc, rBuffer, level + 1);
-
-  // TODO: try reordering sub operands instead of inverting posteriori
 
   lBuffer.copy(ha);
   subLeft(lBuffer, la);
@@ -383,7 +380,6 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer 
   unsignedAddLeft(yBuffer, lc);
   unsignedAddLeft(yBuffer, hc);
   unsignedAddLeft(c34, yBuffer);
-  //__DEBUG(level, c);
 }
 
 void Arithm::newtonDiv(SourceBuffer a,SourceBuffer b, SourceBuffer c){
@@ -414,8 +410,8 @@ void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize){ 
 
   x.clear();
 
-  _bBuffer.reserve(_bBuffer,(a.size << 1));
-  _cBuffer.reserve(_cBuffer,(a.size << 2));
+  _buffer[1].reserve(_buffer[1],(a.size << 1));
+  _buffer[3].reserve(_buffer[3],(a.size << 2));
 
   size_t aSignificantDigit =  (aRightOffset/wordSize);
   size_t cSignificantDigit = inverseSize  - 2 - aSignificantDigit;
@@ -440,27 +436,27 @@ void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize){ 
 
 void Arithm::newtonIteration(SourceBuffer a, SourceBuffer x){
   BasicIo & io = BasicIo::getInstance();
-  SourceBuffer lBuff = _bBuffer.splice(0,x.size);
-  SourceBuffer hBuff = _bBuffer.splice(x.size,x.size);
+  SourceBuffer lBuff = _buffer[1].splice(0,x.size);
+  SourceBuffer hBuff = _buffer[1].splice(x.size,x.size);
 
   __DEBUG(0,a);
   __DEBUG(0,x);
-  kar(a,x,_bBuffer);
-  __DEBUG(0,_bBuffer);
-  invert(_bBuffer);
-  __DEBUG(0,_bBuffer);
+  kar(a,x,_buffer[1]);
+  __DEBUG(0,_buffer[1]);
+  invert(_buffer[1]);
+  __DEBUG(0,_buffer[1]);
   add(hBuff, 2);
-  __DEBUG(0,_bBuffer);
+  __DEBUG(0,_buffer[1]);
 
-  if(isSigned(_bBuffer)){
+  if(isSigned(_buffer[1])){
      std::cout<<"Error: unexpected signedness"<<std::endl;
   }
   __DEBUG(0,x)
 
 
-  kar(x,_bBuffer,_cBuffer);
-  __DEBUG(0,_cBuffer);
-  rightShift(_cBuffer,_cBuffer,x.size* wordSize);
-  __DEBUG(0,_cBuffer);
-  x.copy(_cBuffer);
+  kar(x,_buffer[1],_buffer[3]);
+  __DEBUG(0,_buffer[3]);
+  rightShift(_buffer[3],_buffer[3],x.size* wordSize);
+  __DEBUG(0,_buffer[3]);
+  x.copy(_buffer[3]);
 }

@@ -6,6 +6,13 @@ basicDiv{
 }
 
 mulDivReciprocity{
-  case(100) : unsigned(8) unsigned(8);
+  case(100) : unsigned(128) unsigned(128);
+  case(100) : unsigned(64) unsigned(64);
+  case(100) : unsigned(32) unsigned(64);
+  case(100) : unsigned(64) unsigned(32);
+  case(100) : unsigned(64) unsigned(16);
+  case(100) : unsigned(16) unsigned(64);
+  case(100) : unsigned(4) unsigned(64);
+  case(100) : unsigned(64) unsigned(4);
 }
 

@@ -16,9 +16,7 @@ class Arithm {
   };
 
   DoubleBuffer _wordBuffer = {0};
-  BaseBuffer _aBuffer;
-  BaseBuffer _bBuffer;
-  BaseBuffer _cBuffer;
+  BaseBuffer _buffer[4];
 
   static Arithm _instance;
   static constexpr size_t wordSize = sizeof(BaseType) * 8;

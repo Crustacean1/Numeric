@@ -73,27 +73,15 @@ bool Tests::basicDivision(Integer &a,Integer &b,Integer &c){
 }
 
 bool Tests::mulDivReciprocity(Integer &a,Integer &b){
-  std::cout<<"Start"<<std::endl;
   Integer c(a.size() + b.size());
-  std::cout<<"Post init"<<std::endl;
 
   c = a;
-  std::cout<<"Post assign"<<std::endl;
 
   c *= b;
 
-  std::cout<<"Post mul"<<std::endl;
-
-  //Integer d(c);
-
-  //std::cout<<"Post copy"<<std::endl;
-
-
   c /= b;
-  std::cout<<"Post div"<<std::endl;
 
   if(c == a){
-    std::cout<<"End"<<std::endl;
     return true;
   }
   std::cout<<a.size()<<" "<<b.size()<<" " << c.size()<< "A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
