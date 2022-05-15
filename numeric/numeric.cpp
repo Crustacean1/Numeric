@@ -129,12 +129,12 @@ Numeric &Numeric::operator*=(const Numeric &num) {
   buffer.copy(_buffer);
 
   if(buffer.size > num._buffer.size){
-    std::cout<<"Inside if: "<<*this<<" "<<num<<std::endl;
     _arthModule.kar(buffer, num._buffer, _buffer);
-    std::cout<<"Inside if: "<<*this<<" "<<num<<std::endl;
+    buffer.releaseBuffer();
     return *this;
   }
   _arthModule.kar(num._buffer, buffer, _buffer);
+  buffer.releaseBuffer();
   return *this;
 }
 

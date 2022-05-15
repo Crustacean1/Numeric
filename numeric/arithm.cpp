@@ -1,7 +1,7 @@
 #define __DEBUG(depth, x)                                                      \
   if (true) {                                                            \
     for (int dpth = 0; dpth < depth; ++dpth) {                                 \
-      std::cout << " ";                                                        \
+      std::cout << "  ";                                                        \
     }                                                                          \
     std::cout << "at: " << __LINE__ << ",\t" << #x << "\t=\t" << x.size        \
               << ": " << io.getDec(x, *this) << " " << isSigned(x)<<std::endl;             \
@@ -204,7 +204,7 @@ void Arithm::invert(SourceBuffer integer) {
 
 bool Arithm::isSigned(SourceBuffer buffer) {
   constexpr size_t signPos = sizeof(BaseType) * 8 - 1;
-  return (buffer.data[buffer.size - 1] >> signPos);
+  return  (buffer.size != 0 ) && (buffer.data[buffer.size - 1] >> signPos);
 }
 
 void Arithm::leftShift(SourceBuffer a, SourceBuffer b, size_t shift) {
@@ -309,48 +309,46 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
 // Modifies contents of _aBuffer, destroying previous contents
 void Arithm::kar(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   Buffer<BaseType>::reserve(_aBuffer, 4 * a.size);
-  _aBuffer.clear();
-  c.clear();
-
   karIt(a, b, c, _aBuffer);
 }
-void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, int level) {
+void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, size_t level) {
 
   BasicIo &io = BasicIo::getInstance();
+  //__DEBUG(level, a);
+  //__DEBUG(level, b);
 
-  __DEBUG(level, a);
-  __DEBUG(level, b);
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
   size_t bufferPivot = (a.size << 1);
 
-
   if (pivot == 0 || b.size == 0) {
+    c.clear();
     if(b.size == 0){
+      //__DEBUG(level, c);
       return;
     } 
     _wordBuffer.major = a.data[0];
     _wordBuffer.major *= b.data[0];
-    c.clear();
     c.data[0] = _wordBuffer.minor.low;
     c.data[1] = _wordBuffer.minor.high;
-    __DEBUG(level, c);
+    //__DEBUG(level, c);
     return;
   }
 
   SourceBuffer la = a.splice(0, pivot);
-  SourceBuffer ha = a.splice(pivot, pivot);
-  SourceBuffer lb = b.splice(0, pivot);
-  SourceBuffer hb = b.splice(pivot, pivot);
+  SourceBuffer ha = a.splice(la.size, pivot);
+  SourceBuffer lb = b.splice(0, min(pivot,b.size));
+  SourceBuffer hb = b.splice(lb.size, min(b.size - lb.size,pivot));
 
   SourceBuffer lc = c.splice(0, majorPivot);
   SourceBuffer hc = c.splice(majorPivot, majorPivot);
 
   SourceBuffer lBuffer = d.splice(0, pivot);
   SourceBuffer hBuffer = d.splice(pivot, pivot);
+
   SourceBuffer xBuffer = d.splice(majorPivot, majorPivot);
-  SourceBuffer rBuffer = d.splice(bufferPivot, bufferPivot);
   SourceBuffer yBuffer = d.splice(majorPivot, majorPivot + 1);
+  SourceBuffer rBuffer = d.splice(bufferPivot, bufferPivot);
 
   karIt(la, lb, lc, rBuffer, level + 1);
   karIt(ha, hb, hc, rBuffer, level + 1);
@@ -385,7 +383,7 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer 
   unsignedAddLeft(yBuffer, lc);
   unsignedAddLeft(yBuffer, hc);
   unsignedAddLeft(c34, yBuffer);
-  __DEBUG(level,c);
+  //__DEBUG(level, c);
 }
 
 void Arithm::newtonDiv(SourceBuffer a,SourceBuffer b, SourceBuffer c){

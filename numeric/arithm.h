@@ -30,7 +30,7 @@ class Arithm {
 
   Arithm();
   bool overflow();
-  void karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, int level = 0);
+  void karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, size_t level = 0);
   void newtonIteration(SourceBuffer a, SourceBuffer x);
 
 public:
