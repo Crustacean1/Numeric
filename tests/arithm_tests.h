@@ -19,6 +19,7 @@ bool basicMultiplication(Integer &a, Integer &b,Integer &c);
 bool basicDivision(Integer &a,Integer &b,Integer &c);
 bool mulDivReciprocity(Integer &a, Integer &b);
 bool mulPerf(Integer &a, Integer &b);
+bool newtonDiv(Integer &a, Integer &b, Integer & c);
 
 }; // namespace Tests
 

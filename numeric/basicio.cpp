@@ -72,6 +72,7 @@ Buffer<BaseType> BasicIo::toBuffer(const std::string &str, Arithm &arth) {
 
 std::string BasicIo::getDec(const Buffer<BaseType> &buffer, Arithm &arth) {
   bool sign = arth.isSigned(buffer);
+  sign = false;
 
   size_t outputSize = toDecSize(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];
@@ -89,7 +90,8 @@ std::string BasicIo::getBin(const Buffer<BaseType> &buffer, Arithm &arth) {
   std::string result;
   for (size_t i = buffer.size ; i > 0; --i) {
     for (size_t j = wordSize ; j > 0; --j) {
-      result.insert(result.begin(), (char)(((buffer.data[i - 1] >> (j-1)) & 1) + '0'));
+      result += (char)(((buffer.data[i - 1] >> (j-1)) & 1) + '0');
+      //result.insert(result.begin(), (char)(((buffer.data[i - 1] >> (j-1)) & 1) + '0'));
     }
   }
   return result;

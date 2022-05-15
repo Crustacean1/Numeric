@@ -22,12 +22,15 @@ class Arithm {
 
   static Arithm _instance;
   static constexpr size_t wordSize = sizeof(BaseType) * 8;
+  static constexpr size_t bufferSize = sizeof(BufferType) * 8;
+  static constexpr size_t wordHighShift = sizeof(BaseType) * 8 - 1;
+  static constexpr size_t bufferHighShift = sizeof(BufferType) * 8 - 1;
 
   static size_t min(size_t a, size_t b);
 
   Arithm();
   bool overflow();
-  void karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d);
+  void karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, int level = 0);
   void newtonIteration(SourceBuffer a, SourceBuffer x);
 
 public:
@@ -59,10 +62,11 @@ public:
   void mul(SourceBuffer b, SourceBuffer a);
   void div(SourceBuffer a, SourceBuffer b, SourceBuffer c);
   void mod(SourceBuffer a, SourceBuffer b, SourceBuffer c);
+  void newtonDiv(SourceBuffer a,SourceBuffer b, SourceBuffer c);
+  void newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize);
 
   void kar(SourceBuffer a, SourceBuffer b, SourceBuffer c);
 
-  void newRaph(SourceBuffer a, SourceBuffer b, SourceBuffer x);
   void modExp(SourceBuffer a,SourceBuffer b,SourceBuffer c);
   void gcd(SourceBuffer a, SourceBuffer b);
 

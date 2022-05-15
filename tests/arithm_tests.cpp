@@ -74,17 +74,20 @@ bool Tests::basicDivision(Integer &a,Integer &b,Integer &c){
 
 bool Tests::mulDivReciprocity(Integer &a,Integer &b){
   Integer c(a.size() + b.size());
-  Integer zero(a.size());
 
   c = a;
+  std::cout<<"PRE: "<<c<<std::endl;
+
   c *= b;
+
+  std::cout<<"MUL: "<<c<<std::endl;
 
   c /= b;
 
   if(c == a){
     return true;
   }
-  //std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
+  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
   return false;
 }
 bool Tests::mulPerf(Integer & a,Integer & b){
@@ -92,4 +95,13 @@ bool Tests::mulPerf(Integer & a,Integer & b){
   c = a;
   c*= a;
   return true;
+}
+
+bool Tests::newtonDiv(Integer &a,Integer &b, Integer &c){
+  Integer d(a);
+  d /= b;
+  if (d==c){
+    return true;
+  }
+  std::cout<<"A: "<<a<<"\nB: "<<b<<"\nD: "<<d<<"\nC: "<<c<<std::endl;
 }

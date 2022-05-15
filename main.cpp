@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
   tester.addTest("basicDiv", Tests::basicDivision);
   tester.addTest("mulDivReciprocity", Tests::mulDivReciprocity);
   tester.addTest("mulPerf", Tests::mulPerf);
+  tester.addTest("newtonDiv",Tests::newtonDiv);
 
   int result = 0;
   for (int i = 1; i < argc && result == 0; ++i) {

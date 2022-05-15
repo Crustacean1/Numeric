@@ -124,11 +124,14 @@ Numeric Numeric::operator*(const Numeric &num) {
 }
 
 Numeric &Numeric::operator*=(const Numeric &num) {
+
   Buffer<BaseType> buffer = Buffer<BaseType>::createBuffer(_buffer.size);
   buffer.copy(_buffer);
 
   if(buffer.size > num._buffer.size){
+    std::cout<<"Inside if: "<<*this<<" "<<num<<std::endl;
     _arthModule.kar(buffer, num._buffer, _buffer);
+    std::cout<<"Inside if: "<<*this<<" "<<num<<std::endl;
     return *this;
   }
   _arthModule.kar(num._buffer, buffer, _buffer);
@@ -142,8 +145,8 @@ Numeric Numeric::operator/(const Numeric &num) {
 }
 
 Numeric &Numeric::operator/=(const Numeric &num) {
-  //_arthModule.div(_buffer, num._buffer, _buffer);
-  _arthModule.div(_buffer,num._buffer,_buffer);
+  _arthModule.div(_buffer, num._buffer, _buffer);
+  //_arthModule.newtonDiv(_buffer,num._buffer,_buffer);
   return *this;
 }
 
