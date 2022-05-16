@@ -391,7 +391,7 @@ void Arithm::newtonDiv(SourceBuffer a,SourceBuffer b, SourceBuffer c){
   mulBuff.clear();
 
   __DEBUG(0,b);
-  newtonInverse(b,inverse,a.size);
+  newtonInverse(b,inverse);
 
   __DEBUG(0,inverse);
   __DEBUG(0,a);
@@ -401,31 +401,56 @@ void Arithm::newtonDiv(SourceBuffer a,SourceBuffer b, SourceBuffer c){
   rightShift(mulBuff,mulBuff,(a.size * wordSize));
   __DEBUG(0,mulBuff);
   c.copy(mulBuff.splice(0,a.size));
-  __DEBUG(0,c);
 } 
 
-void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize){ BasicIo & io = BasicIo::getInstance();
+void Arithm::divApprox(SourceBuffer a, SourceBuffer x){
 
-  size_t aRightOffset = rightOffset(a);
+  size_t aSigPos = wordSize * a.size - leftOffset(a);
+  size_t aWordPos = aSigPos/ wordSize;
+  size_t aSigShift = aSigPos % wordSize;
 
-  x.clear();
+  size_t xSigPos = ((x.size - 2) * wordSize - (aSigPos - wordSize));
+  size_t xWordPos = xSigPos/wordSize;
+  size_t xSigShift = xSigPos % wordSize; // To be optimized... (mask)
+  
+  std::cout<< "aSigPos: "<<aSigPos<<std::endl;
+  std::cout<< "aWordPos: "<<aWordPos<<std::endl;
+  std::cout<< "aSigShift: "<<aSigShift<<std::endl;
+  std::cout<< "xSigPos: "<<xSigPos<<std::endl;
+  std::cout<< "xWordPos: "<<xWordPos<<std::endl;
+  std::cout<< "xSigShift: "<<xSigShift<<std::endl;
 
-  _buffer[2].reserve(_buffer[2],(a.size << 1));
-  _buffer[3].reserve(_buffer[3],(a.size << 2));
+  for(int i = 0;i<a.size;++i){
+    std::cout<<"el: "<<a.data[i]<<std::endl;
+  }
 
-  size_t aSignificantDigit =  (aRightOffset/wordSize);
-  size_t cSignificantDigit = inverseSize  - 2 - aSignificantDigit;
+
+  BufferType divisor = a.data[aWordPos];
+  divisor<<= wordSize;
+  divisor += a.data[aWordPos - 1];
+  divisor >>= (aSigShift + 1);
+
+  std::cout<<"divisor: "<<divisor<<std::endl;
 
   _wordBuffer.major = 1;
   _wordBuffer.major <<= bufferHighShift;
-  _wordBuffer.major /= a.data[aSignificantDigit];
-  _wordBuffer.major <<= 1;
+  _wordBuffer.major /= divisor;
 
-  x.data[cSignificantDigit] = _wordBuffer.minor.low;
-  x.data[cSignificantDigit+1] = _wordBuffer.minor.high;
-  std::cout<<"Significant: "<<cSignificantDigit<<" And + 1"<<std::endl;
-  std::cout<<x.data[cSignificantDigit+1]<<" "<<x.data[cSignificantDigit]<<std::endl;
-  
+  std::cout<<"Inverse: "<<_wordBuffer.major<<std::endl;
+
+
+  x.data[xWordPos + 1] = (_wordBuffer.major >> (wordSize - xSigShift));
+  x.data[xWordPos] = (_wordBuffer.major << xSigShift);
+
+}
+
+void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x){
+  BasicIo & io = BasicIo::getInstance();
+
+  _buffer[2].reserve(_buffer[2],(x.size << 1));
+  _buffer[3].reserve(_buffer[3],(x.size << 2));
+
+  divApprox(a,x); 
 
   __DEBUG(0,a);
   __DEBUG(0,x);
@@ -437,17 +462,17 @@ void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize){ 
 
 void Arithm::newtonIteration(SourceBuffer a, SourceBuffer x){
   BasicIo & io = BasicIo::getInstance();
-  SourceBuffer lBuff = _buffer[2].splice(0,x.size);
+  std::cout<<"Sizes: "<<_buffer[2].size<<" "<<x.size<<std::endl;
   SourceBuffer hBuff = _buffer[2].splice(x.size,x.size);
 
   //__DEBUG(0,a);
   //__DEBUG(0,x);
 
   if(a.size>x.size){
+    std::cout<<"Anomaly"<<std::endl;
     kar(a,x,_buffer[2]);
-  }else{
-    kar(x,a,_buffer[2]);
   }
+  kar(x,a,_buffer[2]);
 
   //__DEBUG(0,_buffer[2]);
   invert(_buffer[2]);

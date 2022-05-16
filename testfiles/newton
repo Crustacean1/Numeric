@@ -1,3 +1,3 @@
 newtonDiv{
-  assert : unsigned(4) unsigned(2) unsigned(1);
+  assert : unsigned(8) unsigned(4) unsigned(1);
 }

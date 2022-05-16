@@ -76,9 +76,7 @@ bool Tests::mulDivReciprocity(Integer &a,Integer &b){
   Integer c(a.size() + b.size());
 
   c = a;
-
   c *= b;
-
   c /= b;
 
   if(c == a){
@@ -96,9 +94,12 @@ bool Tests::mulPerf(Integer & a,Integer & b){
 
 bool Tests::newtonDiv(Integer &a,Integer &b, Integer &c){
   Integer d(a);
+  std::cout<<"And his name is: "<<a<<"\t"<<b<<std::endl;
   d /= b;
   if (d==c){
     return true;
   }
-  std::cout<<"A: "<<a<<"\nB: "<<b<<"\nD: "<<d<<"\nC: "<<c<<std::endl;
+  std::cout<<"C: "<<c<<std::endl;
+  return false;
+  //std::cout<<"A: "<<a<<"\nB: "<<b<<"\nD: "<<d<<"\nC: "<<c<<std::endl;
 }

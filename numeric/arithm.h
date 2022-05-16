@@ -30,6 +30,7 @@ class Arithm {
   bool overflow();
   void karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, size_t level = 0);
   void newtonIteration(SourceBuffer a, SourceBuffer x);
+  void divApprox(SourceBuffer a, SourceBuffer x);
 
 public:
   bool equal(SourceBuffer a, SourceBuffer b);
@@ -61,7 +62,7 @@ public:
   void div(SourceBuffer a, SourceBuffer b, SourceBuffer c);
   void mod(SourceBuffer a, SourceBuffer b, SourceBuffer c);
   void newtonDiv(SourceBuffer a,SourceBuffer b, SourceBuffer c);
-  void newtonInverse(SourceBuffer a, SourceBuffer x, size_t inverseSize);
+  void newtonInverse(SourceBuffer a, SourceBuffer x);
 
   void kar(SourceBuffer a, SourceBuffer b, SourceBuffer c);
 
