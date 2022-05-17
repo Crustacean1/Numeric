@@ -3,7 +3,7 @@
     for (int dpth = 0; dpth < depth; ++dpth) {                                 \
       std::cout << "  ";                                                        \
     }                                                                          \
-    std::cout << "at: " << __LINE__ << ",\t" << #x << "\t=\t" << x.size        \
+    std::cout << "at: " << __LINE__ << ",\t" << #x << " = " << x.size        \
               << ": " << io.getDec(x, *this) << " " << isSigned(x)<<std::endl;             \
   }
 #include "arithm.h"
@@ -390,16 +390,12 @@ void Arithm::newtonDiv(SourceBuffer a,SourceBuffer b, SourceBuffer c){
   inverse.clear();
   mulBuff.clear();
 
-  __DEBUG(0,b);
   newtonInverse(b,inverse);
+  add(inverse,1);
 
-  __DEBUG(0,inverse);
-  __DEBUG(0,a);
   kar(inverse,a,mulBuff);
-  __DEBUG(0,mulBuff);
 
   rightShift(mulBuff,mulBuff,(a.size * wordSize));
-  __DEBUG(0,mulBuff);
   c.copy(mulBuff.splice(0,a.size));
 } 
 
@@ -413,35 +409,17 @@ void Arithm::divApprox(SourceBuffer a, SourceBuffer x){
   size_t xWordPos = xSigPos/wordSize;
   size_t xSigShift = xSigPos % wordSize; // To be optimized... (mask)
   
-  std::cout<< "aSigPos: "<<aSigPos<<std::endl;
-  std::cout<< "aWordPos: "<<aWordPos<<std::endl;
-  std::cout<< "aSigShift: "<<aSigShift<<std::endl;
-  std::cout<< "xSigPos: "<<xSigPos<<std::endl;
-  std::cout<< "xWordPos: "<<xWordPos<<std::endl;
-  std::cout<< "xSigShift: "<<xSigShift<<std::endl;
-
-  for(int i = 0;i<a.size;++i){
-    std::cout<<"el: "<<a.data[i]<<std::endl;
-  }
-
-
   BufferType divisor = a.data[aWordPos];
   divisor<<= wordSize;
   divisor += a.data[aWordPos - 1];
   divisor >>= (aSigShift + 1);
 
-  std::cout<<"divisor: "<<divisor<<std::endl;
-
   _wordBuffer.major = 1;
   _wordBuffer.major <<= bufferHighShift;
   _wordBuffer.major /= divisor;
 
-  std::cout<<"Inverse: "<<_wordBuffer.major<<std::endl;
-
-
   x.data[xWordPos + 1] = (_wordBuffer.major >> (wordSize - xSigShift));
   x.data[xWordPos] = (_wordBuffer.major << xSigShift);
-
 }
 
 void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x){
@@ -452,44 +430,22 @@ void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x){
 
   divApprox(a,x); 
 
-  __DEBUG(0,a);
-  __DEBUG(0,x);
-  for(size_t i = 0;i<100;++i){
+  for(size_t i = 0;i<10;++i){
       newtonIteration(a,x);
-    __DEBUG(0,x);
+    //__DEBUG(0,x);
   }
 }
 
 void Arithm::newtonIteration(SourceBuffer a, SourceBuffer x){
   BasicIo & io = BasicIo::getInstance();
-  std::cout<<"Sizes: "<<_buffer[2].size<<" "<<x.size<<std::endl;
   SourceBuffer hBuff = _buffer[2].splice(x.size,x.size);
 
-  //__DEBUG(0,a);
-  //__DEBUG(0,x);
-
-  if(a.size>x.size){
-    std::cout<<"Anomaly"<<std::endl;
-    kar(a,x,_buffer[2]);
-  }
   kar(x,a,_buffer[2]);
 
-  //__DEBUG(0,_buffer[2]);
   invert(_buffer[2]);
-  //__DEBUG(0,_buffer[2]);
   add(hBuff, 2);
-  //__DEBUG(0,_buffer[2]);
-
-  if(isSigned(_buffer[2])){
-     std::cout<<"Error: unexpected signedness"<<std::endl;
-  }
-
-  //__DEBUG(0,x)
 
   kar(_buffer[2],x,_buffer[3]);
-  //__DEBUG(0,_buffer[1]);
-  //__DEBUG(0,_buffer[3]);
   rightShift(_buffer[3],_buffer[3],x.size* wordSize);
-  //__DEBUG(0,_buffer[3]);
   x.copy(_buffer[3]);
 }
