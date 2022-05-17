@@ -1,10 +1,10 @@
 #define __DEBUG(depth, x)                                                      \
-  if (true) {                                                            \
+  if (true) {                                                                  \
     for (int dpth = 0; dpth < depth; ++dpth) {                                 \
-      std::cout << "  ";                                                        \
+      std::cout << "  ";                                                       \
     }                                                                          \
-    std::cout << "at: " << __LINE__ << ",\t" << #x << " = " << x.size        \
-              << ": " << io.getDec(x, *this) << " " << isSigned(x)<<std::endl;             \
+    std::cout << "at: " << __LINE__ << ",\t" << #x << " = " << x.size << ": "  \
+              << io.getDec(x, *this) << " " << isSigned(x) << std::endl;       \
   }
 #include "arithm.h"
 #include "basicio.h"
@@ -18,7 +18,7 @@ Arithm::Arithm()
     : _buffer{Buffer<BaseType>::createBuffer(1),
               Buffer<BaseType>::createBuffer(1),
               Buffer<BaseType>::createBuffer(1),
-              Buffer<BaseType>::createBuffer(1)}{}
+              Buffer<BaseType>::createBuffer(1)} {}
 
 bool Arithm::overflow() { return _wordBuffer.major & 1; }
 
@@ -30,7 +30,7 @@ size_t Arithm::min(size_t a, size_t b) {
 bool Arithm::equal(SourceBuffer a, SourceBuffer b) {
   BaseType fill = isSigned(a) * BaseType(~0);
 
-  size_t minSize = min(a.size,b.size);
+  size_t minSize = min(a.size, b.size);
 
   for (size_t i = 0; i < minSize; ++i) {
     if (a.data[i] != b.data[i]) {
@@ -103,7 +103,7 @@ size_t Arithm::rightOffset(SourceBuffer a) {
   }
   for (j = 0; j < wordSize && ((a.data[i] >> j) & 1) == 0; ++j) {
   }
-  return i  * wordSize + j ;
+  return i * wordSize + j;
 }
 
 void Arithm::addLeft(SourceBuffer a, SourceBuffer b) {
@@ -136,10 +136,10 @@ void Arithm::addRight(SourceBuffer a, SourceBuffer b) {
   }
 }
 
-void Arithm::add(SourceBuffer a, BaseType b){
+void Arithm::add(SourceBuffer a, BaseType b) {
   _wordBuffer.major = b;
 
-  for(size_t i = 0;_wordBuffer.major != 0;++i){
+  for (size_t i = 0; _wordBuffer.major != 0; ++i) {
     _wordBuffer.major += a.data[i];
     a.data[i] = _wordBuffer.minor.low;
     _wordBuffer.major >>= wordSize;
@@ -205,7 +205,7 @@ void Arithm::invert(SourceBuffer integer) {
 
 bool Arithm::isSigned(SourceBuffer buffer) {
   constexpr size_t signPos = sizeof(BaseType) * 8 - 1;
-  return  (buffer.size != 0 ) && (buffer.data[buffer.size - 1] >> signPos);
+  return (buffer.size != 0) && (buffer.data[buffer.size - 1] >> signPos);
 }
 
 void Arithm::leftShift(SourceBuffer a, SourceBuffer b, size_t shift) {
@@ -272,14 +272,14 @@ void Arithm::div(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   size_t bShift = b.size * wordSize - leftOffset(b);
   size_t shift = aShift - bShift;
 
-  if(shift>>(sizeof(size_t)*8 -1)){
+  if (shift >> (sizeof(size_t) * 8 - 1)) {
     return;
   }
 
   BaseBuffer::reserve(_buffer[0], a.size);
   BaseBuffer::reserve(_buffer[1], a.size);
-  BaseBuffer aBuf = _buffer[0].splice(0,a.size);
-  BaseBuffer bBuf = _buffer[1].splice(0,a.size);
+  BaseBuffer aBuf = _buffer[0].splice(0, a.size);
+  BaseBuffer bBuf = _buffer[1].splice(0, a.size);
 
   aBuf.copy(a);
   bBuf.copy(b);
@@ -314,7 +314,8 @@ void Arithm::kar(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
   karIt(a, b, _buffer[1], _buffer[0]);
   c.copy(_buffer[1]);
 }
-void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer d, size_t level) {
+void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c,
+                   SourceBuffer d, size_t level) {
 
   BasicIo &io = BasicIo::getInstance();
 
@@ -324,9 +325,9 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer 
 
   if (pivot == 0 || b.size == 0) {
     c.clear();
-    if(b.size == 0){
+    if (b.size == 0) {
       return;
-    } 
+    }
     _wordBuffer.major = a.data[0];
     _wordBuffer.major *= b.data[0];
     c.data[0] = _wordBuffer.minor.low;
@@ -336,8 +337,8 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer 
 
   SourceBuffer la = a.splice(0, pivot);
   SourceBuffer ha = a.splice(pivot, pivot);
-  SourceBuffer lb = b.splice(0, min(pivot,b.size));
-  SourceBuffer hb = b.splice(lb.size, min(b.size - lb.size,pivot));
+  SourceBuffer lb = b.splice(0, min(pivot, b.size));
+  SourceBuffer hb = b.splice(lb.size, min(b.size - lb.size, pivot));
 
   SourceBuffer lc = c.splice(0, majorPivot);
   SourceBuffer hc = c.splice(majorPivot, majorPivot);
@@ -382,35 +383,35 @@ void Arithm::karIt(SourceBuffer a, SourceBuffer b, SourceBuffer c, SourceBuffer 
   unsignedAddLeft(c34, yBuffer);
 }
 
-void Arithm::newtonDiv(SourceBuffer a,SourceBuffer b, SourceBuffer c){
-  BasicIo & io = BasicIo::getInstance();
+void Arithm::newtonDiv(SourceBuffer a, SourceBuffer b, SourceBuffer c) {
+  BasicIo &io = BasicIo::getInstance();
   Buffer<BaseType> inverse = Buffer<BaseType>::createBuffer(a.size);
   Buffer<BaseType> mulBuff = Buffer<BaseType>::createBuffer(a.size * 2);
 
   inverse.clear();
   mulBuff.clear();
 
-  newtonInverse(b,inverse);
-  add(inverse,1);
+  newtonInverse(b, inverse);
+  add(inverse, 1);
 
-  kar(inverse,a,mulBuff);
+  kar(inverse, a, mulBuff);
 
-  rightShift(mulBuff,mulBuff,(a.size * wordSize));
-  c.copy(mulBuff.splice(0,a.size));
-} 
+  rightShift(mulBuff, mulBuff, (a.size * wordSize));
+  c.copy(mulBuff.splice(0, a.size));
+}
 
-void Arithm::divApprox(SourceBuffer a, SourceBuffer x){
+void Arithm::divApprox(SourceBuffer a, SourceBuffer x) {
 
   size_t aSigPos = wordSize * a.size - leftOffset(a);
-  size_t aWordPos = aSigPos/ wordSize;
+  size_t aWordPos = aSigPos / wordSize;
   size_t aSigShift = aSigPos % wordSize;
 
   size_t xSigPos = ((x.size - 2) * wordSize - (aSigPos - wordSize));
-  size_t xWordPos = xSigPos/wordSize;
+  size_t xWordPos = xSigPos / wordSize;
   size_t xSigShift = xSigPos % wordSize; // To be optimized... (mask)
-  
+
   BufferType divisor = a.data[aWordPos];
-  divisor<<= wordSize;
+  divisor <<= wordSize;
   divisor += a.data[aWordPos - 1];
   divisor >>= (aSigShift + 1);
 
@@ -422,30 +423,34 @@ void Arithm::divApprox(SourceBuffer a, SourceBuffer x){
   x.data[xWordPos] = (_wordBuffer.major << xSigShift);
 }
 
-void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x){
-  BasicIo & io = BasicIo::getInstance();
+void Arithm::newtonInverse(SourceBuffer a, SourceBuffer x) {
+  BasicIo &io = BasicIo::getInstance();
 
-  _buffer[2].reserve(_buffer[2],(x.size << 1));
-  _buffer[3].reserve(_buffer[3],(x.size << 2));
+  _buffer[2].reserve(_buffer[2], (x.size << 1));
+  _buffer[3].reserve(_buffer[3], (x.size << 2));
 
-  divApprox(a,x); 
+  divApprox(a, x);
 
-  for(size_t i = 0;i<10;++i){
-      newtonIteration(a,x);
-    //__DEBUG(0,x);
+  Buffer<BaseType> approxX = x.splice(x.size - 2, 2);
+  Buffer<BaseType> approxDiv = a.splice(a.size - 2, 2);
+  for (int i = 0;i<1 ;++i) {
+    newtonIteration(approxDiv, approxX);
+    approxX = x.splice(x.size - approxX.size * 2, approxX.size * 2);
+    approxDiv = a.splice(a.size - approxX.size, approxX.size);
   }
+  //newtonIteration(approxDiv, approxX);
 }
 
-void Arithm::newtonIteration(SourceBuffer a, SourceBuffer x){
-  BasicIo & io = BasicIo::getInstance();
-  SourceBuffer hBuff = _buffer[2].splice(x.size,x.size);
+void Arithm::newtonIteration(SourceBuffer a, SourceBuffer x) {
+  BasicIo &io = BasicIo::getInstance();
+  SourceBuffer hBuff = _buffer[2].splice(x.size, x.size);
 
-  kar(x,a,_buffer[2]);
+  kar(x, a, _buffer[2]);
 
   invert(_buffer[2]);
   add(hBuff, 2);
 
-  kar(_buffer[2],x,_buffer[3]);
-  rightShift(_buffer[3],_buffer[3],x.size* wordSize);
+  kar(_buffer[2], x, _buffer[3]);
+  rightShift(_buffer[3], _buffer[3], x.size * wordSize);
   x.copy(_buffer[3]);
 }
