@@ -10,22 +10,24 @@ bool Tests::stringIdempotency(Integer &a) {
 bool Tests::equality(Integer &a, Integer &b) { return a == b; }
 
 bool Tests::addition(Integer &a, Integer &b) {
-  auto c = a - b;
+  Integer c = a - b;
   auto d = c;
-  d += b;
-  if(d==a){
+  c += b;
+
+  if (c == a) {
     return true;
   }
-  std::cout<<"A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<"\tC: "<<(c)<<std::endl;
+  std::cout << "A: " << a << "\tB: " << b << "\tC: " << c << "\tD: " << d
+            << std::endl;
   return false;
 }
-bool Tests::subtraction(Integer &a,Integer &b,Integer &c){
+bool Tests::subtraction(Integer &a, Integer &b, Integer &c) {
   auto d = a;
   d -= b;
-  if(d == c){
+  if (d == c) {
     return true;
   }
-  std::cout<<"D: "<<d<<"A: "<<a<<"B: "<<b<<std::endl;
+  std::cout << "D: " << d << "A: " << a << "B: " << b << std::endl;
   return false;
 }
 
@@ -67,41 +69,42 @@ bool Tests::basicMultiplication(Integer &a, Integer &b, Integer &c) {
   return d == c;
 }
 
-bool Tests::basicDivision(Integer &a,Integer &b,Integer &c){
-  auto d = a/b;
+bool Tests::basicDivision(Integer &a, Integer &b, Integer &c) {
+  auto d = a / b;
   return d == c;
 }
 
-bool Tests::mulDivReciprocity(Integer &a,Integer &b){
+bool Tests::mulDivReciprocity(Integer &a, Integer &b) {
   Integer c(a.size() + b.size());
 
   c = a;
   c *= b;
   c /= b;
 
-  if(c == a){
+  if (c == a) {
     return true;
   }
-  std::cout<<"--------------FAIL---------------\n";
-  std::cout<<a.size()<<" "<<b.size()<<" " << c.size()<< "A: "<<a<<"\tB: "<<b<<"\tC: "<<c<<std::endl;
-  
+  std::cout << "--------------FAIL---------------\n";
+  std::cout << a.size() << " " << b.size() << " " << c.size() << "A: " << a
+            << "\tB: " << b << "\tC: " << c << std::endl;
+
   return false;
 }
-bool Tests::mulPerf(Integer & a,Integer & b){
+bool Tests::mulPerf(Integer &a, Integer &b) {
   Integer c(a.size() + b.size());
   c = a;
-  c*= a;
+  c *= a;
   return true;
 }
 
-bool Tests::newtonDiv(Integer &a,Integer &b, Integer &c){
+bool Tests::newtonDiv(Integer &a, Integer &b, Integer &c) {
   Integer d(a);
-  std::cout<<"And his name is: "<<a<<"\t"<<b<<std::endl;
+  std::cout << "And his name is: " << a << "\t" << b << std::endl;
   d /= b;
-  if (d==c){
+  if (d == c) {
     return true;
   }
-  std::cout<<"C: "<<c<<std::endl;
+  std::cout << "C: " << c << std::endl;
   return false;
-  //std::cout<<"A: "<<a<<"\nB: "<<b<<"\nD: "<<d<<"\nC: "<<c<<std::endl;
+  // std::cout<<"A: "<<a<<"\nB: "<<b<<"\nD: "<<d<<"\nC: "<<c<<std::endl;
 }

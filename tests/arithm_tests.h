@@ -1,7 +1,7 @@
 #ifndef TESTS
 #define TESTS
 
-#include "../numeric/numeric.h"
+#include "../numeric/Numeric.h"
 
 namespace Tests {
 

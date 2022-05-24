@@ -15,7 +15,11 @@ set(CMAKE_CXX_STANDARD 20)
 add_subdirectory(numeric)
 add_subdirectory(tester)
 
-add_executable(NumericTester main.cpp tests/arithm_tests.cpp)
+include_directories(./)
+file(GLOB TEST_SOURCES  "./tests/*.cpp")
+file(GLOB TEST_PARAMS  "./tests/ArgumentGenerator/*.cpp")
+
+add_executable(NumericTester main.cpp ${TEST_SOURCES} ${TEST_PARAMS})
 
 target_link_libraries(NumericTester PUBLIC Numeric)
 target_link_libraries(NumericTester PUBLIC Tester)

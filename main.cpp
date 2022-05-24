@@ -2,12 +2,14 @@
 #include <iostream>
 #include <string>
 
-#include "numeric/basicio.h"
-#include "numeric/numeric.h"
+#include "numeric/BasicIo.h"
+#include "numeric/Numeric.h"
+#include "numeric/BufferInstance.h"
 #include "tester/logger.h"
 
 #include "tester/tester.h"
 #include "tests/arithm_tests.h"
+#include "tests/ArgumentGenerator/NumericGeneratorFactory.h"
 
 int main(int argc, char **argv) {
   if (argc != 2) {
@@ -18,7 +20,15 @@ int main(int argc, char **argv) {
   }
 
   Logger logger(std::cout, std::cerr, 5);
-  Tester<Tests::Integer, BasicIo> tester(logger);
+
+  KCrypt::BufferInstance::init();
+
+  KCrypt::BasicIo io;
+  KCrypt::Comparator cmp;
+  KCrypt::AddEngine adder(cmp);
+
+  NumericGeneratorFactory factory(io, adder);
+  Tester<Tests::Integer> tester(logger, factory);
 
   tester.addTest("stringIdempotency", Tests::stringIdempotency);
   tester.addTest("equality", Tests::equality);
@@ -45,5 +55,8 @@ int main(int argc, char **argv) {
     tester.readStream(testFile);
     result = tester.execute();
   }
+
+  KCrypt::BufferInstance::destroy();
+
   return result;
 }

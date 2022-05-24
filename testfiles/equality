@@ -1,0 +1,6 @@
+
+equality{
+  assert: value(10) value(10);
+  !assert: value(-10) value(10);
+  assert: value(34750795851766718417439157772757569168) value(34750795851766718417439157772757569168);
+}

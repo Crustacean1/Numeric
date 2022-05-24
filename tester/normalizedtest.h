@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <vector>
+#include <stddef.h>
 
 template <size_t... Seq, typename T, typename... Q>
 bool executeFunction(bool (*func)(Q...), std::vector<T> &params,
