@@ -61,6 +61,7 @@ Buffer<BaseInt> BasicIo::toComplement(std::string str,
 std::string BasicIo::toDecimal(const Buffer<BaseInt> &buffer,
                                const Comparator &comp) const {
   bool sign = comp.isSigned(buffer);
+  sign = false;
 
   size_t outputSize = toDecSize(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];

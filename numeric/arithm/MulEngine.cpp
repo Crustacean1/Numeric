@@ -1,18 +1,30 @@
+#define __DEBUG(depth, x)                                                      \
+  if (true) {                                                                  \
+    for (int dpth = 0; dpth < depth; ++dpth) {                                 \
+      std::cout << " ";                                                        \
+    }                                                                          \
+    std::cout << "at: " << __LINE__ << ",\t" << #x << "\t=\t" << x.size        \
+              << ": " << io.toDecimal(x, _comp) << " " << _comp.isSigned(x)    \
+              << std::endl;                                                    \
+  }
+
 #include "MulEngine.h"
 #include "../BasicIo.h"
 #include "../BufferInstance.h"
 #include "../Utils.h"
 #include "AddEngine.h"
 #include "Comparator.h"
+#include <iostream>
 
 namespace KCrypt {
 
-MulEngine::MulEngine(Comparator &comp, AddEngine &add, IntBuffer kBuffer,
-                     IntBuffer dBuffer1, IntBuffer dBuffer2)
+MulEngine::MulEngine(Comparator &comp, AddEngine &add, IntBuffer &kBuffer,
+                     IntBuffer &dBuffer1, IntBuffer &dBuffer2)
     : _comp(comp), _adder(add), karBuffer(kBuffer), divBuffer1(dBuffer1),
       divBuffer2(dBuffer2) {}
 
-void MulEngine::leftShift(const IntBuffer a, const IntBuffer b, size_t shift) {
+void MulEngine::leftShift(const IntBuffer &a, const IntBuffer &b,
+                          size_t shift) {
   size_t majorShift = shift / wordSize;
   size_t minorShift = (shift - majorShift * wordSize);
   size_t complShift = wordSize - minorShift;
@@ -31,7 +43,8 @@ void MulEngine::leftShift(const IntBuffer a, const IntBuffer b, size_t shift) {
     b.data[i - 1] = 0;
   }
 }
-void MulEngine::rightShift(const IntBuffer a, const IntBuffer b, size_t shift) {
+void MulEngine::rightShift(const IntBuffer &a, const IntBuffer &b,
+                           size_t shift) {
   size_t majorShift = shift / wordSize;
   size_t minorShift = (shift - majorShift * wordSize);
 
@@ -51,7 +64,7 @@ void MulEngine::rightShift(const IntBuffer a, const IntBuffer b, size_t shift) {
   }
 }
 
-void MulEngine::mul(const IntBuffer b, const IntBuffer a) {
+void MulEngine::mul(const IntBuffer &b, const IntBuffer &a) {
   BaseInt mulCache;
   for (int i = a.size - 1, j = 0; i >= 0; --i) {
     mulCache = a.data[i];
@@ -71,7 +84,8 @@ void MulEngine::mul(const IntBuffer b, const IntBuffer a) {
   }
 }
 
-void MulEngine::div(const IntBuffer a, const IntBuffer b, const IntBuffer c) {
+void MulEngine::div(const IntBuffer &a, const IntBuffer &b,
+                    const IntBuffer &c) {
   size_t aShift = a.size * wordSize - _comp.leftOffset(a);
   size_t bShift = b.size * wordSize - _comp.leftOffset(b);
   size_t shift = aShift - bShift;
@@ -111,15 +125,19 @@ void MulEngine::div(const IntBuffer a, const IntBuffer b, const IntBuffer c) {
   c.data[lastPos] *= (_buffer.minor.low != 32);
 }
 
-void MulEngine::kar(const IntBuffer a, const IntBuffer b, const IntBuffer c) {
-  karBuffer.reserve(a.size * 2);
+void MulEngine::kar(const IntBuffer &a, const IntBuffer &b,
+                    const IntBuffer &c) {
+  karBuffer.reserve(a.size << 2);
+  karBuffer.clear();
   karIt(a, b, c, karBuffer);
 }
 
-void MulEngine::karIt(const IntBuffer a, const IntBuffer b, const IntBuffer c,
-                      const IntBuffer d, size_t level) {
+void MulEngine::karIt(const IntBuffer &a, const IntBuffer &b,
+                      const IntBuffer &c, const IntBuffer &d, size_t level) {
 
-  // BasicIo &io = BasicIo::getInstance();
+  BasicIo io;
+  //__DEBUG(level, a);
+  //__DEBUG(level,b);
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -129,11 +147,13 @@ void MulEngine::karIt(const IntBuffer a, const IntBuffer b, const IntBuffer c,
     c.clear();
     if (b.size == 0) {
       return;
+      //__DEBUG(level,c);
     }
     _buffer.major = a.data[0];
     _buffer.major *= b.data[0];
     c.data[0] = _buffer.minor.low;
     c.data[1] = _buffer.minor.high;
+    //__DEBUG(level,c);
     return;
   }
 
@@ -183,11 +203,12 @@ void MulEngine::karIt(const IntBuffer a, const IntBuffer b, const IntBuffer c,
   _adder.addUnsignedToLeft(yBuffer, lc);
   _adder.addUnsignedToLeft(yBuffer, hc);
   _adder.addUnsignedToLeft(c34, yBuffer);
+  //__DEBUG(level,c);
 }
 
 // Constraints: dividend.size <= inverse.size
-void MulEngine::newtonDiv(const IntBuffer dividend, const IntBuffer inverse,
-                          const IntBuffer output, size_t invPrecision) {
+void MulEngine::newtonDiv(const IntBuffer &dividend, const IntBuffer &inverse,
+                          const IntBuffer &output, size_t invPrecision) {
 
   divBuffer1.reserve(dividend.size * 2);
   divBuffer1.clear();
@@ -198,7 +219,8 @@ void MulEngine::newtonDiv(const IntBuffer dividend, const IntBuffer inverse,
   output.copy(divBuffer1.splice(0, dividend.size));
 }
 
-size_t MulEngine::divApprox(const IntBuffer divisor, const IntBuffer inverse) {
+size_t MulEngine::divApprox(const IntBuffer &divisor,
+                            const IntBuffer &inverse) {
 
   size_t aSigPos = wordSize * divisor.size - _comp.leftOffset(divisor);
   size_t aWordPos = aSigPos / wordSize;
@@ -217,31 +239,31 @@ size_t MulEngine::divApprox(const IntBuffer divisor, const IntBuffer inverse) {
   return aSigPos - 1 + (inverse.size * wordSize);
 }
 
-size_t MulEngine::newtonInverse(const IntBuffer divisor,
-                                const IntBuffer inverse) {
+size_t MulEngine::newtonInverse(const IntBuffer &divisor,
+                                const IntBuffer &inverse) {
 
   divBuffer1.reserve((inverse.size << 1));
   divBuffer2.reserve((inverse.size << 2));
 
   size_t invPrecision = divApprox(divisor, inverse);
 
-  Buffer<BaseInt> approxX = inverse.splice(inverse.size - 2, 2);
-  Buffer<BaseInt> approxDiv = divisor.splice(divisor.size - 2, 2);
+  // Buffer<BaseInt> approxX = inverse.splice(inverse.size - 2, 2);
+  // Buffer<BaseInt> approxDiv = divisor.splice(divisor.size - 2, 2);
 
-  size_t bufferSize = 2;
+  // size_t bufferSize = 2;
 
-  for (; bufferSize <= divisor.size; (bufferSize <<= 1)) {
+  /*for (; bufferSize <= divisor.size; (bufferSize <<= 1)) {
     newtonIteration(approxDiv, approxX, invPrecision);
 
     approxX = inverse.splice(inverse.size - bufferSize, bufferSize);
     approxDiv = divisor.splice(divisor.size - bufferSize, bufferSize);
-  }
-  _adder.add(approxX, 1);
+  }*/
+  //_adder.add(approxX, 1);
   return invPrecision;
 }
 
-void MulEngine::newtonIteration(const IntBuffer divisor,
-                                const IntBuffer inverse, size_t precision) {
+void MulEngine::newtonIteration(const IntBuffer &divisor,
+                                const IntBuffer &inverse, size_t precision) {
 
   precision += 1;
   size_t wordPos = precision / wordSize;

@@ -44,7 +44,12 @@ bool Tests::anyShift(Integer &a, Integer &shift) {
   Integer b(a.size() * 2);
   b = a;
   b <<= shift;
+  auto d = b;
   b >>= shift;
+  if(b == a){
+    return true;
+  }
+  std::cout<<"A: "<<a.toBin()<<" << "<<shift<<"\nB: "<<d.toBin()<<"\nC: "<<b.toBin()<<std::endl;
   return b == a;
 }
 
@@ -79,6 +84,8 @@ bool Tests::mulDivReciprocity(Integer &a, Integer &b) {
 
   c = a;
   c *= b;
+  std::cout<<"A size: "<<a.size()<<" C.size: "<<c.size()<<std::endl;
+
   c /= b;
 
   if (c == a) {

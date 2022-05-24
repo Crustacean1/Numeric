@@ -6,7 +6,6 @@ basicDiv{
 }
 
 mulDivReciprocity{
-  assert: unsigned(1) unsigned(1);
-  assert: unsigned(2) unsigned(2);
+  case(10) : unsigned(4) unsigned(4);
 }
 

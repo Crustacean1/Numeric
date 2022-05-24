@@ -29,8 +29,7 @@ Numeric::Numeric(Buffer<BaseInt> buffer)
     : _buffInst(BufferInstance::getInstance()), _compModule(),
       _addModule(_compModule), _mulModule(_compModule, _addModule, _buffInst[0],
                                           _buffInst[1], _buffInst[2]),
-      _buffer(buffer) {
-}
+      _buffer(buffer) {}
 
 Numeric::Numeric(const std::string &str)
     : _buffInst(BufferInstance::getInstance()), _compModule(),
@@ -44,12 +43,9 @@ Numeric::Numeric(const Numeric &num)
                                           _buffInst[1], _buffInst[2]),
       _buffer(IntBuffer::createBuffer(num.size())) {
   _buffer.copy(num._buffer);
-
 }
 
 Numeric &Numeric::operator=(const Numeric &num) {
-  _buffer = IntBuffer::createBuffer(num.size());
-  _buffer.releaseBuffer();
   _buffer.copy(num._buffer);
   return *this;
 }
@@ -154,17 +150,19 @@ Numeric Numeric::operator*(const Numeric &num) const {
   return result;
 }
 
-Numeric &Numeric::operator*=(const Numeric &num) {
-  _buffInst[3].reserve(size() * 2);
-
-  if (size() > num.size()) {
-    _mulModule.kar(_buffer, num._buffer, _buffInst[3]);
-    _buffer.copy(_buffInst[3]);
-    return *this;
-  }
-  _mulModule.kar(num._buffer, _buffer, _buffInst[3]);
-  _buffer.copy(_buffInst[3]);
+Numeric &Numeric::orderedMul(const IntBuffer &a, const IntBuffer &b,
+                             IntBuffer &c) {
+  c.reserve(a.size * 2);
+  _mulModule.kar(a, b, c);
+  _buffer.copy(c);
   return *this;
+}
+
+Numeric &Numeric::operator*=(const Numeric &num) {
+  if (size() > num.size()) {
+    return orderedMul(_buffer,num._buffer,_buffInst[3]);
+  }
+  return orderedMul(num._buffer,_buffer,_buffInst[3]);
 }
 
 Numeric Numeric::operator/(const Numeric &num) const {
@@ -174,11 +172,11 @@ Numeric Numeric::operator/(const Numeric &num) const {
 }
 
 Numeric &Numeric::operator/=(const Numeric &num) {
-  //_arthModule.div(_buffer, num._buffer, _buffer);
+  _mulModule.div(_buffer, num._buffer, _buffer);
 
-  _buffInst[3].reserve(num._buffer.size);
-  size_t precision = _mulModule.newtonInverse(num._buffer, _buffInst[3]);
-  _mulModule.newtonDiv(_buffer, _buffInst[3], _buffer, precision);
+  //_buffInst[3].reserve(_buffer.size);
+  //size_t precision = _mulModule.newtonInverse(num._buffer, _buffInst[3]);
+  //_mulModule.newtonDiv(_buffer, _buffInst[3], _buffer, precision);
   return *this;
 }
 

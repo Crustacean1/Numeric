@@ -6,13 +6,12 @@
 #include <cstring>
 #include <iostream>
 
-#include "Buffer.h"
 #include "BasicIo.h"
+#include "Buffer.h"
 #include "BufferInstance.h"
-#include "arithm/Comparator.h"
 #include "arithm/AddEngine.h"
+#include "arithm/Comparator.h"
 #include "arithm/MulEngine.h"
-
 
 namespace KCrypt {
 class Numeric;
@@ -27,13 +26,15 @@ class Numeric;
 
 class Numeric {
 
-  BufferInstance & _buffInst;
+  BufferInstance &_buffInst;
   BasicIo _ioModule;
   Comparator _compModule;
   AddEngine _addModule;
   MulEngine _mulModule;
 
   Buffer<BaseInt> _buffer;
+
+  Numeric &orderedMul(const IntBuffer &a, const IntBuffer &b, IntBuffer &c);
 
 public:
   Numeric(size_t size, BaseInt value = 0);
@@ -103,7 +104,7 @@ public:
   bool operator>(BaseInt num) const;
 
   operator std::string() const {
-    //return _ioModule.getDec(_buffer, _arthModule);
+    // return _ioModule.getDec(_buffer, _arthModule);
     return "";
   }
 
