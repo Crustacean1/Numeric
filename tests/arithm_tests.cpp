@@ -84,7 +84,6 @@ bool Tests::mulDivReciprocity(Integer &a, Integer &b) {
 
   c = a;
   c *= b;
-  std::cout<<"A size: "<<a.size()<<" C.size: "<<c.size()<<std::endl;
 
   c /= b;
 

@@ -47,7 +47,7 @@ public:
 
   enum class Sign { Random, Signed, Unsigned };
 
-  Buffer<BaseInt> randomize(Buffer<BaseInt> &num, std::default_random_engine &engine,
+  Buffer<BaseInt> randomize(const Buffer<BaseInt> &num, std::default_random_engine &engine,
                             Sign sign = Sign::Random);
 
   std::string toDecimal(const Buffer<BaseInt> &buffer,

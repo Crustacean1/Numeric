@@ -86,6 +86,7 @@ void MulEngine::mul(const IntBuffer &b, const IntBuffer &a) {
 
 void MulEngine::div(const IntBuffer &a, const IntBuffer &b,
                     const IntBuffer &c) {
+  BasicIo io;
   size_t aShift = a.size * wordSize - _comp.leftOffset(a);
   size_t bShift = b.size * wordSize - _comp.leftOffset(b);
   size_t shift = aShift - bShift;
@@ -122,13 +123,13 @@ void MulEngine::div(const IntBuffer &a, const IntBuffer &b,
 
   c.data[lastPos] <<= shiftOffset;
   c.data[lastPos] >>= shiftOffset;
-  c.data[lastPos] *= (_buffer.minor.low != 32);
+  c.data[lastPos] *= (shiftOffset != 32);
 }
 
 void MulEngine::kar(const IntBuffer &a, const IntBuffer &b,
                     const IntBuffer &c) {
   karBuffer.reserve(a.size << 2);
-  karBuffer.clear();
+  //karBuffer.clear();
   karIt(a, b, c, karBuffer);
 }
 
@@ -136,8 +137,6 @@ void MulEngine::karIt(const IntBuffer &a, const IntBuffer &b,
                       const IntBuffer &c, const IntBuffer &d, size_t level) {
 
   BasicIo io;
-  //__DEBUG(level, a);
-  //__DEBUG(level,b);
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -147,13 +146,11 @@ void MulEngine::karIt(const IntBuffer &a, const IntBuffer &b,
     c.clear();
     if (b.size == 0) {
       return;
-      //__DEBUG(level,c);
     }
     _buffer.major = a.data[0];
     _buffer.major *= b.data[0];
     c.data[0] = _buffer.minor.low;
     c.data[1] = _buffer.minor.high;
-    //__DEBUG(level,c);
     return;
   }
 
@@ -203,7 +200,6 @@ void MulEngine::karIt(const IntBuffer &a, const IntBuffer &b,
   _adder.addUnsignedToLeft(yBuffer, lc);
   _adder.addUnsignedToLeft(yBuffer, hc);
   _adder.addUnsignedToLeft(c34, yBuffer);
-  //__DEBUG(level,c);
 }
 
 // Constraints: dividend.size <= inverse.size

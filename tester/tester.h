@@ -40,7 +40,7 @@ public:
 
 template <typename T>
 Tester<T>::Tester(Logger &logger, ArgumentGeneratorFactory<T> &factory)
-    : _logger(logger), _factory(factory), _seed(2137) {}
+    : _logger(logger), _factory(factory), _seed(2142) {}
 
 template <typename T>
 template <typename... R>

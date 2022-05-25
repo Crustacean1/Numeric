@@ -16,7 +16,7 @@ void displayString(unsigned char *input, size_t inputSize) {
   std::cout << std::endl;
 }
 
-Buffer<BaseInt> BasicIo::randomize(Buffer<BaseInt> &buffer,
+Buffer<BaseInt> BasicIo::randomize(const Buffer<BaseInt> &buffer,
                                    std::default_random_engine &engine,
                                    Sign sign) {
   std::uniform_int_distribution<BaseInt> dist(0, 2);
@@ -61,7 +61,6 @@ Buffer<BaseInt> BasicIo::toComplement(std::string str,
 std::string BasicIo::toDecimal(const Buffer<BaseInt> &buffer,
                                const Comparator &comp) const {
   bool sign = comp.isSigned(buffer);
-  sign = false;
 
   size_t outputSize = toDecSize(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];
