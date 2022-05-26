@@ -1,4 +1,4 @@
-#define __DEBUG(depth, x)                                                      \
+/*#define __DEBUG(depth, x)                                                      \
   if (true) {                                                                  \
     for (int dpth = 0; dpth < depth; ++dpth) {                                 \
       std::cout << " ";                                                        \
@@ -6,7 +6,10 @@
     std::cout << "at: " << __LINE__ << ",\t" << #x << "\t=\t" << x.size        \
               << ": " << io.toDecimal(x, _comp) << " " << _comp.isSigned(x)    \
               << std::endl;                                                    \
-  }
+  }*/
+
+#define __DEBUG(depth,x)
+
 
 #include "MulEngine.h"
 #include "../BasicIo.h"
@@ -86,7 +89,6 @@ void MulEngine::mul(const IntBuffer &b, const IntBuffer &a) {
 
 void MulEngine::div(const IntBuffer &a, const IntBuffer &b,
                     const IntBuffer &c) {
-  BasicIo io;
   size_t aShift = a.size * wordSize - _comp.leftOffset(a);
   size_t bShift = b.size * wordSize - _comp.leftOffset(b);
   size_t shift = aShift - bShift;
@@ -129,7 +131,6 @@ void MulEngine::div(const IntBuffer &a, const IntBuffer &b,
 void MulEngine::kar(const IntBuffer &a, const IntBuffer &b,
                     const IntBuffer &c) {
   karBuffer.reserve(a.size << 2);
-  //karBuffer.clear();
   karIt(a, b, c, karBuffer);
 }
 
@@ -137,7 +138,8 @@ void MulEngine::karIt(const IntBuffer &a, const IntBuffer &b,
                       const IntBuffer &c, const IntBuffer &d, size_t level) {
 
   BasicIo io;
-
+  __DEBUG(level,a);
+  __DEBUG(level,b);
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
   size_t bufferPivot = (a.size << 1);
@@ -145,29 +147,31 @@ void MulEngine::karIt(const IntBuffer &a, const IntBuffer &b,
   if (pivot == 0 || b.size == 0) {
     c.clear();
     if (b.size == 0) {
+      __DEBUG(level,c);
       return;
     }
     _buffer.major = a.data[0];
     _buffer.major *= b.data[0];
     c.data[0] = _buffer.minor.low;
     c.data[1] = _buffer.minor.high;
+  __DEBUG(level,c);
     return;
   }
 
-  const IntBuffer la = a.splice(0, pivot);
-  const IntBuffer ha = a.splice(pivot, pivot);
-  const IntBuffer lb = b.splice(0, K::min(pivot, b.size));
-  const IntBuffer hb = b.splice(lb.size, K::min(b.size - lb.size, pivot));
+  const IntBuffer &la = a.splice(0, pivot);
+  const IntBuffer &ha = a.splice(pivot, pivot);
+  const IntBuffer &lb = b.splice(0, K::min(pivot, b.size));
+  const IntBuffer &hb = b.splice(lb.size, K::min(b.size - lb.size, pivot));
 
-  const IntBuffer lc = c.splice(0, majorPivot);
-  const IntBuffer hc = c.splice(majorPivot, majorPivot);
+  const IntBuffer &lc = c.splice(0, majorPivot);
+  const IntBuffer &hc = c.splice(majorPivot, majorPivot);
 
-  const IntBuffer lBuffer = d.splice(0, pivot);
-  const IntBuffer hBuffer = d.splice(pivot, pivot);
+  const IntBuffer &lBuffer = d.splice(0, pivot);
+  const IntBuffer &hBuffer = d.splice(pivot, pivot);
 
-  const IntBuffer xBuffer = d.splice(majorPivot, majorPivot);
-  const IntBuffer yBuffer = d.splice(majorPivot, majorPivot + 1);
-  const IntBuffer rBuffer = d.splice(bufferPivot, bufferPivot);
+  const IntBuffer &xBuffer = d.splice(majorPivot, majorPivot);
+  const IntBuffer &yBuffer = d.splice(majorPivot, majorPivot + 1);
+  const IntBuffer &rBuffer = d.splice(bufferPivot, bufferPivot);
 
   karIt(la, lb, lc, rBuffer, level + 1);
   karIt(ha, hb, hc, rBuffer, level + 1);
@@ -199,14 +203,18 @@ void MulEngine::karIt(const IntBuffer &a, const IntBuffer &b,
 
   _adder.addUnsignedToLeft(yBuffer, lc);
   _adder.addUnsignedToLeft(yBuffer, hc);
+  __DEBUG(level,yBuffer);
   _adder.addUnsignedToLeft(c34, yBuffer);
+  __DEBUG(level,c);
 }
 
 // Constraints: dividend.size <= inverse.size
 void MulEngine::newtonDiv(const IntBuffer &dividend, const IntBuffer &inverse,
                           const IntBuffer &output, size_t invPrecision) {
 
-  divBuffer1.reserve(dividend.size * 2);
+  karBuffer.reserve(inverse.size << 2);
+  divBuffer1.reserve(inverse.size << 1);
+
   divBuffer1.clear();
 
   karIt(inverse, dividend, divBuffer1, karBuffer);
@@ -218,62 +226,95 @@ void MulEngine::newtonDiv(const IntBuffer &dividend, const IntBuffer &inverse,
 size_t MulEngine::divApprox(const IntBuffer &divisor,
                             const IntBuffer &inverse) {
 
-  size_t aSigPos = wordSize * divisor.size - _comp.leftOffset(divisor);
+  size_t aSigPos = _comp.topOne(divisor);
   size_t aWordPos = aSigPos / wordSize;
   size_t aSigShift = aSigPos % wordSize;
 
   BufferInt approx = divisor.data[aWordPos];
   approx <<= wordSize;
-  approx += divisor.data[aWordPos - 1];
+  approx += (aWordPos == 0) * divisor.data[(aWordPos != 0) * (aWordPos - 1)];
   approx >>= (aSigShift + 1);
 
   _buffer.major = 1;
   _buffer.major <<= highBufferPos;
   _buffer.major /= approx;
 
-  inverse.data[inverse.size - 1] = (_buffer.major >> 1);
-  return aSigPos - 1 + (inverse.size * wordSize);
+  inverse.data[inverse.size - 1] = _buffer.major;
+  return aSigPos + inverse.size * wordSize;
 }
 
 size_t MulEngine::newtonInverse(const IntBuffer &divisor,
                                 const IntBuffer &inverse) {
 
-  divBuffer1.reserve((inverse.size << 1));
-  divBuffer2.reserve((inverse.size << 2));
+  BasicIo io;
+
+  karBuffer.reserve(divisor.size * 8);
+  divBuffer1.reserve((inverse.size * 2));
+  divBuffer2.reserve((inverse.size * 4));
 
   size_t invPrecision = divApprox(divisor, inverse);
 
-  // Buffer<BaseInt> approxX = inverse.splice(inverse.size - 2, 2);
-  // Buffer<BaseInt> approxDiv = divisor.splice(divisor.size - 2, 2);
+  size_t divTopOne = _comp.topOne(divisor);
+  size_t divTopWord = divTopOne / wordSize;
 
-  // size_t bufferSize = 2;
+  size_t divSize = K::min(divisor.size - divTopWord, 2);
+  size_t invSize = 2;
 
-  /*for (; bufferSize <= divisor.size; (bufferSize <<= 1)) {
-    newtonIteration(approxDiv, approxX, invPrecision);
+  Buffer<BaseInt> approxX = inverse.splice(inverse.size - invSize, invSize);
+  Buffer<BaseInt> approxDiv = divisor.splice(divTopWord - divSize, divSize);
+
+  std::cout << "divsize: " << divSize << std::endl;
+  std::cout << "invsize: " << invSize << std::endl;
+
+  for (int i = 0; i < 1; ++i) {
+    newtonIteration(divisor, inverse, invPrecision);
+
+    // size_t prec = wordSize * invSize - 1 + _comp.topOne(approxDiv);
+    // std::cout<<"expected precision: "<<prec<<" divisor top:
+    // "<<_comp.topOne(approxDiv)<<" x top: "<<_comp.topOne(approxX)<<std::endl;
+    // newtonIteration(approxDiv, approxX, prec );
+  }
+  /*for (; bufferSize <= inverse.size; (bufferSize <<= 1)) {
+    newtonIteration(divisor, approxX, invPrecision);
 
     approxX = inverse.splice(inverse.size - bufferSize, bufferSize);
-    approxDiv = divisor.splice(divisor.size - bufferSize, bufferSize);
   }*/
-  //_adder.add(approxX, 1);
+  _adder.add(approxX, 1);
   return invPrecision;
 }
 
 void MulEngine::newtonIteration(const IntBuffer &divisor,
                                 const IntBuffer &inverse, size_t precision) {
 
-  precision += 1;
-  size_t wordPos = precision / wordSize;
-  size_t bitPos = precision - wordPos * wordSize;
+  BasicIo io;
+  size_t wordPos = (precision) / wordSize;
+  size_t bitPos = (precision) - wordPos * wordSize;
 
-  const IntBuffer hBuff = divBuffer1.splice(wordPos, divBuffer1.size - wordPos);
+  const IntBuffer &innerProductBuffer = divBuffer1.splice(0, inverse.size * 2);
+  const IntBuffer &outerProductBuffer = divBuffer2.splice(0, innerProductBuffer.size * 2);
 
-  kar(inverse, divisor, divBuffer1);
+  const IntBuffer &hBuff = divBuffer1.splice(wordPos, divBuffer1.size - wordPos);
 
-  _adder.invert(divBuffer1);
+  __DEBUG(0,inverse);
+  __DEBUG(0,divisor);
+  kar(inverse, divisor, innerProductBuffer);
+  __DEBUG(0,innerProductBuffer);
+
+  _adder.invert(innerProductBuffer);
   _adder.add(hBuff, (BaseInt(1) << bitPos));
 
-  kar(divBuffer1, inverse, divBuffer2);
-  rightShift(divBuffer2, divBuffer2, inverse.size * wordSize);
-  inverse.copy(divBuffer2);
+  outerProductBuffer.clear(); 
+  karBuffer.clear();
+
+  __DEBUG(0,innerProductBuffer);
+  __DEBUG(0,inverse);
+
+  std::cout<<"Mark ot the beast"<<std::endl;
+  kar(innerProductBuffer, inverse, outerProductBuffer);
+
+  __DEBUG(0,outerProductBuffer);
+
+  rightShift(outerProductBuffer, outerProductBuffer, precision - 1);
+  inverse.copy(outerProductBuffer);
 }
 } // namespace KCrypt

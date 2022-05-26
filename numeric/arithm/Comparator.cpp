@@ -10,7 +10,7 @@ bool Comparator::equal(const IntBuffer a, const IntBuffer b) const {
   BaseInt bFill = isSigned(b) * BaseInt(~0);
 
   if (aFill != bFill) {
-    //return false;
+    // return false;
   }
 
   int pos = K::max(a.size - 1, b.size - 1);
@@ -156,6 +156,10 @@ size_t Comparator::rightOffset(const IntBuffer a) const {
   for (j = 0; j < wordSize && ((a.data[i] >> j) & 1) == 0; ++j) {
   }
   return i * wordSize + j;
+}
+
+size_t Comparator::topOne(const IntBuffer &a) const {
+  return a.size * wordSize - 1 - leftOffset(a);
 }
 
 bool Comparator::isSigned(const IntBuffer a) const {

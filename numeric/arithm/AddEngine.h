@@ -1,4 +1,4 @@
-#ifndef ADD_ENGING
+#ifndef ADD_ENGINE
 #define ADD_ENGINE
 
 #include "../Buffer.h"

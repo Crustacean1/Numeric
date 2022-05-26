@@ -1,10 +1,10 @@
 #include "AddEngine.h"
-#include <iostream>
 #include "../Utils.h"
+#include <iostream>
 
 namespace KCrypt {
 
-AddEngine::AddEngine(Comparator & comp) : _comparator(comp){}
+AddEngine::AddEngine(Comparator &comp) : _comparator(comp) {}
 
 void AddEngine::addToLeft(const IntBuffer a, const IntBuffer b) {
   _buffer.major = 0;
@@ -96,7 +96,7 @@ void AddEngine::invert(const IntBuffer a) {
 void AddEngine::add(IntBuffer a, BaseInt b) {
   _buffer.major = b;
 
-  for (size_t i = 0; _buffer.major != 0; ++i) {
+  for (size_t i = 0; _buffer.major != 0 && i < a.size; ++i) {
     _buffer.major += a.data[i];
     a.data[i] = _buffer.minor.low;
     _buffer.major >>= wordSize;

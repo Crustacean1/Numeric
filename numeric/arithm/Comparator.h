@@ -18,6 +18,7 @@ public:
 
   size_t leftOffset(const IntBuffer a) const;
   size_t rightOffset(const IntBuffer a) const;
+  size_t topOne(const IntBuffer &a) const;
   bool isSigned(const IntBuffer a) const;
 };
 

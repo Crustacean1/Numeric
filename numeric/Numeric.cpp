@@ -175,7 +175,7 @@ Numeric &Numeric::operator/=(const Numeric &num) {
   _mulModule.div(_buffer, num._buffer, _buffer);
 
   //_buffInst[3].reserve(_buffer.size);
-  //size_t precision = _mulModule.newtonInverse(num._buffer, _buffInst[3]);
+  //size_t precision = _mulModule.newtonInverse(num._buffer, _buffInst[3].splice(0,size()));
   //_mulModule.newtonDiv(_buffer, _buffInst[3], _buffer, precision);
   return *this;
 }
