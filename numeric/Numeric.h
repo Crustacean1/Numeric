@@ -7,11 +7,14 @@
 #include <iostream>
 
 #include "BasicIo.h"
-#include "Buffer.h"
-#include "BufferInstance.h"
-#include "arithm/AddEngine.h"
-#include "arithm/Comparator.h"
-#include "arithm/MulEngine.h"
+#include "Buffer/Buffer.h"
+#include "Buffer/BufferInstance.h"
+
+#include "Arithm/AddEngine.h"
+#include "Arithm/CompEngine.h"
+#include "Arithm/DivEngine.h"
+#include "Arithm/ExpEngine.h"
+#include "Arithm/MulEngine.h"
 
 namespace KCrypt {
 class Numeric;
@@ -27,10 +30,14 @@ class Numeric;
 class Numeric {
 
   BufferInstance &_buffInst;
-  BasicIo _ioModule;
-  Comparator _compModule;
-  AddEngine _addModule;
-  MulEngine _mulModule;
+
+  BasicIo _io;
+
+  CompEngine _cmp;
+  AddEngine _add;
+  MulEngine _mul;
+  DivEngine _div;
+  ExpEngine _exp;
 
   Buffer<BaseInt> _buffer;
 
@@ -39,7 +46,10 @@ class Numeric {
 public:
   Numeric(size_t size, BaseInt value = 0);
   Numeric(const std::string &number);
-  Numeric(Buffer<BaseInt> buffer);
+
+  Numeric(const Buffer<BaseInt> &buffer);
+  Numeric(Buffer<BaseInt> &&buffer);
+
   Numeric();
   Numeric(Numeric &&num);
   Numeric(const Numeric &num);

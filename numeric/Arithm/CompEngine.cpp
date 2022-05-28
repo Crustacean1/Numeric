@@ -1,11 +1,11 @@
-#include "Comparator.h"
+#include "CompEngine.h"
 #include "../Utils.h"
 
 namespace KCrypt {
 
-Comparator::Comparator() {}
+CompEngine::CompEngine() {}
 
-bool Comparator::equal(const IntBuffer a, const IntBuffer b) const {
+bool CompEngine::equal(const IntBufferView a, const IntBufferView b) const {
   BaseInt aFill = isSigned(a) * BaseInt(~0);
   BaseInt bFill = isSigned(b) * BaseInt(~0);
 
@@ -32,7 +32,7 @@ bool Comparator::equal(const IntBuffer a, const IntBuffer b) const {
   return pos == -1;
 }
 
-bool Comparator::greater(const IntBuffer a, const IntBuffer b) const {
+bool CompEngine::greater(const IntBufferView a, const IntBufferView b) const {
   BaseInt aFill = isSigned(a) * BaseInt(~0);
   BaseInt bFill = isSigned(b) * BaseInt(~0);
 
@@ -59,7 +59,7 @@ bool Comparator::greater(const IntBuffer a, const IntBuffer b) const {
   return pos == -1 && a.data[0] > b.data[0];
 }
 
-bool Comparator::lesser(const IntBuffer a, const IntBuffer b) const {
+bool CompEngine::lesser(const IntBufferView a, const IntBufferView b) const {
   BaseInt aFill = isSigned(a) * BaseInt(~0);
   BaseInt bFill = isSigned(b) * BaseInt(~0);
 
@@ -86,7 +86,7 @@ bool Comparator::lesser(const IntBuffer a, const IntBuffer b) const {
   return pos == -1 && a.data[0] < b.data[0];
 }
 
-bool Comparator::greaterOrEqual(const IntBuffer a, const IntBuffer b) const {
+bool CompEngine::greaterOrEqual(const IntBufferView a, const IntBufferView b) const {
   BaseInt aFill = isSigned(a) * BaseInt(~0);
   BaseInt bFill = isSigned(b) * BaseInt(~0);
 
@@ -113,7 +113,7 @@ bool Comparator::greaterOrEqual(const IntBuffer a, const IntBuffer b) const {
   return pos == -1;
 }
 
-bool Comparator::lesserOrEqual(const IntBuffer a, const IntBuffer b) const {
+bool CompEngine::lesserOrEqual(const IntBufferView a, const IntBufferView b) const {
   BaseInt aFill = isSigned(a) * BaseInt(~0);
   BaseInt bFill = isSigned(b) * BaseInt(~0);
 
@@ -140,7 +140,7 @@ bool Comparator::lesserOrEqual(const IntBuffer a, const IntBuffer b) const {
   return pos == -1;
 }
 
-size_t Comparator::leftOffset(const IntBuffer a) const {
+size_t CompEngine::leftOffset(const IntBufferView a) const {
   int i, j;
   for (i = a.size - 1; i > -1 && a.data[i] == 0; --i) {
   }
@@ -149,7 +149,7 @@ size_t Comparator::leftOffset(const IntBuffer a) const {
   return (a.size - i - 1) * wordSize + (wordSize - j - 1);
 }
 
-size_t Comparator::rightOffset(const IntBuffer a) const {
+size_t CompEngine::rightOffset(const IntBufferView a) const {
   int i, j;
   for (i = 0; i < a.size && a.data[i] == 0; ++i) {
   }
@@ -158,11 +158,11 @@ size_t Comparator::rightOffset(const IntBuffer a) const {
   return i * wordSize + j;
 }
 
-size_t Comparator::topOne(const IntBuffer &a) const {
+size_t CompEngine::topOne(const IntBufferView &a) const {
   return a.size * wordSize - 1 - leftOffset(a);
 }
 
-bool Comparator::isSigned(const IntBuffer a) const {
+bool CompEngine::isSigned(const IntBufferView a) const {
   return (a.data[a.size - 1] >> highWordPos);
 }
 

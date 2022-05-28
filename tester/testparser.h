@@ -8,6 +8,10 @@
 
 class TestParser {
 
+  static constexpr const char *__operandExpression = "([a-z]*)\\(([0-9]*)\\)";
+  static constexpr const char *__caseExpresssion = "(([a-z]|[A-Z])*)a:";
+  static constexpr const char *__testExpression = "";
+
   using ParsingStage = void (TestParser::*)(SyntaxNode &, std::string);
 
   std::vector<SyntaxNode> parseLowerStage(std::string &source,
@@ -71,7 +75,7 @@ void TestParser::parseFile(SyntaxNode &node, std::string buffer) {
 
 void TestParser::parseTest(SyntaxNode &node, std::string buffer) {
   std::string operands =
-      "(((unsigned|signed|random|range|value)\\(([0-9]|,|-)+\\))+)";
+      "(((unsigned|signed|random|range|value|binary)\\(([0-9]|,|-)+\\))+)";
   std::string caseExp = "(case\\([0-9]+\\)|assert|!assert)";
   std::string testCase(caseExp + ":" + operands + ";");
 
@@ -86,7 +90,7 @@ void TestParser::parseCase(SyntaxNode &node, std::string buffer) {
     node.data = caseCount[1];
   }
 
-  std::string operandTypes = "(unsigned|signed|random|range|value)";
+  std::string operandTypes = "(unsigned|signed|random|range|value|binary)";
   std::string operandSyntax = operandTypes + "\\(((-?[0-9]+,?)+)\\)";
   node.children =
       parseLowerStage(buffer, operandSyntax, 1, 2, &TestParser::parseOperand);

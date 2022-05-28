@@ -1,13 +1,13 @@
 #include "BasicIo.h"
-#include "arithm/AddEngine.h"
-#include "arithm/Comparator.h"
+#include "Arithm/AddEngine.h"
+#include "Arithm/CompEngine.h"
 #include <iostream>
 #include <ostream>
 #include <string>
 
 namespace KCrypt {
 
-BasicIo::BasicIo() {}
+BasicIo::BasicIo(CompEngine &cmp, AddEngine &add) : _cmp(cmp), _add(add) {}
 
 void displayString(unsigned char *input, size_t inputSize) {
   for (size_t i = 0; i < inputSize; ++i) {
@@ -16,9 +16,9 @@ void displayString(unsigned char *input, size_t inputSize) {
   std::cout << std::endl;
 }
 
-Buffer<BaseInt> BasicIo::randomize(const Buffer<BaseInt> &buffer,
-                                   std::default_random_engine &engine,
-                                   Sign sign) {
+BufferView<BaseInt> BasicIo::randomize(const BufferView<BaseInt> &buffer,
+                                       std::default_random_engine &engine,
+                                       Sign sign) {
   std::uniform_int_distribution<BaseInt> dist(0, 2);
   for (size_t i = 0; i < buffer.size; ++i) {
     for (int j = 0; j < sizeof(BaseInt) * 8; ++j) {
@@ -38,32 +38,29 @@ Buffer<BaseInt> BasicIo::randomize(const Buffer<BaseInt> &buffer,
   return buffer;
 }
 
-Buffer<BaseInt> BasicIo::toComplement(std::string str,
-                                      AddEngine &adder) const {
+void BasicIo::toComplement(std::string str, const IntBufferView &view) const {
   bool sign = str[0] == '-';
 
-  auto sourceSize = (str.size() - 2 * sign + 1) / 2;
-  auto bcdSource = decodeFromAscii(str.c_str() + sign, str.size() - sign);
+  auto compactedDigitCount = (str.size() - 2 * sign + 1) / 2;
+  auto compactedDigits = decodeFromAscii(str.c_str() + sign, str.size() - sign);
 
-  auto buffer = Buffer<BaseInt>::createBuffer(toBinSize(str.size()));
-  buffer.clear();
+  view.clear();
 
-  buildBinFromSrc(bcdSource, sourceSize, (unsigned char *)buffer.data);
+  buildBinFromSrc(compactedDigits, compactedDigitCount,
+                  (unsigned char *)view.data);
 
   if (sign) {
-    adder.invert(buffer);
+    _add.invert(view);
   }
 
-  delete[] bcdSource;
-  return buffer;
+  delete[] compactedDigits;
 }
 
-std::string BasicIo::toDecimal(const Buffer<BaseInt> &buffer,
-                               const Comparator &comp) const {
-  bool sign = comp.isSigned(buffer);
+std::string BasicIo::toDecimal(const BufferView<BaseInt> &buffer) const {
+  bool sign = _cmp.isSigned(buffer);
   sign = false;
 
-  size_t outputSize = toDecSize(buffer.size);
+  size_t outputSize = binSizeInDecimal(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];
   memset(output, 0, outputSize);
 
@@ -76,7 +73,7 @@ std::string BasicIo::toDecimal(const Buffer<BaseInt> &buffer,
   return result;
 }
 
-std::string BasicIo::toBinary(const Buffer<BaseInt> &buffer) const {
+std::string BasicIo::toBinary(const BufferView<BaseInt> &buffer) const {
   constexpr size_t wordSize = sizeof(BaseInt) * 8;
   std::string result;
   for (size_t i = buffer.size; i > 0; --i) {
@@ -87,11 +84,11 @@ std::string BasicIo::toBinary(const Buffer<BaseInt> &buffer) const {
   return result;
 }
 
-size_t BasicIo::toBinSize(size_t size) const {
+size_t BasicIo::decSizeInBinary(size_t size) const {
   return (size * 3 + 3) / (4 * sizeof(BaseInt));
 }
 
-size_t BasicIo::toDecSize(size_t size) const {
+size_t BasicIo::binSizeInDecimal(size_t size) const {
   return (size * sizeof(BaseInt) * 4 + 2) / 3;
 }
 

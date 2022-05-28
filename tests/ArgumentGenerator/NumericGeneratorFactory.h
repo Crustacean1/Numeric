@@ -7,9 +7,9 @@
 
 class NumericGeneratorFactory : public ArgumentGeneratorFactory<KCrypt::Numeric>{
   KCrypt::BasicIo & _io;
-  KCrypt::AddEngine & _adder;
+  KCrypt::AddEngine & _add;
   public: 
-  NumericGeneratorFactory(KCrypt::BasicIo & io, KCrypt::AddEngine & adder);
+  NumericGeneratorFactory(KCrypt::BasicIo & io, KCrypt::AddEngine & add);
   ArgumentGenerator<KCrypt::Numeric>* create(SyntaxNode & node) override;
 };
 

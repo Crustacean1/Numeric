@@ -80,12 +80,10 @@ bool Tests::basicDivision(Integer &a, Integer &b, Integer &c) {
 }
 
 bool Tests::mulDivReciprocity(Integer &a, Integer &b) {
-  Integer c(a.size() + b.size());
-
+  Integer c(a.size() + b.size(),0);
+  
   c = a;
   c *= b;
-  //std::cout << a.size() << " " << b.size() << " " << c.size() << "A: " << a
-            //<< "\tB: " << b << "\tC: " << c << std::endl;
 
   c /= b;
 

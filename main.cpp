@@ -3,60 +3,46 @@
 #include <string>
 
 #include "numeric/BasicIo.h"
+#include "numeric/Buffer/BufferInstance.h"
 #include "numeric/Numeric.h"
-#include "numeric/BufferInstance.h"
 #include "tester/logger.h"
 
 #include "tester/tester.h"
-#include "tests/arithm_tests.h"
 #include "tests/ArgumentGenerator/NumericGeneratorFactory.h"
+#include "tests/arithm_tests.h"
 
 int main(int argc, char **argv) {
+  Logger logger(std::cout, std::cerr, 5);
+
   if (argc != 2) {
-    std::cerr << "Invalid argument count, proper syntax is: ./Numeric "
-                 "[test_file_name]"
-              << std::endl;
+    logger.logError(
+        0,
+        "Invalid argument count, proper syntax is: ./Numeric [test_file_name]");
+    return -1;
+  }
+  std::ifstream file(argv[1]);
+
+  if (!file) {
+    logger.logError(0, "Coldn't open file: ", argv[1]);
     return -1;
   }
 
-  Logger logger(std::cout, std::cerr, 5);
-
   KCrypt::BufferInstance::init();
 
-  KCrypt::BasicIo io;
-  KCrypt::Comparator cmp;
-  KCrypt::AddEngine adder(cmp);
+  KCrypt::BufferInstance &buffInst = KCrypt::BufferInstance::getInstance();
 
-  NumericGeneratorFactory factory(io, adder);
-  Tester<Tests::Integer> tester(logger, factory);
+  KCrypt::CompEngine cmp;
+  KCrypt::AddEngine add(cmp);
+  KCrypt::BasicIo io(cmp, add);
 
-  tester.addTest("stringIdempotency", Tests::stringIdempotency);
-  tester.addTest("equality", Tests::equality);
-  tester.addTest("comparision", Tests::comparision);
-  tester.addTest("addition", Tests::addition);
-  tester.addTest("subtraction", Tests::subtraction);
-  tester.addTest("leftShift", Tests::leftShift);
-  tester.addTest("rightShift", Tests::rightShift);
-  tester.addTest("anyShift", Tests::anyShift);
-  tester.addTest("basicMul", Tests::basicMultiplication);
-  tester.addTest("basicDiv", Tests::basicDivision);
-  tester.addTest("mulDivReciprocity", Tests::mulDivReciprocity);
-  tester.addTest("mulPerf", Tests::mulPerf);
-  tester.addTest("newtonDiv",Tests::newtonDiv);
+  NumericGeneratorFactory factory(io, add);
+  Logger _logger(std::cout, std::cerr, 5);
+  Tester<KCrypt::Numeric> tester(_logger, factory);
 
-  int result = 0;
-  for (int i = 1; i < argc && result == 0; ++i) {
-    std::ifstream testFile(argv[i]);
-    if (!testFile) {
-      std::cerr << "Failed to open test file: " << argv[i] << " now closing"
-                << std::endl;
-      return -1;
-    }
-    tester.readStream(testFile);
-    result = tester.execute();
-  }
+  tester.addTest("addition",Tests::addition);
+  tester.addTest("subtraction",Tests::subtraction);
 
-  KCrypt::BufferInstance::destroy();
+  tester.readStream(file);
 
-  return result;
+  return tester.execute();
 }

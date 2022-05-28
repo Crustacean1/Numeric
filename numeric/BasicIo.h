@@ -5,22 +5,20 @@
 #include <random>
 #include <string>
 
-#include "Buffer.h"
+#include "Buffer/Buffer.h"
+#include "Buffer/BufferView.h"
 
 class Logger;
 
 namespace KCrypt {
 
-class Comparator;
+class CompEngine;
 class AddEngine;
 
 class BasicIo {
   static constexpr size_t bcdBlockSize = 4;
   static constexpr size_t binMax = 16;
   static constexpr size_t decMax = 10;
-
-  size_t toBinSize(size_t size) const;
-  size_t toDecSize(size_t size) const;
 
   void carrySign(unsigned char *input, size_t inputSize) const;
 
@@ -40,20 +38,28 @@ class BasicIo {
   void buildDecFromSrc(BaseInt *input, size_t inputSize, unsigned char *output,
                        size_t outputSize, bool sign) const;
 
+  CompEngine &_cmp;
+  AddEngine &_add;
+
 public:
-  BasicIo();
+  BasicIo(CompEngine &cmp, AddEngine &add);
   BasicIo(const BasicIo &);
   BasicIo(BasicIo &&);
 
   enum class Sign { Random, Signed, Unsigned };
 
-  Buffer<BaseInt> randomize(const Buffer<BaseInt> &num, std::default_random_engine &engine,
-                            Sign sign = Sign::Random);
+  BufferView<BaseInt> randomize(const BufferView<BaseInt> &num,
+                                std::default_random_engine &engine,
+                                Sign sign = Sign::Random);
 
-  std::string toDecimal(const Buffer<BaseInt> &buffer,
-                        const Comparator &comp) const;
-  std::string toBinary(const Buffer<BaseInt> &buffer) const;
-  Buffer<BaseInt> toComplement(std::string str, AddEngine &add) const;
+  size_t decSizeInBinary(size_t size) const;
+  size_t binSizeInDecimal(size_t size) const;
+
+  std::string toDecimal(const IntBufferView &buffer) const;
+
+  std::string toBinary(const IntBufferView &buffer) const;
+
+  void toComplement(std::string str, const IntBufferView &view) const;
 };
 } // namespace KCrypt
 

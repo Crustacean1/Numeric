@@ -13,7 +13,7 @@ RandomParameter::RandomParameter(KCrypt::BasicIo &io, size_t size,
                                     : KCrypt::BasicIo::Sign::Unsigned)) {}
 
 KCrypt::Numeric RandomParameter::createInstance(std::default_random_engine &e) {
-  Buffer<BaseInt> buffer = Buffer<BaseInt>::createBuffer(_size);
+  Buffer<BaseInt> buffer(_size);
   buffer.clear();
   _io.randomize(buffer.splice(0,_size),e,_sign);
   KCrypt::Numeric a(buffer);
