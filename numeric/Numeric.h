@@ -44,7 +44,7 @@ class Numeric {
   DivEngine _div;
   ExpEngine _exp;
 
-  Buffer _bufferHandle;
+  Buffer _buffer;
 
   Numeric &orderedMul(const BufferView &a, const BufferView &b, Buffer &c);
 
@@ -64,6 +64,10 @@ public:
   bool isSigned();
   std::string toDec();
   std::string toBin();
+
+  Numeric modExp(const Numeric & base, const Numeric & exp);
+  Numeric gcd(const Numeric & num);
+  bool testMillerRabin(const Numeric & witness);
 
   /*ASSIGNMENT OPERATORS*/
   Numeric &operator=(const Numeric &num);

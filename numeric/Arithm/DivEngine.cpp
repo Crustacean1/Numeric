@@ -94,7 +94,7 @@ size_t DivEngine::newtonInverse(const BufferView &divisor,
   size_t invPrecision = divApprox(divisor, inverse);
 
   size_t digitsOfAccuracy = 1;
-  for (; digitsOfAccuracy != inverse.size; digitsOfAccuracy <<= 1) {
+  for (; digitsOfAccuracy <= inverse.size + 1; digitsOfAccuracy <<= 1) {
     newtonIteration(divisor, inverse, invPrecision);
   }
   newtonIteration(divisor, inverse, invPrecision);

@@ -2,8 +2,8 @@
 using namespace KCrypt;
 
 Buffer::Buffer(size_t newSize)
-    : data(allocate(computeBufferSize(newSize))),
-      size(computeBufferSize(newSize)) {}
+    : BufferView(allocate(computeBufferSize(newSize)),
+                 computeBufferSize(newSize)) {}
 
 Buffer &Buffer::operator=(const Buffer &buffer) {
   releaseBuffer();
@@ -13,7 +13,7 @@ Buffer &Buffer::operator=(const Buffer &buffer) {
   return *this;
 }
 
-Buffer::Buffer(Buffer &&buffer) : data(buffer.data), size(buffer.size){
+Buffer::Buffer(Buffer &&buffer) : BufferView(buffer.data, buffer.size) {
   buffer.disownBuffer();
 }
 
@@ -56,15 +56,6 @@ void Buffer::disownBuffer() {
   this->size = 0;
 }
 
-BufferView Buffer::splice(size_t newPos, size_t newSize) const {
-  return BufferView(data + newPos, newSize);
-}
-
-BufferView Buffer::splice() const { return BufferView(data, size); }
-
-BufferView Buffer::splice(size_t newSize) const {
-  return BufferView(data, newSize);
-}
 
 void Buffer::reserve(size_t capacity) {
   if (this->size < capacity) {

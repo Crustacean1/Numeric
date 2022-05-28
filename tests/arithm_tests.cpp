@@ -103,14 +103,30 @@ bool Tests::mulPerf(Integer &a, Integer &b) {
   return true;
 }
 
-bool Tests::newtonDiv(Integer &a, Integer &b, Integer &c) {
-  Integer d(a);
-  std::cout << "And his name is: " << a << "\t" << b << std::endl;
-  d /= b;
-  if (d == c) {
+bool Tests::divFloor(Integer & a,Integer & b){
+  Integer c(a/b);
+  //std::cout<<"A: "<<a<<" B: "<<b<<" C: "<<c<<std::endl;
+  Integer d(a.size());
+  d = b;
+  d *= c;
+  a -= d;
+  if(!a.isSigned() && a < b){
     return true;
   }
-  std::cout << "C: " << c << std::endl;
   return false;
-  // std::cout<<"A: "<<a<<"\nB: "<<b<<"\nD: "<<d<<"\nC: "<<c<<std::endl;
 }
+
+bool Tests::nastyDivFloor(Integer &a, Integer & b){
+  Integer c(a.size() + b.size());
+  c = a;
+  c *= b;
+  c -= 1;
+  Integer d(c);
+  d /= a;
+  //std::cout<<"A: "<<a<<" B: "<<b<<" C - 1: "<<c<<" D: "<<d<<std::endl;
+  if(d == b){
+    return false;
+  }
+  return true;
+}
+

@@ -16,14 +16,17 @@ class ExpEngine {
   AddEngine & _add;
   MulEngine & _mul;
   DivEngine & _div;
+
+  Buffer &_invBuffer;
+  Buffer &_modBuffer;
 public:
-  ExpEngine(CompEngine & cmp, AddEngine & add, MulEngine & mul, DivEngine & div);
+  ExpEngine(CompEngine & cmp, AddEngine & add, MulEngine & mul, DivEngine & div, Buffer & buffer1, Buffer & buffer2);
 
-  void modExp(const Buffer &base, const Buffer &modulus,
-              const Buffer &exponent, const Buffer &result);
+  void modExp(const BufferView &base, const BufferView &modulus,
+              const BufferView &exponent, const BufferView &result);
 
-  void exp(const Buffer &base, const Buffer &exponent,
-           const Buffer &result);
+  void exp(const BufferView &base, const BufferView &exponent,
+           const BufferView &result);
 };
 }
 #endif /*EXP_ENGINE*/

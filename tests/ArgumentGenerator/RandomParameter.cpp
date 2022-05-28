@@ -16,7 +16,7 @@ RandomParameter::RandomParameter(BasicIo &io, size_t size,
 
 Numeric RandomParameter::createInstance(std::default_random_engine &e) {
   Buffer buffer(_size);
-  BufferView view(buffer.splice());
+  BufferView view(buffer.splice(_size));
 
   view.clear();
   _io.randomize(view, e, _sign);

@@ -57,7 +57,8 @@ void AddEngine::addToLeft(const BufferView &a, const BufferView &b) {
     a.data[i] = _buffer.minor.low;
     _buffer.major >>= BufferView::WordSize;
   }
-  BufferView::BaseInt padding = _comparator.isSigned(b) * BufferView::BaseInt(~0);
+  BufferView::BaseInt padding =
+      _comparator.isSigned(b) * BufferView::BaseInt(~0);
   for (; i < a.size; ++i) {
     _buffer.major += a.data[i];
     _buffer.major += padding;
@@ -105,7 +106,8 @@ void AddEngine::subFromLeft(const BufferView &a, const BufferView &b) {
     _buffer.major >>= BufferView::WordSize;
   }
 
-  BufferView::BaseInt padding = (b.size == 0 || !_comparator.isSigned(b)) * BufferView::BaseInt(~0);
+  BufferView::BaseInt padding =
+      (b.size == 0 || !_comparator.isSigned(b)) * BufferView::BaseInt(~0);
   _buffer.major += padding;
 
   for (; i < a.size && _buffer.major; ++i) {
@@ -146,6 +148,18 @@ void AddEngine::add(const BufferView &a, BufferView::BaseInt b) {
     a.data[i] = _buffer.minor.low;
     _buffer.major >>= BufferView::WordSize;
   }
+}
+
+void AddEngine::sub(const BufferView &a, BufferView::BaseInt b) {
+  _buffer.major = 1;
+  _buffer.major += (~b);
+  for (size_t i = 0; _buffer.major != 0 && i < a.size; ++i) {
+    _buffer.major += a.data[i];
+    a.data[i] = _buffer.minor.low;
+    _buffer.major >>= BufferView::WordSize;
+    _buffer.major += BufferView::BaseInt(~0);
+  }
+  _buffer.major -= BufferView::BaseInt(~0);
 }
 
 bool AddEngine::overflow() { return _buffer.major & 1; }

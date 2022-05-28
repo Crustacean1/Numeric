@@ -28,6 +28,7 @@ public:
 
   void subFromLeft(const BufferView &a, const BufferView &b);
   void subFromRight(const BufferView &a, const BufferView &b);
+  void sub(const BufferView &a, BufferView::BaseInt b);
   void invert(const BufferView &a);
 
   bool overflow();

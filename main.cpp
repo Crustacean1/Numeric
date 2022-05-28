@@ -51,6 +51,8 @@ int main(int argc, char **argv) {
   tester.addTest("DivisionValueTest", Tests::basicDivision);
   tester.addTest("MultiplicationDivisionSelfTest", Tests::mulDivReciprocity);
   tester.addTest("MulPerformanceTest", Tests::mulPerf);
+  tester.addTest("DivisionFloorTest", Tests::divFloor);
+  tester.addTest("NastyDivisionFloorTest", Tests::nastyDivFloor);
 
   tester.readStream(file);
 
