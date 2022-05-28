@@ -29,28 +29,24 @@ void ExpEngine::modExp(const BufferView &base, const BufferView &exponent,
   BufferView value(_expBuffer.splice(modulus.size));
   BufferView inverse(_invBuffer.splice(modulus.size * 2));
 
-  std::cout<<"Base: "<<base.size<<" modulus: "<<modulus.size<<" inverse: "<<inverse.size<<std::endl;
   size_t modPrecision = _div.newtonInverse(modulus, inverse);
-  std::cout<<"inverse: "<<io.toDecimal(inverse)<<std::endl;
 
   result.clear();
   result.data[0] = 1;
 
-  std::cout << "Starting from : " << io.toDecimal(result) << std::endl;
+  size_t currentDigit;
 
-  for (int i = _cmp.topOne(exponent); i > 0; --i) {
-    bool one =
-        (exponent.data[i / BufferView::WordSize] >> (i % BufferView::WordSize));
-    if (one) {
-      _mul.kar(result, base, value);
-      std::cout << "Mul Pre " << io.toDecimal(result) << std::endl;
-      fastModulo(value, modulus, inverse, result, modPrecision);
-      std::cout << "Mul Post " << io.toDecimal(result) << std::endl;
-    }
+  for (int i = _cmp.topOne(exponent); i >= 0; --i) {
+    currentDigit = exponent.data[i / BufferView::WordSize];
+    currentDigit >>= (i % BufferView::WordSize);
+
     _mul.kar(result, result, value);
-    std::cout << "Pre " << io.toDecimal(result) << std::endl;
     fastModulo(value, modulus, inverse, result, modPrecision);
-    std::cout << "Post " << io.toDecimal(result) << std::endl;
+
+    if (currentDigit & 1) {
+      _mul.kar(result, base, value);
+      fastModulo(value, modulus, inverse, result, modPrecision);
+    }
   }
 }
 
@@ -60,14 +56,8 @@ void ExpEngine::fastModulo(const BufferView &arg, const BufferView &modulus,
   BasicIo io(_cmp, _add);
   _div.newtonDiv(arg, modInverse, _modBuffer.splice(modulus.size), precision);
 
-  std::cout << "div result: " << io.toDecimal(arg) << " / "
-            << io.toDecimal(modulus) << " = "
-            << io.toDecimal(_modBuffer.splice(modulus.size)) << std::endl;
-
   _mul.kar(_modBuffer, modulus, _subBuffer.splice(modulus.size * 2));
   _add.subFromLeft(arg, _subBuffer);
-
-  std::cout << "subtracting: " << io.toDecimal(_subBuffer) << std::endl;
 
   result.copy(arg);
 }

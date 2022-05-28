@@ -86,13 +86,14 @@ size_t DivEngine::divApprox(const BufferView &divisor,
   _buffer.major <<= (BufferView::BufferHighBit);
   _buffer.major /= approx;
 
-  size_t precision  = aSigPos + inverse.size * BufferView::WordSize;
+  size_t precision = aSigPos + inverse.size * BufferView::WordSize;
 
-  //Making sure approximation fits in upper digit of inverse
-  while(_buffer.minor.high){
-    _buffer.major >>= 1;
-    precision -= 1;
-  }
+  // Making sure approximation fits in upper digit of inverse
+  //
+  bool approxCorrection = _buffer.minor.high != 0;
+
+  precision -= approxCorrection;
+  _buffer.major >>= approxCorrection;
 
   inverse.clear();
   inverse.data[inverse.size - 1] = _buffer.major;
