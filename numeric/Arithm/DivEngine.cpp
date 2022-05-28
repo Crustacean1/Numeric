@@ -80,16 +80,24 @@ size_t DivEngine::divApprox(const BufferView &divisor,
   BufferView::BufferInt approx = divisor.data[aWordPos];
   approx <<= BufferView::WordSize;
   approx += (aWordPos != 0) * divisor.data[(aWordPos != 0) * (aWordPos - 1)];
-  approx >>= (aSigShift);
+  approx >>= (aSigShift + 1);
 
   _buffer.major = 1;
   _buffer.major <<= (BufferView::BufferHighBit);
-
   _buffer.major /= approx;
+
+  size_t precision  = aSigPos + inverse.size * BufferView::WordSize;
+
+  //Making sure approximation fits in upper digit of inverse
+  while(_buffer.minor.high){
+    _buffer.major >>= 1;
+    precision -= 1;
+  }
 
   inverse.clear();
   inverse.data[inverse.size - 1] = _buffer.major;
-  return aSigPos + inverse.size * BufferView::WordSize - 1;
+
+  return precision;
 }
 
 size_t DivEngine::newtonInverse(const BufferView &divisor,

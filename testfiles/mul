@@ -13,10 +13,10 @@ DivisionFloorTest{
 }
 
 NastyDivisionFloorTest{
-  case(1000) : unsigned(8) unsigned(8);
-  case(1000) : unsigned(4) unsigned(8);
-  case(1000) : unsigned(8) unsigned(4);
-  case(1000) : unsigned(32) unsigned(32);
+  case(100) : unsigned(8) unsigned(8);
+  case(100) : unsigned(4) unsigned(8);
+  case(100) : unsigned(8) unsigned(4);
+  case(100) : unsigned(32) unsigned(32);
 }
 
 MultiplicationDivisionSelfTest{
