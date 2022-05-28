@@ -8,7 +8,7 @@ namespace KCrypt {
 class BufferInstance {
   static BufferInstance *__globalInstance;
 
-  IntBuffer _buffers[4];
+  Buffer _buffers[4];
   BufferInstance();
 
 public:
@@ -16,7 +16,7 @@ public:
   static BufferInstance &getInstance();
   static void destroy();
 
-  IntBuffer &operator[](size_t bufferNo);
+  Buffer &operator[](size_t bufferNo);
   ~BufferInstance();
 };
 

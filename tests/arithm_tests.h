@@ -7,7 +7,7 @@ namespace Tests {
 
 using Integer = KCrypt::Numeric;
 
-bool stringIdempotency(Integer &a);
+bool decimalConversion(Integer &a);
 bool equality(Integer &a, Integer &b);
 bool addition(Integer &a, Integer &b);
 bool subtraction(Integer &a, Integer &b, Integer &c);

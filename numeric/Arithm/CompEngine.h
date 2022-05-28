@@ -11,16 +11,16 @@ class CompEngine {
 public:
   CompEngine();
 
-  bool equal(const IntBufferView a, const IntBufferView b) const;
-  bool greater(const IntBufferView a, const IntBufferView b) const;
-  bool lesser(const IntBufferView a, const IntBufferView b) const;
-  bool greaterOrEqual(const IntBufferView a, const IntBufferView b) const;
-  bool lesserOrEqual(const IntBufferView a, const IntBufferView b) const;
+  bool equal(const BufferView &a, const BufferView &b) const;
+  bool greater(const BufferView &a, const BufferView &b) const;
+  bool lesser(const BufferView &a, const BufferView &b) const;
+  bool greaterOrEqual(const BufferView &a, const BufferView &b) const;
+  bool lesserOrEqual(const BufferView &a, const BufferView &b) const;
 
-  size_t leftOffset(const IntBufferView a) const;
-  size_t rightOffset(const IntBufferView a) const;
-  size_t topOne(const IntBufferView &a) const;
-  bool isSigned(const IntBufferView a) const;
+  size_t leftOffset(const BufferView &a) const;
+  size_t rightOffset(const BufferView &a) const;
+  size_t topOne(const BufferView &a) const;
+  bool isSigned(const BufferView &a) const;
 };
 
 } // namespace KCrypt

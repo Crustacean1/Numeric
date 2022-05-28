@@ -16,20 +16,19 @@ class MulEngine {
   CompEngine &_comp;
   AddEngine &_adder;
 
-  IntBuffer &karBuffer;
+  Buffer &karBuffer;
 
-  void karIt(const IntBufferView &factorA, const IntBufferView &factorB,
-             const IntBufferView &product, const IntBufferView &buffer,
+  void karIt(const BufferView &factorA, const BufferView &factorB,
+             const BufferView &product, const BufferView &buffer,
              size_t level = 0);
 
 public:
-  MulEngine(CompEngine &comp, AddEngine &add, IntBuffer &kBuffer);
+  MulEngine(CompEngine &comp, AddEngine &add, Buffer &kBuffer);
 
+  void mul(const BufferView &factor, const BufferView &product);
 
-  void mul(const IntBufferView &factor, const IntBufferView &product);
-
-  void kar(const IntBufferView &factorA, const IntBufferView &factorB,
-           const IntBufferView &product);
+  void kar(const BufferView &factorA, const BufferView &factorB,
+           const BufferView &product);
 };
 
 } // namespace KCrypt

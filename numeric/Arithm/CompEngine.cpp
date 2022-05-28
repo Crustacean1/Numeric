@@ -5,9 +5,9 @@ namespace KCrypt {
 
 CompEngine::CompEngine() {}
 
-bool CompEngine::equal(const IntBufferView a, const IntBufferView b) const {
-  BaseInt aFill = isSigned(a) * BaseInt(~0);
-  BaseInt bFill = isSigned(b) * BaseInt(~0);
+bool CompEngine::equal(const BufferView &a, const BufferView &b) const {
+  BufferView::BaseInt aFill = isSigned(a) * BufferView::BaseInt(~0);
+  BufferView::BaseInt bFill = isSigned(b) * BufferView::BaseInt(~0);
 
   if (aFill != bFill) {
     // return false;
@@ -32,9 +32,9 @@ bool CompEngine::equal(const IntBufferView a, const IntBufferView b) const {
   return pos == -1;
 }
 
-bool CompEngine::greater(const IntBufferView a, const IntBufferView b) const {
-  BaseInt aFill = isSigned(a) * BaseInt(~0);
-  BaseInt bFill = isSigned(b) * BaseInt(~0);
+bool CompEngine::greater(const BufferView &a, const BufferView &b) const {
+  BufferView::BaseInt aFill = isSigned(a) * BufferView::BaseInt(~0);
+  BufferView::BaseInt bFill = isSigned(b) * BufferView::BaseInt(~0);
 
   if (aFill != bFill) {
     return isSigned(b);
@@ -59,9 +59,9 @@ bool CompEngine::greater(const IntBufferView a, const IntBufferView b) const {
   return pos == -1 && a.data[0] > b.data[0];
 }
 
-bool CompEngine::lesser(const IntBufferView a, const IntBufferView b) const {
-  BaseInt aFill = isSigned(a) * BaseInt(~0);
-  BaseInt bFill = isSigned(b) * BaseInt(~0);
+bool CompEngine::lesser(const BufferView &a, const BufferView &b) const {
+  BufferView::BaseInt aFill = isSigned(a) * BufferView::BaseInt(~0);
+  BufferView::BaseInt bFill = isSigned(b) * BufferView::BaseInt(~0);
 
   if (aFill != bFill) {
     return isSigned(b);
@@ -86,9 +86,10 @@ bool CompEngine::lesser(const IntBufferView a, const IntBufferView b) const {
   return pos == -1 && a.data[0] < b.data[0];
 }
 
-bool CompEngine::greaterOrEqual(const IntBufferView a, const IntBufferView b) const {
-  BaseInt aFill = isSigned(a) * BaseInt(~0);
-  BaseInt bFill = isSigned(b) * BaseInt(~0);
+bool CompEngine::greaterOrEqual(const BufferView &a,
+                                const BufferView &b) const {
+  BufferView::BaseInt aFill = isSigned(a) * BufferView::BaseInt(~0);
+  BufferView::BaseInt bFill = isSigned(b) * BufferView::BaseInt(~0);
 
   if (aFill != bFill) {
     return isSigned(b);
@@ -113,9 +114,9 @@ bool CompEngine::greaterOrEqual(const IntBufferView a, const IntBufferView b) co
   return pos == -1;
 }
 
-bool CompEngine::lesserOrEqual(const IntBufferView a, const IntBufferView b) const {
-  BaseInt aFill = isSigned(a) * BaseInt(~0);
-  BaseInt bFill = isSigned(b) * BaseInt(~0);
+bool CompEngine::lesserOrEqual(const BufferView &a, const BufferView &b) const {
+  BufferView::BaseInt aFill = isSigned(a) * BufferView::BaseInt(~0);
+  BufferView::BaseInt bFill = isSigned(b) * BufferView::BaseInt(~0);
 
   if (aFill != bFill) {
     return isSigned(b);
@@ -140,30 +141,32 @@ bool CompEngine::lesserOrEqual(const IntBufferView a, const IntBufferView b) con
   return pos == -1;
 }
 
-size_t CompEngine::leftOffset(const IntBufferView a) const {
+size_t CompEngine::leftOffset(const BufferView &a) const {
   int i, j;
   for (i = a.size - 1; i > -1 && a.data[i] == 0; --i) {
   }
-  for (j = wordSize - 1; j > -1 && ((a.data[i] >> j) & 1) == 0; --j) {
+  for (j = BufferView::WordSize - 1; j > -1 && ((a.data[i] >> j) & 1) == 0;
+       --j) {
   }
-  return (a.size - i - 1) * wordSize + (wordSize - j - 1);
+  return (a.size - i - 1) * BufferView::WordSize +
+         (BufferView::WordSize - j - 1);
 }
 
-size_t CompEngine::rightOffset(const IntBufferView a) const {
+size_t CompEngine::rightOffset(const BufferView &a) const {
   int i, j;
   for (i = 0; i < a.size && a.data[i] == 0; ++i) {
   }
-  for (j = 0; j < wordSize && ((a.data[i] >> j) & 1) == 0; ++j) {
+  for (j = 0; j < BufferView::WordSize && ((a.data[i] >> j) & 1) == 0; ++j) {
   }
-  return i * wordSize + j;
+  return i * BufferView::WordSize + j;
 }
 
-size_t CompEngine::topOne(const IntBufferView &a) const {
-  return a.size * wordSize - 1 - leftOffset(a);
+size_t CompEngine::topOne(const BufferView &a) const {
+  return a.size * BufferView::WordSize - 1 - leftOffset(a);
 }
 
-bool CompEngine::isSigned(const IntBufferView a) const {
-  return (a.data[a.size - 1] >> highWordPos);
+bool CompEngine::isSigned(const BufferView &a) const {
+  return (a.data[a.size - 1] >> BufferView::WordHighBit);
 }
 
 } // namespace KCrypt

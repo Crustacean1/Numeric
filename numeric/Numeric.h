@@ -27,6 +27,11 @@ namespace KCrypt {
 
 class Numeric;
 
+// Notes:
+// - Has constant size thorough lifetime
+// - Results of operations are the same size as the source
+// - Thread safe (TODO)
+
 class Numeric {
 
   BufferInstance &_buffInst;
@@ -39,16 +44,16 @@ class Numeric {
   DivEngine _div;
   ExpEngine _exp;
 
-  Buffer<BaseInt> _buffer;
+  Buffer _bufferHandle;
 
-  Numeric &orderedMul(const IntBuffer &a, const IntBuffer &b, IntBuffer &c);
+  Numeric &orderedMul(const BufferView &a, const BufferView &b, Buffer &c);
 
 public:
-  Numeric(size_t size, BaseInt value = 0);
+  Numeric(size_t size, BufferView::BaseInt value = 0);
   Numeric(const std::string &number);
 
-  Numeric(const Buffer<BaseInt> &buffer);
-  Numeric(Buffer<BaseInt> &&buffer);
+  Numeric(Buffer &&buffer);
+  Numeric(const BufferView &buffer);
 
   Numeric();
   Numeric(Numeric &&num);
@@ -63,7 +68,7 @@ public:
   /*ASSIGNMENT OPERATORS*/
   Numeric &operator=(const Numeric &num);
   Numeric &operator=(Numeric &&num);
-  Numeric &operator=(BaseInt value);
+  Numeric &operator=(BufferView::BaseInt value);
 
   /*NUMERIC VERSION*/
   Numeric operator+(const Numeric &num) const;
@@ -75,13 +80,13 @@ public:
   Numeric operator<<(const Numeric &num) const;
 
   /*BASE VERSION*/
-  Numeric operator+(const BaseInt num) const;
-  Numeric operator-(const BaseInt num) const;
-  Numeric operator*(const BaseInt num) const;
-  Numeric operator/(const BaseInt num) const;
-  Numeric operator%(const BaseInt num) const;
-  Numeric operator>>(const BaseInt num) const;
-  Numeric operator<<(const BaseInt num) const;
+  Numeric operator+(const BufferView::BaseInt num) const;
+  Numeric operator-(const BufferView::BaseInt num) const;
+  Numeric operator*(const BufferView::BaseInt num) const;
+  Numeric operator/(const BufferView::BaseInt num) const;
+  Numeric operator%(const BufferView::BaseInt num) const;
+  Numeric operator>>(const BufferView::BaseInt num) const;
+  Numeric operator<<(const BufferView::BaseInt num) const;
 
   /*NUMERIC VERSION*/
   Numeric &operator+=(const Numeric &num);
@@ -93,13 +98,13 @@ public:
   Numeric &operator<<=(const Numeric &num);
 
   /*BASE VERSION*/
-  Numeric &operator+=(BaseInt num);
-  Numeric &operator-=(BaseInt num);
-  Numeric &operator*=(BaseInt num);
-  Numeric &operator/=(BaseInt num);
-  Numeric &operator%=(BaseInt num);
-  Numeric &operator>>=(BaseInt num);
-  Numeric &operator<<=(BaseInt num);
+  Numeric &operator+=(BufferView::BaseInt num);
+  Numeric &operator-=(BufferView::BaseInt num);
+  Numeric &operator*=(BufferView::BaseInt num);
+  Numeric &operator/=(BufferView::BaseInt num);
+  Numeric &operator%=(BufferView::BaseInt num);
+  Numeric &operator>>=(BufferView::BaseInt num);
+  Numeric &operator<<=(BufferView::BaseInt num);
 
   bool operator==(const Numeric &num) const;
   bool operator<=(const Numeric &num) const;
@@ -107,11 +112,11 @@ public:
   bool operator<(const Numeric &num) const;
   bool operator>(const Numeric &num) const;
 
-  bool operator==(BaseInt num) const;
-  bool operator<=(BaseInt num) const;
-  bool operator>=(BaseInt num) const;
-  bool operator<(BaseInt num) const;
-  bool operator>(BaseInt num) const;
+  bool operator==(BufferView::BaseInt num) const;
+  bool operator<=(BufferView::BaseInt num) const;
+  bool operator>=(BufferView::BaseInt num) const;
+  bool operator<(BufferView::BaseInt num) const;
+  bool operator>(BufferView::BaseInt num) const;
 
   operator std::string() const {
     // return _ioModule.getDec(_buffer, _arthModule);

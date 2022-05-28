@@ -1,14 +1,17 @@
 #include "RangedParameter.h"
 #include "../../numeric/Numeric.h"
 
-RangedParameter::RangedParameter(KCrypt::BasicIo &io, int min, int max)
+using namespace KCrypt;
+
+RangedParameter::RangedParameter(BasicIo &io, int min, int max)
     : _io(io), _min(min), _max(max) {}
 
-KCrypt::Numeric RangedParameter::createInstance(std::default_random_engine &e) {
-  IntBuffer a(1);
-  a.clear();
-  std::uniform_int_distribution<BaseInt> dist(_min, _max);
-  a.data[0] = dist(e);
-  return KCrypt::Numeric(std::move(a));
+Numeric RangedParameter::createInstance(std::default_random_engine &e) {
+  Buffer buffer(1);
+  BufferView view(buffer.splice());
+  view.clear();
+  std::uniform_int_distribution<BufferView::BaseInt> dist(_min, _max);
+  view.data[0] = dist(e);
+  return Numeric(std::move(buffer));
 }
 RangedParameter::~RangedParameter(){}

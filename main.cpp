@@ -39,8 +39,18 @@ int main(int argc, char **argv) {
   Logger _logger(std::cout, std::cerr, 5);
   Tester<KCrypt::Numeric> tester(_logger, factory);
 
-  tester.addTest("addition",Tests::addition);
-  tester.addTest("subtraction",Tests::subtraction);
+  tester.addTest("Equality", Tests::equality);
+
+  tester.addTest("AdditionSelfTest",Tests::addition);
+  tester.addTest("SubtractionSelfTest",Tests::subtraction);
+
+  tester.addTest("LeftShiftValueTest", Tests::leftShift);
+  tester.addTest("RightShiftValueTest", Tests::rightShift);
+  tester.addTest("ShiftSelfTest", Tests::anyShift);
+
+  tester.addTest("DivisionValueTest", Tests::basicDivision);
+  tester.addTest("MultiplicationDivisionSelfTest", Tests::mulDivReciprocity);
+  tester.addTest("MulPerformanceTest", Tests::mulPerf);
 
   tester.readStream(file);
 

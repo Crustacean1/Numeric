@@ -3,57 +3,35 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
 
-template <typename T> struct BufferView {
-  BufferView(T *newData, size_t newSize);
+namespace KCrypt {
+
+struct BufferView {
 
 public:
-  size_t size;
-  T *data;
-  BufferView(const BufferView<T> &bufferView);
+  using BaseInt = uint32_t;
+  using BufferInt = uint64_t;
+  static constexpr size_t WordSize = sizeof(BaseInt) * 8;
+  static constexpr size_t BufferSize = sizeof(BufferInt) * 8;
+  static constexpr size_t WordHighBit = WordSize - 1;
+  static constexpr size_t BufferHighBit = BufferSize - 1;
 
-  BufferView splice(size_t pos, size_t size) const;
-  void copy(const BufferView<T> &buffer) const;
+  BaseInt *data;
+  size_t size;
+
+  BufferView(BaseInt *newData, size_t newSize);
+  BufferView(const BufferView &bufferView);
+
+  void copy(const BufferView &buffer) const;
   void clear(char value = 0) const;
 
-  BufferView &operator=(const BufferView<T> &bufferView);
+  BufferView splice() const;
+  BufferView splice(size_t newSize) const;
+  BufferView splice(size_t newPos, size_t newSize) const;
+
+  BufferView &operator=(const BufferView &bufferView);
+
 };
 
-using IntBufferView = BufferView<uint32_t>;
-
-template <typename T>
-BufferView<T>::BufferView(T *newData, size_t newSize)
-    : data(newData), size(newSize) {}
-
-template <typename T>
-BufferView<T>::BufferView(const BufferView<T> &bufferView)
-    : data(bufferView.data), size(bufferView.size) {}
-
-template <typename T>
-BufferView<T> &BufferView<T>::operator=(const BufferView<T> &bufferView) {
-  data = bufferView.data;
-  size = bufferView.size;
-}
-
-template <typename T>
-BufferView<T> BufferView<T>::splice(size_t beg, size_t size) const {
-  return BufferView<T>(data + beg, size);
-}
-
-template <typename T>
-void BufferView<T>::copy(const BufferView<T> &buffer) const {
-  // TODO: Branchless version
-  if (buffer.size < size) {
-    memcpy(data, buffer.data, buffer.size * sizeof(T));
-    memset(data + buffer.size, 0, (size - buffer.size) * sizeof(T));
-    return;
-  }
-  memcpy(data, buffer.data, size * sizeof(T));
-}
-
-template <typename T> void BufferView<T>::clear(char value) const {
-  memset(data, value, size * sizeof(T));
-}
-
+} // namespace KCrypt
 #endif /*BUFFER_VIEW*/

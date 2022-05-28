@@ -2,8 +2,9 @@
 #define NORMALIZEDTEST
 
 #include <functional>
-#include <vector>
 #include <stddef.h>
+#include <stdexcept>
+#include <vector>
 
 template <size_t... Seq, typename T, typename... Q>
 bool executeFunction(bool (*func)(Q...), std::vector<T> &params,
@@ -33,6 +34,12 @@ private:
 };
 
 template <typename T> bool NormalizedTest<T>::execute(std::vector<T> &params) {
+  if (params.size() != _paramCount) {
+    throw std::runtime_error(
+        std::string("Invalid parameter count in test file: ") +
+        std::to_string(params.size()) + std::string(" should be ") +
+        std::to_string(_paramCount));
+  }
   return _func(params);
 }
 

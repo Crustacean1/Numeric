@@ -18,12 +18,11 @@
 
 namespace KCrypt {
 
-MulEngine::MulEngine(CompEngine &comp, AddEngine &add, IntBuffer &kBuffer)
+MulEngine::MulEngine(CompEngine &comp, AddEngine &add, Buffer &kBuffer)
     : _comp(comp), _adder(add), karBuffer(kBuffer) {}
 
-
-void MulEngine::mul(const IntBufferView &b, const IntBufferView &a) {
-  BaseInt mulCache;
+void MulEngine::mul(const BufferView &b, const BufferView &a) {
+  BufferView::BaseInt mulCache;
   for (int i = a.size - 1, j = 0; i >= 0; --i) {
     mulCache = a.data[i];
     _buffer.major = 0;
@@ -32,26 +31,25 @@ void MulEngine::mul(const IntBufferView &b, const IntBufferView &a) {
       _buffer.major += a.data[i + j];
       _buffer.major += mulCache * b.data[j];
       a.data[i + j] = _buffer.major;
-      _buffer.major >>= wordSize;
+      _buffer.major >>= BufferView::WordSize;
     }
     for (; j + i < a.size && _buffer.major != 0; ++j) {
       _buffer.major += a.data[i + j];
       a.data[i + j] = _buffer.major;
-      _buffer.major >>= wordSize;
+      _buffer.major >>= BufferView::WordSize;
     }
   }
 }
 
-
-void MulEngine::kar(const IntBufferView &a, const IntBufferView &b,
-                    const IntBufferView &c) {
+void MulEngine::kar(const BufferView &a, const BufferView &b,
+                    const BufferView &c) {
   karBuffer.reserve(a.size << 2);
   c.clear();
-  karIt(a, b, c, karBuffer);
+  karIt(a, b, c, karBuffer.splice(0, a.size << 2));
 }
 
-void MulEngine::karIt(const IntBufferView &a, const IntBufferView &b,
-                      const IntBufferView &c, const IntBufferView &d, size_t level) {
+void MulEngine::karIt(const BufferView &a, const BufferView &b,
+                      const BufferView &c, const BufferView &d, size_t level) {
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -68,20 +66,20 @@ void MulEngine::karIt(const IntBufferView &a, const IntBufferView &b,
     return;
   }
 
-  const IntBufferView &la = a.splice(0, pivot);
-  const IntBufferView &ha = a.splice(pivot, pivot);
-  const IntBufferView &lb = b.splice(0, K::min(pivot, b.size));
-  const IntBufferView &hb = b.splice(lb.size, K::min(b.size - lb.size, pivot));
+  const BufferView &la = a.splice(0, pivot);
+  const BufferView &ha = a.splice(pivot, pivot);
+  const BufferView &lb = b.splice(0, K::min(pivot, b.size));
+  const BufferView &hb = b.splice(lb.size, K::min(b.size - lb.size, pivot));
 
-  const IntBufferView &lc = c.splice(0, majorPivot);
-  const IntBufferView &hc = c.splice(majorPivot, majorPivot);
+  const BufferView &lc = c.splice(0, majorPivot);
+  const BufferView &hc = c.splice(majorPivot, majorPivot);
 
-  const IntBufferView &lBuffer = d.splice(0, pivot);
-  const IntBufferView &hBuffer = d.splice(pivot, pivot);
+  const BufferView &lBuffer = d.splice(0, pivot);
+  const BufferView &hBuffer = d.splice(pivot, pivot);
 
-  const IntBufferView &xBuffer = d.splice(majorPivot, majorPivot);
-  const IntBufferView &yBuffer = d.splice(majorPivot, majorPivot + 1);
-  const IntBufferView &rBuffer = d.splice(bufferPivot, bufferPivot);
+  const BufferView &xBuffer = d.splice(majorPivot, majorPivot);
+  const BufferView &yBuffer = d.splice(majorPivot, majorPivot + 1);
+  const BufferView &rBuffer = d.splice(bufferPivot, bufferPivot);
 
   karIt(la, lb, lc, rBuffer, level + 1);
   karIt(ha, hb, hc, rBuffer, level + 1);
@@ -109,7 +107,7 @@ void MulEngine::karIt(const IntBufferView &a, const IntBufferView &b,
     _adder.invert(yBuffer);
   }
 
-  const IntBufferView c34 = c.splice(pivot, pivot * 3);
+  const BufferView c34 = c.splice(pivot, pivot * 3);
 
   _adder.addUnsignedToLeft(yBuffer, lc);
   _adder.addUnsignedToLeft(yBuffer, hc);

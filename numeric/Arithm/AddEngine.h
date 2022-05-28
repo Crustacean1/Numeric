@@ -1,8 +1,8 @@
 #ifndef ADD_ENGINE
 #define ADD_ENGINE
 
-#include "../Buffer/Buffer.h"
 #include "../Buffer/BufferView.h"
+#include "../Buffer/Buffer.h"
 #include "CompEngine.h"
 
 namespace KCrypt {
@@ -15,20 +15,20 @@ class AddEngine {
 public:
   AddEngine(CompEngine &comp);
 
-  void leftShift(const IntBufferView &source, const IntBufferView &output,
+  void leftShift(const BufferView &source, const BufferView &output,
                  size_t offset);
-  void rightShift(const IntBufferView &source, const IntBufferView &output,
+  void rightShift(const BufferView &source, const BufferView &output,
                   size_t offset);
 
   // All arguments must be ordered by descending size from left
-  void addToLeft(const IntBufferView a, const IntBufferView b);
-  void addToRight(const IntBufferView a, const IntBufferView b);
-  void addUnsignedToLeft(const IntBufferView a, const IntBufferView b);
-  void add(const IntBufferView a, BaseInt b);
+  void addToLeft(const BufferView &a, const BufferView &b);
+  void addToRight(const BufferView &a, const BufferView &b);
+  void addUnsignedToLeft(const BufferView &a, const BufferView &b);
+  void add(const BufferView &a, BufferView::BaseInt b);
 
-  void subFromLeft(const IntBufferView a, const IntBufferView b);
-  void subFromRight(const IntBufferView a, const IntBufferView b);
-  void invert(const IntBufferView a);
+  void subFromLeft(const BufferView &a, const BufferView &b);
+  void subFromRight(const BufferView &a, const BufferView &b);
+  void invert(const BufferView &a);
 
   bool overflow();
 };

@@ -1,7 +1,7 @@
 #include "arithm_tests.h"
 #include <string>
 
-bool Tests::stringIdempotency(Integer &a) {
+bool Tests::decimalConversion(Integer &a) {
   std::string ogInt(a);
 
   return a == Integer(ogInt);
@@ -76,6 +76,7 @@ bool Tests::basicMultiplication(Integer &a, Integer &b, Integer &c) {
 
 bool Tests::basicDivision(Integer &a, Integer &b, Integer &c) {
   auto d = a / b;
+  std::cout<<"A: "<<a<<" B: "<<b<< " D: "<<d<<" Should be: "<<c<<std::endl;
   return d == c;
 }
 

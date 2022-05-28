@@ -4,20 +4,24 @@
 
 #include <iostream>
 
-RandomParameter::RandomParameter(KCrypt::BasicIo &io, size_t size,
+using namespace KCrypt;
+
+RandomParameter::RandomParameter(BasicIo &io, size_t size,
                                  const std::string &type)
     : _io(io), _size(size),
       _sign(type == "random"
-                ? KCrypt::BasicIo::Sign::Random
-                : (type == "signed" ? KCrypt::BasicIo::Sign::Signed
-                                    : KCrypt::BasicIo::Sign::Unsigned)) {}
+                ? BasicIo::Sign::Random
+                : (type == "signed" ? BasicIo::Sign::Signed
+                                    : BasicIo::Sign::Unsigned)) {}
 
-KCrypt::Numeric RandomParameter::createInstance(std::default_random_engine &e) {
-  Buffer<BaseInt> buffer(_size);
-  buffer.clear();
-  _io.randomize(buffer.splice(0,_size),e,_sign);
-  KCrypt::Numeric a(buffer);
-  return a;
+Numeric RandomParameter::createInstance(std::default_random_engine &e) {
+  Buffer buffer(_size);
+  BufferView view(buffer.splice());
+
+  view.clear();
+  _io.randomize(view, e, _sign);
+
+  return Numeric(std::move(buffer));
 }
 
-RandomParameter::~RandomParameter(){}
+RandomParameter::~RandomParameter() {}

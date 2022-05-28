@@ -35,8 +35,9 @@ class BasicIo {
 
   void buildBinFromSrc(unsigned char *input, size_t inputSize,
                        unsigned char *output) const;
-  void buildDecFromSrc(BaseInt *input, size_t inputSize, unsigned char *output,
-                       size_t outputSize, bool sign) const;
+  void buildDecFromSrc(BufferView::BaseInt *input, size_t inputSize,
+                       unsigned char *output, size_t outputSize,
+                       bool sign) const;
 
   CompEngine &_cmp;
   AddEngine &_add;
@@ -48,18 +49,18 @@ public:
 
   enum class Sign { Random, Signed, Unsigned };
 
-  BufferView<BaseInt> randomize(const BufferView<BaseInt> &num,
-                                std::default_random_engine &engine,
-                                Sign sign = Sign::Random);
+  void randomize(const BufferView &num,
+                       std::default_random_engine &engine,
+                       Sign sign = Sign::Random);
 
   size_t decSizeInBinary(size_t size) const;
   size_t binSizeInDecimal(size_t size) const;
 
-  std::string toDecimal(const IntBufferView &buffer) const;
+  std::string toDecimal(const BufferView &buffer) const;
 
-  std::string toBinary(const IntBufferView &buffer) const;
+  std::string toBinary(const BufferView &buffer) const;
 
-  void toComplement(std::string str, const IntBufferView &view) const;
+  void toComplement(std::string str, const BufferView &view) const;
 };
 } // namespace KCrypt
 

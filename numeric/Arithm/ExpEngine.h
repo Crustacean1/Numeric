@@ -19,11 +19,11 @@ class ExpEngine {
 public:
   ExpEngine(CompEngine & cmp, AddEngine & add, MulEngine & mul, DivEngine & div);
 
-  void modExp(const IntBufferView &base, const IntBufferView &modulus,
-              const IntBufferView &exponent, const IntBufferView &result);
+  void modExp(const Buffer &base, const Buffer &modulus,
+              const Buffer &exponent, const Buffer &result);
 
-  void exp(const IntBufferView &base, const IntBufferView &exponent,
-           const IntBufferView &result);
+  void exp(const Buffer &base, const Buffer &exponent,
+           const Buffer &result);
 };
 }
 #endif /*EXP_ENGINE*/

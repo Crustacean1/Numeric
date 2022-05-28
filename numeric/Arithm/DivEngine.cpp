@@ -6,13 +6,13 @@
 using namespace KCrypt;
 
 DivEngine::DivEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul,
-                     IntBuffer &buff1, IntBuffer &buff2)
+                     Buffer &buff1, Buffer &buff2)
     : _cmp(cmp), _add(add), _mul(mul), _aDivBuffer(buff1), _bDivBuffer(buff2) {}
 
-void DivEngine::div(const IntBufferView &a, const IntBufferView &b,
-                    const IntBufferView &c) {
-  size_t aShift = a.size * wordSize - _cmp.leftOffset(a);
-  size_t bShift = b.size * wordSize - _cmp.leftOffset(b);
+void DivEngine::div(const BufferView &a, const BufferView &b,
+                    const BufferView &c) {
+  size_t aShift = a.size * BufferView::WordSize - _cmp.leftOffset(a);
+  size_t bShift = b.size * BufferView::WordSize - _cmp.leftOffset(b);
   size_t shift = aShift - bShift;
 
   if (shift >> (sizeof(size_t) * 8 - 1)) {
@@ -21,8 +21,8 @@ void DivEngine::div(const IntBufferView &a, const IntBufferView &b,
 
   _aDivBuffer.reserve(a.size);
   _bDivBuffer.reserve(a.size);
-  IntBufferView aBuf = _aDivBuffer.splice(0, a.size);
-  IntBufferView bBuf = _bDivBuffer.splice(0, a.size);
+  BufferView aBuf = _aDivBuffer.splice(0, a.size);
+  BufferView bBuf = _bDivBuffer.splice(0, a.size);
 
   aBuf.copy(a);
   bBuf.copy(b);
@@ -42,50 +42,51 @@ void DivEngine::div(const IntBufferView &a, const IntBufferView &b,
     _add.rightShift(bBuf, bBuf, 1);
   }
 
-  size_t shiftOffset = wordSize - ((shift + 1) % wordSize);
-  size_t lastPos = (shift + 1) / wordSize;
+  size_t shiftOffset =
+      BufferView::WordSize - ((shift + 1) % BufferView::WordSize);
+  size_t lastPos = (shift + 1) / BufferView::WordSize;
 
   c.data[lastPos] <<= shiftOffset;
   c.data[lastPos] >>= shiftOffset;
   c.data[lastPos] *= (shiftOffset != 32);
 }
 
-void DivEngine::newtonDiv(const IntBufferView &dividend,
-                          const IntBufferView &inverse,
-                          const IntBufferView &output, size_t invPrecision) {
+void DivEngine::newtonDiv(const BufferView &dividend, const BufferView &inverse,
+                          const BufferView &output, size_t invPrecision) {
 
   _aDivBuffer.reserve(inverse.size << 1);
+  const BufferView &buff = _aDivBuffer.splice(inverse.size << 1);
 
-  _aDivBuffer.clear();
+  buff.clear();
 
-  _mul.kar(inverse, dividend, _aDivBuffer);
+  _mul.kar(inverse, dividend, buff);
 
-  _add.rightShift(_aDivBuffer, _aDivBuffer, invPrecision);
-  output.copy(_aDivBuffer.splice(0, dividend.size));
+  _add.rightShift(buff, buff, invPrecision);
+  output.copy(buff);
 }
 
-size_t DivEngine::divApprox(const IntBufferView &divisor,
-                            const IntBufferView &inverse) {
+size_t DivEngine::divApprox(const BufferView &divisor,
+                            const BufferView &inverse) {
 
   size_t aSigPos = _cmp.topOne(divisor);
-  size_t aWordPos = aSigPos / wordSize;
-  size_t aSigShift = aSigPos % wordSize;
+  size_t aWordPos = aSigPos / BufferView::WordSize;
+  size_t aSigShift = aSigPos % BufferView::WordSize;
 
-  BufferInt approx = divisor.data[aWordPos];
-  approx <<= wordSize;
+  BufferView::BufferInt approx = divisor.data[aWordPos];
+  approx <<= BufferView::WordSize;
   approx += (aWordPos == 0) * divisor.data[(aWordPos != 0) * (aWordPos - 1)];
   approx >>= (aSigShift + 1);
 
   _buffer.major = 1;
-  _buffer.major <<= highBufferPos;
+  _buffer.major <<= BufferView::BufferHighBit;
   _buffer.major /= approx;
 
   inverse.data[inverse.size - 1] = _buffer.major;
-  return aSigPos + inverse.size * wordSize;
+  return aSigPos + inverse.size * BufferView::WordSize;
 }
 
-size_t DivEngine::newtonInverse(const IntBufferView &divisor,
-                                const IntBufferView &inverse) {
+size_t DivEngine::newtonInverse(const BufferView &divisor,
+                                const BufferView &inverse) {
 
   _aDivBuffer.reserve((inverse.size * 2));
   _bDivBuffer.reserve((inverse.size * 4));
@@ -101,25 +102,24 @@ size_t DivEngine::newtonInverse(const IntBufferView &divisor,
   return invPrecision;
 }
 
-void DivEngine::newtonIteration(const IntBufferView &divisor,
-                                const IntBufferView &inverse,
+void DivEngine::newtonIteration(const BufferView &divisor, const BufferView &inverse,
                                 size_t precision) {
 
-  size_t wordPos = (precision + 1) / wordSize;
-  size_t bitPos = (precision + 1) - wordPos * wordSize;
+  size_t wordPos = (precision + 1) / BufferView::WordSize;
+  size_t bitPos = (precision + 1) - wordPos * BufferView::WordSize;
 
-  const IntBufferView &innerProductBuffer =
+  const BufferView &innerProductBuffer =
       _aDivBuffer.splice(0, inverse.size * 2);
-  const IntBufferView &outerProductBuffer =
+  const BufferView &outerProductBuffer =
       _bDivBuffer.splice(0, innerProductBuffer.size * 2);
 
-  const IntBufferView &hBuff =
+  const BufferView &hBuff =
       _aDivBuffer.splice(wordPos, _aDivBuffer.size - wordPos);
 
   _mul.kar(inverse, divisor, innerProductBuffer);
 
   _add.invert(innerProductBuffer);
-  _add.add(hBuff, (BaseInt(1) << bitPos));
+  _add.add(hBuff, (BufferView::BaseInt(1) << bitPos));
 
   outerProductBuffer.clear();
 
