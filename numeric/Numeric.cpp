@@ -8,7 +8,8 @@ Numeric::Numeric(const BufferView &buffer)
     : _buffInst(BufferInstance::getInstance()), _cmp(), _add(_cmp),
       _io(_cmp, _add), _mul(_cmp, _add, _buffInst[0]),
       _div(_cmp, _add, _mul, _buffInst[1], _buffInst[2]),
-      _exp(_cmp, _add, _mul, _div, _buffInst[3], _buffInst[4]),
+      _exp(_cmp, _add, _mul, _div, _buffInst[3], _buffInst[4], _buffInst[5],
+           _buffInst[6]),
       _buffer(buffer.size) {
   _buffer.splice().copy(buffer);
 }
@@ -17,7 +18,8 @@ Numeric::Numeric(Buffer &&bufferHandle)
     : _buffInst(BufferInstance::getInstance()), _cmp(), _add(_cmp),
       _io(_cmp, _add), _mul(_cmp, _add, _buffInst[0]),
       _div(_cmp, _add, _mul, _buffInst[1], _buffInst[2]),
-      _exp(_cmp, _add, _mul, _div, _buffInst[3], _buffInst[4]),
+      _exp(_cmp, _add, _mul, _div, _buffInst[3], _buffInst[4], _buffInst[5],
+           _buffInst[6]),
       _buffer(std::move(bufferHandle)) {}
 
 Numeric::Numeric(size_t size, BufferView::BaseInt defaultValue)
@@ -157,8 +159,13 @@ Numeric &Numeric::operator*=(const Numeric &num) {
 
 Numeric Numeric::operator/(const Numeric &num) const {
   Numeric result(size());
-  result._div.div(_buffer.splice(), num._buffer.splice(),
-                  result._buffer.splice());
+
+  _buffInst[3].reserve(_buffer.splice().size);
+
+  auto inverse = _buffInst[3].splice(0, size());
+  size_t precision = result._div.newtonInverse(num._buffer, inverse);
+  result._div.newtonDiv(_buffer, inverse, result._buffer, precision);
+
   return result;
 }
 
@@ -166,10 +173,9 @@ Numeric &Numeric::operator/=(const Numeric &num) {
   _buffInst[3].reserve(_buffer.splice().size);
 
   auto inverse = _buffInst[3].splice(0, size());
-
   size_t precision = _div.newtonInverse(num._buffer, inverse);
-
   _div.newtonDiv(_buffer, inverse, _buffer, precision);
+
   return *this;
 }
 

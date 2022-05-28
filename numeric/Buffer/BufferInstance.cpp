@@ -5,8 +5,8 @@ namespace KCrypt {
 BufferInstance *BufferInstance::__globalInstance = nullptr;
 
 BufferInstance::BufferInstance()
-    : _buffers{Buffer(1), Buffer(1),
-               Buffer(1), Buffer(1)} {}
+    : _buffers{Buffer(1), Buffer(1), Buffer(1), Buffer(1),
+               Buffer(1), Buffer(1), Buffer(1)} {}
 
 void BufferInstance::init() { __globalInstance = new BufferInstance(); }
 void BufferInstance::destroy() {
@@ -20,9 +20,6 @@ BufferInstance &BufferInstance::getInstance() { return *__globalInstance; }
 Buffer &BufferInstance::operator[](size_t bufferNo) {
   return _buffers[bufferNo];
 }
-BufferInstance::~BufferInstance(){
-  for(int i =0;i<4;++i){
-    _buffers[i].releaseBuffer();
-  }
+BufferInstance::~BufferInstance() {
 }
 } // namespace KCrypt

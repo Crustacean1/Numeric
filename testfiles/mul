@@ -1,5 +1,8 @@
 
 DivisionValueTest{
+  assert: value(21) value(6) value(3);
+  assert: value(99) value(10) value(9);
+  assert: value(5) value(2) value(2);
   assert: value(4) value(2) value(2);
   assert: value(777) value(21) value(37);
   assert: value(100) value(11) value(9);

@@ -46,10 +46,11 @@ bool Tests::anyShift(Integer &a, Integer &shift) {
   b <<= shift;
   auto d = b;
   b >>= shift;
-  if(b == a){
+  if (b == a) {
     return true;
   }
-  std::cout<<"A: "<<a.toBin()<<" << "<<shift<<"\nB: "<<d.toBin()<<"\nC: "<<b.toBin()<<std::endl;
+  std::cout << "A: " << a.toBin() << " << " << shift << "\nB: " << d.toBin()
+            << "\nC: " << b.toBin() << std::endl;
   return b == a;
 }
 
@@ -76,13 +77,15 @@ bool Tests::basicMultiplication(Integer &a, Integer &b, Integer &c) {
 
 bool Tests::basicDivision(Integer &a, Integer &b, Integer &c) {
   auto d = a / b;
-  std::cout<<"A: "<<a<<" B: "<<b<< " D: "<<d<<" Should be: "<<c<<std::endl;
+  // std::cout << "A: " << a << " B: " << b << " D: " << d << " Should be: " <<
+  // c
+  //<< std::endl;
   return d == c;
 }
 
 bool Tests::mulDivReciprocity(Integer &a, Integer &b) {
-  Integer c(a.size() + b.size(),0);
-  
+  Integer c(a.size() + b.size(), 0);
+
   c = a;
   c *= b;
 
@@ -103,30 +106,47 @@ bool Tests::mulPerf(Integer &a, Integer &b) {
   return true;
 }
 
-bool Tests::divFloor(Integer & a,Integer & b){
-  Integer c(a/b);
-  //std::cout<<"A: "<<a<<" B: "<<b<<" C: "<<c<<std::endl;
+bool Tests::divFloor(Integer &a, Integer &b) {
+  Integer c(a / b);
+  // std::cout<<"A: "<<a<<" B: "<<b<<" C: "<<c<<std::endl;
   Integer d(a.size());
   d = b;
   d *= c;
   a -= d;
-  if(!a.isSigned() && a < b){
+  if (!a.isSigned() && a < b) {
     return true;
   }
   return false;
 }
 
-bool Tests::nastyDivFloor(Integer &a, Integer & b){
+bool Tests::nastyDivFloor(Integer &a, Integer &b) {
   Integer c(a.size() + b.size());
   c = a;
   c *= b;
-  c -= 1;
+
   Integer d(c);
   d /= a;
-  //std::cout<<"A: "<<a<<" B: "<<b<<" C - 1: "<<c<<" D: "<<d<<std::endl;
-  if(d == b){
+
+  if (!(d == b)) {
+    return false;
+  }
+
+  d = c;
+  d -= 1;
+
+  d /= a;
+  //std::cout << "A: " << a << " B: " << b << " C - 1: " << c << " D: " << d
+            //<< std::endl;
+  if (d == b) {
     return false;
   }
   return true;
 }
 
+bool Tests::modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
+                             Integer &expected) {
+  Integer d(modulo.modExp(base, exponent));
+  std::cout << "Base: " << base << " Exponent: " << exponent
+            << " Modulo: " << modulo << " Result: " << d << std::endl;
+  return (d == expected);
+}

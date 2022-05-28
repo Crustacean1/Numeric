@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
 
   tester.addTest("Equality", Tests::equality);
 
-  tester.addTest("AdditionSelfTest",Tests::addition);
-  tester.addTest("SubtractionSelfTest",Tests::subtraction);
+  tester.addTest("AdditionSelfTest", Tests::addition);
+  tester.addTest("SubtractionSelfTest", Tests::subtraction);
 
   tester.addTest("LeftShiftValueTest", Tests::leftShift);
   tester.addTest("RightShiftValueTest", Tests::rightShift);
@@ -53,6 +53,8 @@ int main(int argc, char **argv) {
   tester.addTest("MulPerformanceTest", Tests::mulPerf);
   tester.addTest("DivisionFloorTest", Tests::divFloor);
   tester.addTest("NastyDivisionFloorTest", Tests::nastyDivFloor);
+
+  tester.addTest("ModularExponentiationValueTest", Tests::modExponentValue);
 
   tester.readStream(file);
 

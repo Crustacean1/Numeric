@@ -28,7 +28,7 @@ bool nastyDivFloor(Integer & a, Integer & b);
 
 bool mulDivReciprocity(Integer &a, Integer &b);
 
-bool modExponentValue(Integer &a ,Integer & b ,Integer & c);
+bool modExponentValue(Integer &base ,Integer & exponent ,Integer & modulo, Integer & expected);
 
 }; // namespace Tests
 
