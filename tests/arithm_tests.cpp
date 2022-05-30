@@ -1,4 +1,5 @@
 #include "arithm_tests.h"
+#include <iostream>
 #include <string>
 
 bool Tests::decimalConversion(Integer &a) {
@@ -135,8 +136,8 @@ bool Tests::nastyDivFloor(Integer &a, Integer &b) {
   d -= 1;
 
   d /= a;
-  //std::cout << "A: " << a << " B: " << b << " C - 1: " << c << " D: " << d
-            //<< std::endl;
+  // std::cout << "A: " << a << " B: " << b << " C - 1: " << c << " D: " << d
+  //<< std::endl;
   if (d == b) {
     return false;
   }
@@ -149,4 +150,14 @@ bool Tests::modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
   std::cout << "Base: " << base << " Exponent: " << exponent
             << " Modulo: " << modulo << " Result: " << d << std::endl;
   return (d == expected);
+}
+
+bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c, Integer &d) {
+  auto [coe1, coe2] = a.extGcd(b);
+
+  if (coe1.isSigned() == coe2.isSigned()) {
+    return false;
+  }
+
+  return (coe1.abs() == c && coe2.abs() == d);
 }

@@ -1,6 +1,7 @@
 #include "BinaryParameter.h"
 #include "../../numeric/BasicIo.h"
 #include "../../numeric/Numeric.h"
+#include <stdexcept>
 
 using namespace KCrypt;
 

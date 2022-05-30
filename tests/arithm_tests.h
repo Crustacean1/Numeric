@@ -30,6 +30,8 @@ bool mulDivReciprocity(Integer &a, Integer &b);
 
 bool modExponentValue(Integer &base ,Integer & exponent ,Integer & modulo, Integer & expected);
 
+bool extGcdValue(Integer & a, Integer & b, Integer & c,Integer &d);
+
 }; // namespace Tests
 
 #endif /*TESTS*/

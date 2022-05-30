@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iostream>
+#include <tuple>
 
 #include "BasicIo.h"
 #include "Buffer/Buffer.h"
@@ -59,14 +59,15 @@ public:
   Numeric(Numeric &&num);
   Numeric(const Numeric &num);
 
-  void debug();
   size_t size() const;
   bool isSigned();
   std::string toDec();
   std::string toBin();
 
+  Numeric & inverse();
+  Numeric & abs();
   Numeric modExp(const Numeric & base, const Numeric & exp);
-  Numeric gcd(const Numeric & num);
+  std::tuple<Numeric,Numeric> extGcd(const Numeric & num);
   bool testMillerRabin(const Numeric & witness);
 
   /*ASSIGNMENT OPERATORS*/

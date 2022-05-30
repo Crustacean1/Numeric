@@ -21,6 +21,7 @@ public:
   size_t rightOffset(const BufferView &a) const;
   size_t topOne(const BufferView &a) const;
   bool isSigned(const BufferView &a) const;
+  bool empty(const BufferView & a) const;
 };
 
 } // namespace KCrypt

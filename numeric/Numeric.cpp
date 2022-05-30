@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Numeric.h"
 
 namespace KCrypt {
@@ -185,7 +187,31 @@ Numeric Numeric::modExp(const Numeric &base, const Numeric &exp) {
   return value;
 }
 
+std::tuple<Numeric, Numeric> Numeric::extGcd(const Numeric &num) {
+  Numeric coeff1(size());
+  Numeric coeff2(size());
+  coeff1._buffer.clear();
+  coeff2._buffer.clear();
+  
+  _exp.extendedGcd(_buffer, num._buffer, coeff1._buffer, coeff2._buffer);
+
+  return std::make_tuple(std::move(coeff1),
+                         std::move(coeff2));
+}
+
+Numeric & Numeric::inverse(){
+  _add.invert(_buffer);
+  return *this;
+}
+Numeric & Numeric::abs(){
+  if(_cmp.isSigned(_buffer)){
+    _add.invert(_buffer);
+  }
+  return *this;
+}
+
 bool Numeric::isSigned() { return _cmp.isSigned(_buffer.splice()); }
+
 
 } // namespace KCrypt
 

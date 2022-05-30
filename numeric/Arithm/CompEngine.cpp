@@ -1,5 +1,7 @@
 #include "CompEngine.h"
 #include "../Utils.h"
+#include <pthread.h>
+#include <iostream>
 
 namespace KCrypt {
 
@@ -167,6 +169,13 @@ size_t CompEngine::topOne(const BufferView &a) const {
 
 bool CompEngine::isSigned(const BufferView &a) const {
   return (a.data[a.size - 1] >> BufferView::WordHighBit);
+}
+
+bool CompEngine::empty(const BufferView &a) const {
+  size_t i;
+  for (i = 0; i < a.size && a.data[i] == 0; ++i) {
+  }
+  return i == a.size;
 }
 
 } // namespace KCrypt

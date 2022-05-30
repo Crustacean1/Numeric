@@ -4,6 +4,7 @@
 #include "RandomParameter.h"
 #include "RangedParameter.h"
 #include "ValuedParameter.h"
+#include <stdexcept>
 
 using namespace KCrypt;
 

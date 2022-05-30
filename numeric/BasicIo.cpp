@@ -58,7 +58,6 @@ void BasicIo::toComplement(std::string str, const BufferView &view) const {
 
 std::string BasicIo::toDecimal(const BufferView &buffer) const {
   bool sign = _cmp.isSigned(buffer);
-  sign = false;
 
   size_t outputSize = binSizeInDecimal(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];

@@ -12,17 +12,35 @@ class AddEngine;
 class CompEngine;
 
 class ExpEngine {
+  struct GcdExtension {
+    const BufferView &value;
+    const BufferView &coefficientA;
+    const BufferView &coefficientB;
+  };
+
   CompEngine &_cmp;
   AddEngine &_add;
   MulEngine &_mul;
   DivEngine &_div;
 
-  Buffer &_invBuffer;
-  Buffer &_expBuffer;
-  Buffer &_modBuffer;
-  Buffer &_subBuffer;
+  Buffer &_buffer1;
+  Buffer &_buffer2;
+  Buffer &_buffer3;
+  Buffer &_buffer4;
 
-  void reserveBuffers(size_t modulusSize);
+  void gcdDebug(GcdExtension &ext);
+
+  void init(GcdExtension &a, const BufferView &view, bool position);
+
+  void halve(GcdExtension &small, GcdExtension &big);
+  void subtract(GcdExtension &ext1, GcdExtension &ext2, const BufferView &src1,
+                const BufferView &src2);
+  void reduce(GcdExtension &a);
+
+  bool isReducible(GcdExtension &ext);
+
+  void reserveModExpBuffers(size_t modulusSize);
+  void reserveExtGcdBuffers(size_t aSize, size_t bSize);
 
 public:
   ExpEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul, DivEngine &div,
@@ -35,8 +53,8 @@ public:
   void modExp(const BufferView &base, const BufferView &modulus,
               const BufferView &exponent, const BufferView &result);
 
-  void exp(const BufferView &base, const BufferView &exponent,
-           const BufferView &result);
+  void extendedGcd(const BufferView &a, const BufferView &b,
+                   const BufferView &aCoeff, const BufferView &bCoeff);
 };
 } // namespace KCrypt
 #endif /*EXP_ENGINE*/
