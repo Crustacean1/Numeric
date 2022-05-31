@@ -10,12 +10,12 @@ class Numeric;
 } // namespace KCrypt
 
 class RandomParameter : public ArgumentGenerator<KCrypt::Numeric> {
-  KCrypt::BasicIo &_io;
+  KCrypt::IoEngine &_io;
   size_t _size;
-  KCrypt::BasicIo::Sign _sign;
+  KCrypt::IoEngine::Sign _sign;
 
 public:
-  RandomParameter(KCrypt::BasicIo &io, size_t size, const std::string &type);
+  RandomParameter(KCrypt::IoEngine &io, size_t size, const std::string &type);
   KCrypt::Numeric createInstance(std::default_random_engine &engine) override;
   ~RandomParameter();
 };

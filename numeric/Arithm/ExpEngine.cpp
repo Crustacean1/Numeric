@@ -53,95 +53,13 @@ void ExpEngine::fastModulo(const BufferView &arg, const BufferView &modulus,
 
   // Temporary assert
   if (_cmp.greaterOrEqual(arg, modulus)) {
-    BasicIo io(_cmp, _add);
+    IoEngine io(_cmp, _add);
     std::cout << "Critical Error, invalid modulo operation for:" << std::endl;
     std::cout << "Mod: " << io.toDecimal(modulus) << std::endl;
     std::cout << "Arg: " << io.toDecimal(arg) << std::endl;
   }
 
   result.copy(arg);
-}
-
-void ExpEngine::gcdDebug(GcdExtension &ext) {
-  BasicIo io(_cmp, _add);
-  std::cout << "Ext: " << io.toDecimal(ext.value)
-            << "\nA: " << io.toDecimal(ext.coefficientA)
-            << "\nB: " << io.toDecimal(ext.coefficientB) << std::endl;
-}
-
-void ExpEngine::extendedGcd(const BufferView &a, const BufferView &b,
-                            const BufferView &aCoeff,
-                            const BufferView &bCoeff) {
-
-  BasicIo io(_cmp, _add);
-
-  std::cout << "Gcd start: " << std::endl;
-
-  reserveExtGcdBuffers(a.size, b.size);
-
-  GcdExtension gcdA{aCoeff, _buffer1.splice(bCoeff.size),
-                    _buffer2.splice(bCoeff.size)};
-
-  GcdExtension gcdB{bCoeff, _buffer3.splice(aCoeff.size),
-                    _buffer4.splice(aCoeff.size)};
-
-  init(gcdA, a, 0);
-  init(gcdB, b, 1);
-}
-
-bool ExpEngine::iterate(GcdExtension &ext1, GcdExtension &ext2) {
-  subtract(ext1,ext2);
-  while(isEven(ext1.value)){
-    halve(ext1)
-  }
-}
-
-void ExpEngine::init(GcdExtension &ext, const BufferView &view, bool position) {
-  ext.coefficientA.clear();
-  ext.coefficientB.clear();
-
-  ext.value.copy(view);
-  size_t offset = _cmp.rightOffset(ext.value);
-  _add.rightShift(ext.value, ext.value, offset);
-
-  if (position) {
-    ext.coefficientB.data[0] = 1;
-  } else {
-    ext.coefficientA.data[0] = 1;
-  }
-}
-
-bool ExpEngine::isEven(const BufferView &ext) { return (ext.data[0] & 1) == 0; }
-
-void ExpEngine::halve(GcdExtension &a, const BufferView &src1,
-                      const BufferView &src2) {
-
-  _add.rightShift(a.value, a.value, 1);
-  if ((a.coefficientA.data[0] & 1) == 0 && (a.coefficientB.data[0] & 1) == 0) {
-    _add.rightShift(a.coefficientA, a.coefficientA, 1);
-    _add.rightShift(a.coefficientB, a.coefficientB, 1);
-    return;
-  }
-  if (_cmp.isSigned(a.coefficientA)) {
-    _add.addToLeft(a.coefficientA, src1);
-    _add.subFromLeft(a.coefficientB, src2);
-  } else {
-    _add.subFromLeft(a.coefficientA, src1);
-    _add.addToLeft(a.coefficientB, src2);
-  }
-}
-
-void ExpEngine::subtract(GcdExtension &a, GcdExtension &b) {
-  _add.subFromLeft(a.value, b.value);
-  _add.subFromLeft(a.coefficientA, b.coefficientA);
-  _add.subFromLeft(a.coefficientB, b.coefficientB);
-}
-
-void ExpEngine::reserveExtGcdBuffers(size_t aSize, size_t bSize) {
-  _buffer1.reserve(aSize);
-  _buffer2.reserve(bSize);
-  _buffer3.reserve(aSize);
-  _buffer4.reserve(bSize);
 }
 
 void ExpEngine::reserveModExpBuffers(size_t modulusSize) {

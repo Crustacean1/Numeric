@@ -12,11 +12,6 @@ class AddEngine;
 class CompEngine;
 
 class ExpEngine {
-  struct GcdExtension {
-    const BufferView &value;
-    const BufferView &coefficientA;
-    const BufferView &coefficientB;
-  };
 
   CompEngine &_cmp;
   AddEngine &_add;
@@ -28,19 +23,8 @@ class ExpEngine {
   Buffer &_buffer3;
   Buffer &_buffer4;
 
-  void gcdDebug(GcdExtension &ext);
-
-  void init(GcdExtension &a, const BufferView &view, bool position);
-  bool iterate(GcdExtension &a, GcdExtension &b);
-
-  void subtract(GcdExtension &small, GcdExtension &big);
-  void halve(GcdExtension &ext1, const BufferView &src1,
-             const BufferView &src2);
-
-  bool isEven(const BufferView &ext);
 
   void reserveModExpBuffers(size_t modulusSize);
-  void reserveExtGcdBuffers(size_t aSize, size_t bSize);
 
 public:
   ExpEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul, DivEngine &div,
@@ -53,8 +37,6 @@ public:
   void modExp(const BufferView &base, const BufferView &modulus,
               const BufferView &exponent, const BufferView &result);
 
-  void extendedGcd(const BufferView &a, const BufferView &b,
-                   const BufferView &aCoeff, const BufferView &bCoeff);
 };
 } // namespace KCrypt
 #endif /*EXP_ENGINE*/

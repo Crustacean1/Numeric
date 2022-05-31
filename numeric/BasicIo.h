@@ -15,7 +15,7 @@ namespace KCrypt {
 class CompEngine;
 class AddEngine;
 
-class BasicIo {
+class IoEngine {
   static constexpr size_t bcdBlockSize = 4;
   static constexpr size_t binMax = 16;
   static constexpr size_t decMax = 10;
@@ -43,9 +43,9 @@ class BasicIo {
   AddEngine &_add;
 
 public:
-  BasicIo(CompEngine &cmp, AddEngine &add);
-  BasicIo(const BasicIo &);
-  BasicIo(BasicIo &&);
+  IoEngine(CompEngine &cmp, AddEngine &add);
+  IoEngine(const IoEngine &);
+  IoEngine(IoEngine &&);
 
   enum class Sign { Random, Signed, Unsigned };
 

@@ -6,13 +6,13 @@
 
 using namespace KCrypt;
 
-RandomParameter::RandomParameter(BasicIo &io, size_t size,
+RandomParameter::RandomParameter(IoEngine &io, size_t size,
                                  const std::string &type)
     : _io(io), _size(size),
       _sign(type == "random"
-                ? BasicIo::Sign::Random
-                : (type == "signed" ? BasicIo::Sign::Signed
-                                    : BasicIo::Sign::Unsigned)) {}
+                ? IoEngine::Sign::Random
+                : (type == "signed" ? IoEngine::Sign::Signed
+                                    : IoEngine::Sign::Unsigned)) {}
 
 Numeric RandomParameter::createInstance(std::default_random_engine &e) {
   Buffer buffer(_size);

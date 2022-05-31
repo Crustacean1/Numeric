@@ -57,7 +57,7 @@ void DivEngine::div(const BufferView &a, const BufferView &b,
 void DivEngine::newtonDiv(const BufferView &dividend, const BufferView &inverse,
                           const BufferView &output, size_t invPrecision) {
 
-  BasicIo io(_cmp, _add);
+  IoEngine io(_cmp, _add);
 
   _aDivBuffer.reserve(inverse.size << 1);
   const BufferView &buff = _aDivBuffer.splice(inverse.size << 1);
@@ -104,7 +104,7 @@ size_t DivEngine::divApprox(const BufferView &divisor,
 size_t DivEngine::newtonInverse(const BufferView &divisor,
                                 const BufferView &inverse) {
 
-  BasicIo io(_cmp, _add);
+  IoEngine io(_cmp, _add);
 
   _aDivBuffer.reserve((inverse.size * 2));
   _bDivBuffer.reserve((inverse.size * 4));

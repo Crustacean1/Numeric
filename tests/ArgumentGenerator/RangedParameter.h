@@ -5,17 +5,17 @@
 #include <stddef.h>
 
 namespace KCrypt {
-class BasicIo;
+class IoEngine;
 class Numeric;
 } // namespace KCrypt
 
 class RangedParameter : public ArgumentGenerator<KCrypt::Numeric> {
-  KCrypt::BasicIo &_io;
+  KCrypt::IoEngine &_io;
   int _min;
   int _max;
 
 public:
-  RangedParameter(KCrypt::BasicIo &io, int min, int max);
+  RangedParameter(KCrypt::IoEngine &io, int min, int max);
   KCrypt::Numeric createInstance(std::default_random_engine &e) override;
   ~RangedParameter();
 };

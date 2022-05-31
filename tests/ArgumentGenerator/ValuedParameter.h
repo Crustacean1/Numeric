@@ -7,17 +7,17 @@
 
 namespace KCrypt {
 class Numeric;
-class BasicIo;
+class IoEngine;
 class AddEngine;
 } // namespace KCrypt
 
 class ValuedParameter : public ArgumentGenerator<KCrypt::Numeric> {
-  KCrypt::BasicIo &_io;
+  KCrypt::IoEngine &_io;
   KCrypt::AddEngine &_adder;
   const std::string _value;
 
 public:
-  ValuedParameter(KCrypt::BasicIo &io,KCrypt::AddEngine & adder, std::string val);
+  ValuedParameter(KCrypt::IoEngine &io,KCrypt::AddEngine & adder, std::string val);
   KCrypt::Numeric createInstance(std::default_random_engine & e) override;
   ~ValuedParameter();
 };

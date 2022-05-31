@@ -3,7 +3,7 @@
 
 using namespace KCrypt;
 
-ValuedParameter::ValuedParameter(BasicIo &io, AddEngine &adder,
+ValuedParameter::ValuedParameter(IoEngine &io, AddEngine &adder,
                                  std::string val)
     : _io(io), _adder(adder), _value(val) {}
 

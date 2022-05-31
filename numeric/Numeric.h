@@ -6,17 +6,12 @@
 #include <cstring>
 #include <tuple>
 
-#include "BasicIo.h"
 #include "Buffer/Buffer.h"
-#include "Buffer/BufferInstance.h"
-
-#include "Arithm/AddEngine.h"
-#include "Arithm/CompEngine.h"
-#include "Arithm/DivEngine.h"
-#include "Arithm/ExpEngine.h"
-#include "Arithm/MulEngine.h"
+#include "ArithmFacade.h"
 
 namespace KCrypt {
+
+
 class Numeric;
 } // namespace KCrypt
 
@@ -34,15 +29,7 @@ class Numeric;
 
 class Numeric {
 
-  BufferInstance &_buffInst;
-
-  BasicIo _io;
-
-  CompEngine _cmp;
-  AddEngine _add;
-  MulEngine _mul;
-  DivEngine _div;
-  ExpEngine _exp;
+  ArithmFacade & _arithm;
 
   Buffer _buffer;
 

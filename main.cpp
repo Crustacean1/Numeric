@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 
   KCrypt::CompEngine cmp;
   KCrypt::AddEngine add(cmp);
-  KCrypt::BasicIo io(cmp, add);
+  KCrypt::IoEngine io(cmp, add);
 
   NumericGeneratorFactory factory(io, add);
   Logger _logger(std::cout, std::cerr, 5);

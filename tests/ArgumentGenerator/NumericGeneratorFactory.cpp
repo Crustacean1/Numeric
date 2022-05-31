@@ -8,7 +8,7 @@
 
 using namespace KCrypt;
 
-NumericGeneratorFactory::NumericGeneratorFactory(BasicIo &io, AddEngine &adder)
+NumericGeneratorFactory::NumericGeneratorFactory(IoEngine &io, AddEngine &adder)
     : _io(io), _add(adder) {}
 
 ArgumentGenerator<Numeric> *NumericGeneratorFactory::create(SyntaxNode &node) {

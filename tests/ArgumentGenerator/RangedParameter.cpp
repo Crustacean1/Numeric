@@ -3,7 +3,7 @@
 
 using namespace KCrypt;
 
-RangedParameter::RangedParameter(BasicIo &io, int min, int max)
+RangedParameter::RangedParameter(IoEngine &io, int min, int max)
     : _io(io), _min(min), _max(max) {}
 
 Numeric RangedParameter::createInstance(std::default_random_engine &e) {

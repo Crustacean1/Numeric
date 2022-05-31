@@ -9,7 +9,7 @@
 
 namespace KCrypt {
 
-BasicIo::BasicIo(CompEngine &cmp, AddEngine &add) : _cmp(cmp), _add(add) {}
+IoEngine::IoEngine(CompEngine &cmp, AddEngine &add) : _cmp(cmp), _add(add) {}
 
 void displayString(unsigned char *input, size_t inputSize) {
   for (size_t i = 0; i < inputSize; ++i) {
@@ -18,7 +18,7 @@ void displayString(unsigned char *input, size_t inputSize) {
   std::cout << std::endl;
 }
 
-void BasicIo::randomize(const BufferView &buffer,
+void IoEngine::randomize(const BufferView &buffer,
                               std::default_random_engine &engine, Sign sign) {
   std::uniform_int_distribution<BufferView::BaseInt> dist(0, 2);
   for (size_t i = 0; i < buffer.size; ++i) {
@@ -38,7 +38,7 @@ void BasicIo::randomize(const BufferView &buffer,
 
 }
 
-void BasicIo::toComplement(std::string str, const BufferView &view) const {
+void IoEngine::toComplement(std::string str, const BufferView &view) const {
   bool sign = str[0] == '-';
 
   auto compactedDigitCount = (str.size() - 2 * sign + 1) / 2;
@@ -56,8 +56,9 @@ void BasicIo::toComplement(std::string str, const BufferView &view) const {
   delete[] compactedDigits;
 }
 
-std::string BasicIo::toDecimal(const BufferView &buffer) const {
+std::string IoEngine::toDecimal(const BufferView &buffer) const {
   bool sign = _cmp.isSigned(buffer);
+  sign = false;
 
   size_t outputSize = binSizeInDecimal(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];
@@ -72,7 +73,7 @@ std::string BasicIo::toDecimal(const BufferView &buffer) const {
   return result;
 }
 
-std::string BasicIo::toBinary(const BufferView &buffer) const {
+std::string IoEngine::toBinary(const BufferView &buffer) const {
   constexpr size_t wordSize = sizeof(BufferView::BaseInt) * 8;
   std::string result;
   for (size_t i = buffer.size; i > 0; --i) {
@@ -83,15 +84,15 @@ std::string BasicIo::toBinary(const BufferView &buffer) const {
   return result;
 }
 
-size_t BasicIo::decSizeInBinary(size_t size) const {
+size_t IoEngine::decSizeInBinary(size_t size) const {
   return (size * 3 + 3) / (4 * sizeof(BufferView::BufferView::BaseInt));
 }
 
-size_t BasicIo::binSizeInDecimal(size_t size) const {
+size_t IoEngine::binSizeInDecimal(size_t size) const {
   return (size * sizeof(BufferView::BufferView::BaseInt) * 4 + 2) / 3;
 }
 
-inline void BasicIo::shiftRight(unsigned char *input, size_t inputSize) const {
+inline void IoEngine::shiftRight(unsigned char *input, size_t inputSize) const {
   constexpr size_t wordSize = sizeof(char) * 8;
 
   BufferView::BufferInt buffer = input[0];
@@ -107,7 +108,7 @@ inline void BasicIo::shiftRight(unsigned char *input, size_t inputSize) const {
   input[inputSize - 1] >>= 1;
 }
 
-inline void BasicIo::shiftLeft(unsigned char *input, size_t inputSize) const {
+inline void IoEngine::shiftLeft(unsigned char *input, size_t inputSize) const {
   BufferView::BufferInt buffer = input[inputSize - 1];
   constexpr size_t wordSize = sizeof(char) * 8;
   for (size_t i = inputSize - 1; i > 0; --i) {
@@ -118,7 +119,7 @@ inline void BasicIo::shiftLeft(unsigned char *input, size_t inputSize) const {
   input[0] = (input[0] << 1);
 }
 
-inline void BasicIo::normalize(unsigned char *input, size_t inputSize,
+inline void IoEngine::normalize(unsigned char *input, size_t inputSize,
                                unsigned char threshold,
                                unsigned char correction) const {
   size_t blocksInWord = sizeof(char) * 2;
@@ -140,7 +141,7 @@ inline void BasicIo::normalize(unsigned char *input, size_t inputSize,
   }
 }
 
-char *BasicIo::encodeToAscii(const unsigned char *input, size_t inputSize,
+char *IoEngine::encodeToAscii(const unsigned char *input, size_t inputSize,
                              bool sign) const {
   for (; inputSize > 1 && input[inputSize - 1] == 0; --inputSize) {
   }
@@ -161,7 +162,7 @@ char *BasicIo::encodeToAscii(const unsigned char *input, size_t inputSize,
   return asciiDecoded;
 }
 
-unsigned char *BasicIo::decodeFromAscii(const char *input,
+unsigned char *IoEngine::decodeFromAscii(const char *input,
                                         size_t inputSize) const {
   size_t bcdSize = (inputSize + 1) / 2;
   unsigned char *packedBcd = new unsigned char[bcdSize];
@@ -177,7 +178,7 @@ unsigned char *BasicIo::decodeFromAscii(const char *input,
   return packedBcd;
 }
 
-void BasicIo::buildDecFromSrc(BufferView::BaseInt *input, size_t inputSize,
+void IoEngine::buildDecFromSrc(BufferView::BaseInt *input, size_t inputSize,
                               unsigned char *output, size_t outputSize,
                               bool sign) const {
   size_t wordBitSize = sizeof(BufferView::BaseInt) * 8;
@@ -202,7 +203,7 @@ void BasicIo::buildDecFromSrc(BufferView::BaseInt *input, size_t inputSize,
   }
 }
 
-void BasicIo::carrySign(unsigned char *input, size_t inputSize) const {
+void IoEngine::carrySign(unsigned char *input, size_t inputSize) const {
   unsigned char carry = 1;
   for (size_t i = 0; i < inputSize && carry != 0; ++i) {
     if ((input[i] & 15) < 9) {
@@ -218,7 +219,7 @@ void BasicIo::carrySign(unsigned char *input, size_t inputSize) const {
   }
 }
 
-void BasicIo::buildBinFromSrc(unsigned char *input, size_t inputSize,
+void IoEngine::buildBinFromSrc(unsigned char *input, size_t inputSize,
                               unsigned char *output) const {
   size_t correction = (binMax - (binMax - decMax) / 2);
 
