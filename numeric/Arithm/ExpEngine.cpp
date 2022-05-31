@@ -87,32 +87,13 @@ void ExpEngine::extendedGcd(const BufferView &a, const BufferView &b,
 
   init(gcdA, a, 0);
   init(gcdB, b, 1);
+}
 
-  while (!_cmp.empty(gcdA.value) && !_cmp.empty(gcdB.value)) {
-
-    bool isAReducible = isReducible(gcdA);
-    bool isBReducible = isReducible(gcdB);
-    if (isAReducible && isBReducible) {
-      reduceBoth(gcdA, gcdB);
-    } else if (isAReducible) {
-      reduceLeft(gcdA, gcdB);
-    } else if (isBReducible) {
-      reduceLeft(gcdB, gcdA);
-    } else {
-      swap(gcdA, gcdB);
-    }
-    gcdDebug(gcdA);
-    gcdDebug(gcdB);
-    std::cout << "------------------------------\n";
+bool ExpEngine::iterate(GcdExtension &ext1, GcdExtension &ext2) {
+  subtract(ext1,ext2);
+  while(isEven(ext1.value)){
+    halve(ext1)
   }
-
-  if (_cmp.empty(gcdA.value)) {
-    aCoeff.copy(gcdB.coefficientA);
-    bCoeff.copy(gcdB.coefficientB);
-    return;
-  }
-  aCoeff.copy(gcdA.coefficientA);
-  bCoeff.copy(gcdA.coefficientB);
 }
 
 void ExpEngine::init(GcdExtension &ext, const BufferView &view, bool position) {
@@ -120,6 +101,8 @@ void ExpEngine::init(GcdExtension &ext, const BufferView &view, bool position) {
   ext.coefficientB.clear();
 
   ext.value.copy(view);
+  size_t offset = _cmp.rightOffset(ext.value);
+  _add.rightShift(ext.value, ext.value, offset);
 
   if (position) {
     ext.coefficientB.data[0] = 1;
@@ -128,23 +111,24 @@ void ExpEngine::init(GcdExtension &ext, const BufferView &view, bool position) {
   }
 }
 
-bool ExpEngine::isReducible(GcdExtension &ext) {
-  return (ext.value.data[0] & 1) == 0;
-}
+bool ExpEngine::isEven(const BufferView &ext) { return (ext.data[0] & 1) == 0; }
 
-void ExpEngine::halve(GcdExtension &a, GcdExtension &b) {
+void ExpEngine::halve(GcdExtension &a, const BufferView &src1,
+                      const BufferView &src2) {
+
   _add.rightShift(a.value, a.value, 1);
   if ((a.coefficientA.data[0] & 1) == 0 && (a.coefficientB.data[0] & 1) == 0) {
     _add.rightShift(a.coefficientA, a.coefficientA, 1);
     _add.rightShift(a.coefficientB, a.coefficientB, 1);
+    return;
   }
-  _add.leftShift(b.coefficientA, b.coefficientA, 1);
-  _add.leftShift(b.coefficientB, b.coefficientB, 1);
-}
-
-void ExpEngine::reduce(GcdExtension &ext) {
-  size_t offset = _cmp.rightOffset(ext.value);
-  _add.rightShift(ext.value, ext.value, offset);
+  if (_cmp.isSigned(a.coefficientA)) {
+    _add.addToLeft(a.coefficientA, src1);
+    _add.subFromLeft(a.coefficientB, src2);
+  } else {
+    _add.subFromLeft(a.coefficientA, src1);
+    _add.addToLeft(a.coefficientB, src2);
+  }
 }
 
 void ExpEngine::subtract(GcdExtension &a, GcdExtension &b) {

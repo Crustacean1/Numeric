@@ -31,13 +31,13 @@ class ExpEngine {
   void gcdDebug(GcdExtension &ext);
 
   void init(GcdExtension &a, const BufferView &view, bool position);
+  bool iterate(GcdExtension &a, GcdExtension &b);
 
-  void halve(GcdExtension &small, GcdExtension &big);
-  void subtract(GcdExtension &ext1, GcdExtension &ext2, const BufferView &src1,
-                const BufferView &src2);
-  void reduce(GcdExtension &a);
+  void subtract(GcdExtension &small, GcdExtension &big);
+  void halve(GcdExtension &ext1, const BufferView &src1,
+             const BufferView &src2);
 
-  bool isReducible(GcdExtension &ext);
+  bool isEven(const BufferView &ext);
 
   void reserveModExpBuffers(size_t modulusSize);
   void reserveExtGcdBuffers(size_t aSize, size_t bSize);
