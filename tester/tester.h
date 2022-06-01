@@ -56,9 +56,8 @@ void Tester<T>::addTest(const std::string &name, TestFunc<R...> func) {
 template <typename T> int Tester<T>::execute() {
   bool passed = true;
   for (auto &[name, test] : _cases) {
-    _logger.logInfo(3,"Test: ",name);
-    _logger.logInfo(3, "Case", "Passed", "Failed", "Total",
-                    "Time");
+    _logger.logInfo(3, "Test: ", name);
+    _logger.logInfo(3, "Case", "Passed", "Failed", "Total", "Time");
     std::vector<TestResult> caseResults;
 
     bool testResult = true;
@@ -97,14 +96,14 @@ void Tester<T>::summarize(const std::string &testName, int caseNo,
                           const TestResult &result) {
 
   //_logger.logInfo(2, "Test:", testName, "Case:", caseNo);
-  _logger.logInfo(3, caseNo, result.passed,
-                  (result.total - result.passed), result.total,
-                  result.totalTime, "s");
+  _logger.logInfo(3, caseNo, result.passed, (result.total - result.passed),
+                  result.total, result.totalTime, "s");
 }
 
 template <typename T> void Tester<T>::readStream(std::istream &stream) {
   TestParser parser;
   auto syntaxTree = parser.parseStream(stream);
+  _cases.clear();
   for (auto &test : syntaxTree.children) {
     if (_tests.find(test.data) == _tests.end()) {
       throw std::runtime_error("Test with name: " + test.data +

@@ -1,3 +1,0 @@
-mulDivReciprocity{
-  case(1):  unsigned(4) unsigned(4);
-}

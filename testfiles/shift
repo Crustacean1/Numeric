@@ -1,6 +1,0 @@
-LeftShiftValueTest{
-  assert: value(256) value(4) value(4096);
-  assert: value(3) value(2) value(12);
-  assert: value(0) value(4) value(0);
-  assert: value(2137) value(0) value(2137);
-}

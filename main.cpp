@@ -7,54 +7,45 @@
 #include "numeric/Numeric.h"
 #include "tester/logger.h"
 
-#include "tester/tester.h"
 #include "tests/ArgumentGenerator/NumericGeneratorFactory.h"
 #include "tests/arithm_tests.h"
+
+#include "tester/TestBrowser.h"
+#include "tester/tester.h"
 
 int main(int argc, char **argv) {
   Logger logger(std::cout, std::cerr, 5);
 
-  if (argc != 2) {
-    logger.logError(
-        0,
-        "Invalid argument count, proper syntax is: ./Numeric [test_file_name]");
-    return -1;
-  }
-  std::ifstream file(argv[1]);
+  std::vector<std::string> testFiles;
 
-  if (!file) {
-    logger.logError(0, "Coldn't open file: ", argv[1]);
-    return -1;
+  if (argc > 1) {
+    for (int i = 1; i < argc; ++i) {
+      testFiles.emplace_back(argv[i]);
+    }
+  } else {
+    TestBrowser testBrowser("tst");
+    testFiles = testBrowser.getTestsFromDir("testfiles");
+    std::cout << "Found: " << testFiles.size() << " test files" << std::endl;
   }
 
   KCrypt::CompEngine cmp;
   KCrypt::AddEngine add(cmp);
   KCrypt::IoEngine io(cmp, add);
 
-  NumericGeneratorFactory factory(io, add); Logger _logger(std::cout, std::cerr, 5);
+  NumericGeneratorFactory factory(io, add);
+  Logger _logger(std::cout, std::cerr, 5);
   Tester<KCrypt::Numeric> tester(_logger, factory);
 
-  tester.addTest("Equality", Tests::equality);
-  tester.addTest("ComparisionSelfTest", Tests::comparision);
+  Tests::setUpAllTests(tester);
 
-  tester.addTest("AdditionSelfTest",Tests::addition);
-  tester.addTest("SubtractionSelfTest",Tests::subtraction);
+  int result = 0;
+  for (const auto &testFile : testFiles) {
+    _logger.logInfo(2, "File: ", testFile);
+    _logger.logInfo(2, "----------------------------------------");
 
-  tester.addTest("LeftShiftValueTest", Tests::leftShift);
-  tester.addTest("RightShiftValueTest", Tests::rightShift);
-  tester.addTest("ShiftSelfTest", Tests::anyShift);
-
-  tester.addTest("DivisionValueTest", Tests::basicDivision);
-  tester.addTest("MultiplicationDivisionSelfTest", Tests::mulDivReciprocity);
-  tester.addTest("MulPerformanceTest", Tests::mulPerf);
-  tester.addTest("DivisionFloorTest", Tests::divFloor);
-  tester.addTest("NastyDivisionFloorTest", Tests::nastyDivFloor);
-
-  tester.addTest("ModularExponentiationValueTest",Tests::modExponentValue);
-
-  tester.addTest("GcdValueTest",Tests::extGcdValue);
-
-  tester.readStream(file);
-
-  return tester.execute();
+    std::ifstream file(testFile);
+    tester.readStream(file);
+    result |= tester.execute();
+  }
+  return result;
 }

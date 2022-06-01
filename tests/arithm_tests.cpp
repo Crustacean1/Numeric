@@ -1,6 +1,29 @@
 #include "arithm_tests.h"
 #include <iostream>
 #include <string>
+#include "../tester/tester.h"
+
+void Tests::setUpAllTests(Tester<Integer> &tester) {
+  tester.addTest("Equality", equality);
+  tester.addTest("ComparisionSelfTest", comparision);
+
+  tester.addTest("AdditionSelfTest", addition);
+  tester.addTest("SubtractionSelfTest", subtraction);
+
+  tester.addTest("LeftShiftValueTest", leftShift);
+  tester.addTest("RightShiftValueTest", rightShift);
+  tester.addTest("ShiftSelfTest", anyShift);
+
+  tester.addTest("DivisionValueTest", basicDivision);
+  tester.addTest("MultiplicationDivisionSelfTest", mulDivReciprocity);
+  tester.addTest("MulPerformanceTest", mulPerf);
+  tester.addTest("DivisionFloorTest", divFloor);
+  tester.addTest("NastyDivisionFloorTest", nastyDivFloor);
+
+  tester.addTest("ModularExponentiationValueTest", modExponentValue);
+
+  tester.addTest("GcdValueTest", extGcdValue);
+}
 
 bool Tests::decimalConversion(Integer &a) {
   std::string ogInt(a);
@@ -34,7 +57,6 @@ bool Tests::subtraction(Integer &a, Integer &b, Integer &c) {
 
 bool Tests::leftShift(Integer &a, Integer &shift, Integer &b) {
   a <<= shift;
-  std::cout<<"A: "<<a<<std::endl;
   return (b == a);
 }
 bool Tests::rightShift(Integer &a, Integer &shift, Integer &b) {
@@ -57,7 +79,7 @@ bool Tests::anyShift(Integer &a, Integer &shift) {
 }
 
 bool Tests::comparision(Integer &a, Integer &b) {
-  //std::cout<<" "<<(a>b)<<" "<<(b>a)<<" "<<(a==b)<<std::endl;
+  // std::cout<<" "<<(a>b)<<" "<<(b>a)<<" "<<(a==b)<<std::endl;
   if (a < b || a > b) {
     if (a > b && a < b) {
       return false;
