@@ -21,7 +21,8 @@ Numeric RandomParameter::createInstance(std::default_random_engine &e) {
 
   _io.randomize(view, e, _sign);
 
-  return Numeric(std::move(buffer));
+  Numeric result(std::move(buffer));
+  return result;
 }
 
 RandomParameter::~RandomParameter() {}

@@ -6,10 +6,14 @@
 namespace KCrypt {
 
 class BufferInstance {
-  Buffer _buffers[7];
+  const size_t _bufferCount;
+  Buffer *const _buffers;
 
 public:
-  BufferInstance();
+  BufferInstance(const BufferInstance &) = delete;
+  BufferInstance &operator=(const BufferInstance &) = delete;
+
+  BufferInstance(size_t bufferCount);
 
   Buffer &operator[](size_t bufferNo);
   ~BufferInstance();

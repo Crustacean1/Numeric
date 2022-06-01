@@ -86,7 +86,10 @@ Numeric &Numeric::operator-=(BufferView::BaseInt num) {
   return *this;
 }
 
-Numeric &Numeric::operator<<=(const Numeric &num) { return *this; }
+Numeric &Numeric::operator<<=(const Numeric &num) {
+  _arithm.leftShift(_buffer, num._buffer.data[0]);
+  return *this;
+}
 
 Numeric &Numeric::operator>>=(const Numeric &num) {
   _arithm.rightShift(_buffer, num._buffer.data[0]);
@@ -109,7 +112,7 @@ Numeric &Numeric::operator*=(const Numeric &num) {
     _arithm.multiply(_buffer, num._buffer, _buffer);
     return *this;
   }
-  _arithm.multiply(num._buffer, num._buffer, _buffer);
+  _arithm.multiply(num._buffer, _buffer, _buffer);
   return *this;
 }
 

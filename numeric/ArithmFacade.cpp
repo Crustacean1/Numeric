@@ -1,4 +1,5 @@
 #include "ArithmFacade.h"
+#include <iostream>
 
 using namespace KCrypt;
 
@@ -12,8 +13,8 @@ ArithmFacade &ArithmFacade::getInstance(size_t threadId) {
 }
 
 ArithmFacade::ArithmFacade()
-    : _cmp(), _add(_cmp), _mul(_cmp, _add, _buffInst[0]), _io(_cmp, _add),
-      _div(_cmp, _add, _mul, _buffInst[1], _buffInst[2]),
+    : _buffInst(9), _cmp(), _add(_cmp), _mul(_cmp, _add, _buffInst[0]),
+      _io(_cmp, _add), _div(_cmp, _add, _mul, _buffInst[1], _buffInst[2]),
       _exp(_cmp, _add, _mul, _div, _buffInst[3], _buffInst[4], _buffInst[5],
            _buffInst[6]),
       _gcd(_cmp, _add, _buffInst[3], _buffInst[4], _buffInst[5], _buffInst[6],
@@ -41,17 +42,19 @@ void ArithmFacade::modExp(const BufferView &base, const BufferView &exp,
                           const BufferView &modulus, const BufferView &output) {
   _exp.modExp(base, exp, modulus, output);
 }
+
 void ArithmFacade::divide(const BufferView &dividend, const BufferView &divisor,
                           const BufferView &output) {
   _buffInst[3].reserve(dividend.size);
   auto inverse = _buffInst[3].splice(dividend.size);
-  size_t decPoint = _div.newtonInverse(dividend, inverse);
+  size_t decPoint = _div.newtonInverse(divisor, inverse);
   _div.newtonDiv(dividend, inverse, output, decPoint);
 }
+
 void ArithmFacade::multiply(const BufferView &factor1,
                             const BufferView &factor2,
                             const BufferView &output) {
-  _buffInst[1].reserve(factor1.size);
+  _buffInst[1].reserve(factor1.size * 2);
   auto result = _buffInst[1].splice(0, factor1.size * 2);
   _mul.kar(factor1, factor2, result);
   output.copy(result);

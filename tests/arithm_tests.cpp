@@ -57,6 +57,7 @@ bool Tests::anyShift(Integer &a, Integer &shift) {
 }
 
 bool Tests::comparision(Integer &a, Integer &b) {
+  //std::cout<<" "<<(a>b)<<" "<<(b>a)<<" "<<(a==b)<<std::endl;
   if (a < b || a > b) {
     if (a > b && a < b) {
       return false;
@@ -110,7 +111,6 @@ bool Tests::mulPerf(Integer &a, Integer &b) {
 
 bool Tests::divFloor(Integer &a, Integer &b) {
   Integer c(a / b);
-  // std::cout<<"A: "<<a<<" B: "<<b<<" C: "<<c<<std::endl;
   Integer d(a.size());
   d = b;
   d *= c;
@@ -137,8 +137,6 @@ bool Tests::nastyDivFloor(Integer &a, Integer &b) {
   d -= 1;
 
   d /= a;
-  // std::cout << "A: " << a << " B: " << b << " C - 1: " << c << " D: " << d
-  //<< std::endl;
   if (d == b) {
     return false;
   }

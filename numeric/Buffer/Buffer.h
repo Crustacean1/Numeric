@@ -27,7 +27,7 @@ struct Buffer : public BufferView{
 public:
   Buffer(const Buffer &buffer) = delete;
   Buffer(Buffer &&buffer);
-  Buffer(size_t newSize);
+  Buffer(size_t newSize = 1);
   Buffer(BufferView::BaseInt *newData, size_t newSize);
   ~Buffer();
 

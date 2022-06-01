@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
   Tester<KCrypt::Numeric> tester(_logger, factory);
 
   tester.addTest("Equality", Tests::equality);
+  tester.addTest("ComparisionSelfTest", Tests::comparision);
 
   tester.addTest("AdditionSelfTest",Tests::addition);
   tester.addTest("SubtractionSelfTest",Tests::subtraction);

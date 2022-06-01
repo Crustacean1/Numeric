@@ -2,12 +2,11 @@
 
 namespace KCrypt {
 
-BufferInstance::BufferInstance()
-    : _buffers{Buffer(1), Buffer(1), Buffer(1), Buffer(1),
-               Buffer(1), Buffer(1), Buffer(1)} {}
+BufferInstance::BufferInstance(size_t bufferCount) : _bufferCount(bufferCount) , _buffers(new Buffer[_bufferCount]){
+}
 
 Buffer &BufferInstance::operator[](size_t bufferNo) {
   return _buffers[bufferNo];
 }
-BufferInstance::~BufferInstance() {}
+BufferInstance::~BufferInstance() { delete[] _buffers; }
 } // namespace KCrypt

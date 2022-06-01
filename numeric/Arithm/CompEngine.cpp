@@ -1,7 +1,7 @@
 #include "CompEngine.h"
 #include "../Utils.h"
-#include <pthread.h>
 #include <iostream>
+#include <pthread.h>
 
 namespace KCrypt {
 
@@ -42,23 +42,17 @@ bool CompEngine::greater(const BufferView &a, const BufferView &b) const {
     return isSigned(b);
   }
 
-  int pos = K::max(a.size - 1, b.size - 1);
+  int pos = a.size - 1;
 
-  for (; pos > a.size - 1 && b.data[pos] <= aFill; --pos) {
+  for (; pos > b.size - 1 && a.data[pos] == bFill; --pos) {
   }
-  if (b.data[pos] > aFill) {
+  if (pos < 0 || a.data[pos] < bFill) {
     return false;
   }
 
-  for (; pos > b.size - 1 && a.data[pos] >= bFill; --pos) {
+  for (; pos >= 0 && a.data[pos] == b.data[pos]; --pos) {
   }
-  if (a.data[pos] < bFill) {
-    return false;
-  }
-
-  for (; pos >= 0 && a.data[pos] >= b.data[pos]; --pos) {
-  }
-  return pos == -1 && a.data[0] > b.data[0];
+  return pos > 0 && a.data[pos] > b.data[pos];
 }
 
 bool CompEngine::lesser(const BufferView &a, const BufferView &b) const {
@@ -69,23 +63,17 @@ bool CompEngine::lesser(const BufferView &a, const BufferView &b) const {
     return isSigned(b);
   }
 
-  int pos = K::max(a.size - 1, b.size - 1);
+  int pos = a.size - 1;
 
-  for (; pos > a.size - 1 && b.data[pos] >= aFill; --pos) {
+  for (; pos > b.size - 1 && a.data[pos] == bFill; --pos) {
   }
-  if (b.data[pos] < aFill) {
+  if (pos < 0 || a.data[pos] > bFill) {
     return false;
   }
 
-  for (; pos > b.size - 1 && a.data[pos] <= bFill; --pos) {
+  for (; pos >= 0 && a.data[pos] == b.data[pos]; --pos) {
   }
-  if (a.data[pos] > bFill) {
-    return false;
-  }
-
-  for (; pos >= 0 && a.data[pos] >= b.data[pos]; --pos) {
-  }
-  return pos == -1 && a.data[0] < b.data[0];
+  return pos > -1 && a.data[pos] < b.data[pos];
 }
 
 bool CompEngine::greaterOrEqual(const BufferView &a,
