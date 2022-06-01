@@ -2,6 +2,15 @@
 
 using namespace KCrypt;
 
+ArithmFacade *ArithmFacade::_instance = nullptr;
+
+ArithmFacade &ArithmFacade::getInstance(size_t threadId) {
+  if (_instance == nullptr) {
+    _instance = new ArithmFacade();
+  }
+  return *_instance;
+}
+
 ArithmFacade::ArithmFacade()
     : _cmp(), _add(_cmp), _mul(_cmp, _add, _buffInst[0]), _io(_cmp, _add),
       _div(_cmp, _add, _mul, _buffInst[1], _buffInst[2]),
@@ -47,12 +56,10 @@ void ArithmFacade::multiply(const BufferView &factor1,
   _mul.kar(factor1, factor2, result);
   output.copy(result);
 }
-void ArithmFacade::leftShift(const BufferView &view, size_t shift,
-                             const BufferView &output) {
+void ArithmFacade::leftShift(const BufferView &view, size_t shift) {
   _add.leftShift(view, view, shift);
 }
-void ArithmFacade::rightShift(const BufferView &view, size_t shift,
-                              const BufferView &output) {
+void ArithmFacade::rightShift(const BufferView &view, size_t shift) {
   _add.rightShift(view, view, shift);
 }
 
@@ -63,6 +70,11 @@ void ArithmFacade::subtract(const BufferView &term,
     return;
   }
   _add.subFromRight(term, outputTerm);
+}
+
+void ArithmFacade::subtract(BufferView::BaseInt term,
+                            const BufferView &outputTerm) {
+  _add.sub(outputTerm, term);
 }
 
 void ArithmFacade::add(const BufferView &term, const BufferView &outputTerm) {
@@ -99,6 +111,9 @@ void ArithmFacade::readFromString(const std::string &str, Buffer &buffer) {
   _io.toComplement(str, buffer);
 }
 
-std::string ArithmFacade::writeToString(const BufferView &buffer){
+std::string ArithmFacade::writeDecimal(const BufferView &buffer) {
   return _io.toDecimal(buffer);
+}
+std::string ArithmFacade::writeBinary(const BufferView &buffer) {
+  return _io.toBinary(buffer);
 }

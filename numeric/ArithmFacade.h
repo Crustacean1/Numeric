@@ -14,7 +14,6 @@
 namespace KCrypt {
 
 class ArithmFacade {
-  ArithmFacade();
 
   BufferInstance _buffInst;
 
@@ -26,7 +25,13 @@ class ArithmFacade {
   ExpEngine _exp;
   GcdEngine _gcd;
 
+  static ArithmFacade *_instance;
+
+  ArithmFacade();
+
 public:
+  ArithmFacade(const ArithmFacade &) = delete;
+
   static ArithmFacade &getInstance(size_t threadId);
 
   bool isSigned(const BufferView &view);
@@ -42,12 +47,11 @@ public:
               const BufferView &output);
   void multiply(const BufferView &factor1, const BufferView &factor2,
                 const BufferView &output);
-  void leftShift(const BufferView &buffer, size_t shift,
-                 const BufferView &output);
-  void rightShift(const BufferView &buffer, size_t shift,
-                  const BufferView &output);
+  void leftShift(const BufferView &buffer, size_t shift);
+  void rightShift(const BufferView &buffer, size_t shift);
 
   void subtract(const BufferView &term, const BufferView &outputTerm);
+  void subtract(BufferView::BaseInt term, const BufferView &outputTerm);
   void add(const BufferView &term, const BufferView &outputTerm);
 
   bool equal(const BufferView &a, const BufferView &b);
@@ -57,7 +61,8 @@ public:
   bool lesserOrEqual(const BufferView &a, const BufferView &b);
 
   void readFromString(const std::string &str, Buffer &buffer);
-  std::string writeToString(const BufferView &buffer);
+  std::string writeDecimal(const BufferView &buffer);
+  std::string writeBinary(const BufferView &buffer);
 
   bool millerRabinTest(const BufferView &suspect, const BufferView &witness);
 };

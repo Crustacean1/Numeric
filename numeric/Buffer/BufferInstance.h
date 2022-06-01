@@ -6,8 +6,6 @@
 namespace KCrypt {
 
 class BufferInstance {
-  static BufferInstance *__globalInstance;
-
   Buffer _buffers[7];
 
 public:

@@ -56,48 +56,40 @@ size_t Numeric::size() const { return _buffer.splice().size; }
 
 Numeric::~Numeric() {}
 
-std::string Numeric::toDec() { return _arithm.writeToString(_buffer); }
-std::string Numeric::toBin() { return _io.toBinary(_buffer.splice()); }
+std::string Numeric::toDec() { return _arithm.writeDecimal(_buffer); }
+std::string Numeric::toBin() { return _arithm.writeBinary(_buffer); }
 
 Numeric Numeric::operator+(const Numeric &num) const {
-  Numeric sum(_buffer.splice().size);
-  sum._buffer.splice().copy(_buffer.splice());
-
-  if (sum._buffer.splice().size < num._buffer.splice().size) {
-    sum._add.addToRight(num._buffer.splice(), sum._buffer.splice());
-    return sum;
-  }
-  sum._add.addToLeft(sum._buffer.splice(), num._buffer.splice());
+  Numeric sum(*this);
+  _arithm.add(num._buffer, sum._buffer);
   return sum;
 }
 
 Numeric Numeric::operator-(const Numeric &num) const {
-  Numeric sum(_buffer.splice().size);
-  sum._buffer.splice().copy(_buffer.splice());
-
-  if (sum._buffer.splice().size < num._buffer.splice().size) {
-    sum._add.subFromRight(num._buffer.splice(), sum._buffer.splice());
-    return sum;
-  }
-
-  sum._add.subFromLeft(sum._buffer.splice(), num._buffer.splice());
-  return sum;
+  Numeric sub(*this);
+  _arithm.subtract(num._buffer, sub._buffer);
+  return sub;
 }
 
-Numeric &Numeric::operator+=(const Numeric &num) { return *this; }
+Numeric &Numeric::operator+=(const Numeric &num) {
+  _arithm.add(num._buffer, _buffer);
+  return *this;
+}
 
-Numeric &Numeric::operator-=(const Numeric &num) { return *this; }
+Numeric &Numeric::operator-=(const Numeric &num) {
+  _arithm.subtract(num._buffer, _buffer);
+  return *this;
+}
 
-Numeric &Numeric::operator-=(const BufferView::BaseInt b) {
-  _add.sub(_buffer, b);
+Numeric &Numeric::operator-=(BufferView::BaseInt num) {
+  _arithm.subtract(num, _buffer);
   return *this;
 }
 
 Numeric &Numeric::operator<<=(const Numeric &num) { return *this; }
 
 Numeric &Numeric::operator>>=(const Numeric &num) {
-  _add.rightShift(_buffer.splice(), _buffer.splice(),
-                  num._buffer.splice().data[0]);
+  _arithm.rightShift(_buffer, num._buffer.data[0]);
   return *this;
 }
 
@@ -105,47 +97,71 @@ Numeric Numeric::operator*(const Numeric &num) const {
   Numeric result(size());
 
   if (size() > num.size()) {
-    return result.orderedMul(result._buffer.splice(), num._buffer.splice(),
-                             _buffInst[3]);
+    _arithm.multiply(_buffer, num._buffer, result._buffer);
+    return result;
   }
-  return result.orderedMul(result._buffer.splice(), num._buffer.splice(),
-                           _buffInst[3]);
+  _arithm.multiply(num._buffer, num._buffer, result._buffer);
+  return result;
 }
-
-Numeric &Numeric::orderedMul(const BufferView &a, const BufferView &b,
-                             Buffer &c) {}
 
 Numeric &Numeric::operator*=(const Numeric &num) {
   if (size() > num.size()) {
-    return orderedMul(_buffer.splice(), num._buffer.splice(), _buffInst[3]);
+    _arithm.multiply(_buffer, num._buffer, _buffer);
+    return *this;
   }
-  return orderedMul(num._buffer.splice(), _buffer.splice(), _buffInst[3]);
+  _arithm.multiply(num._buffer, num._buffer, _buffer);
+  return *this;
 }
 
-Numeric Numeric::operator/(const Numeric &num) const {}
+Numeric Numeric::operator/(const Numeric &num) const {
+  Numeric result(size());
 
-Numeric &Numeric::operator/=(const Numeric &num) {}
+  _arithm.divide(_buffer, num._buffer, result._buffer);
+  return result;
+}
 
-Numeric Numeric::modExp(const Numeric &base, const Numeric &exp) {}
+Numeric &Numeric::operator/=(const Numeric &num) {
+  _arithm.divide(_buffer, num._buffer, _buffer);
+  return *this;
+}
 
-std::tuple<Numeric, Numeric> Numeric::extGcd(const Numeric &num) {}
+Numeric Numeric::modExp(const Numeric &base, const Numeric &exp) {
+  Numeric result(size());
+  _arithm.modExp(base._buffer, exp._buffer, _buffer, result._buffer);
+  return result;
+}
 
-Numeric &Numeric::inverse() {}
-Numeric &Numeric::abs() {}
+std::tuple<Numeric, Numeric> Numeric::extGcd(const Numeric &num) {
+  Numeric ext1(size());
+  Numeric ext2(num.size());
+  _arithm.extGcd(num._buffer, _buffer, ext1._buffer, ext2._buffer);
+  return std::make_tuple(ext1, ext2);
+}
 
-bool Numeric::isSigned() { return _cmp.isSigned(_buffer.splice()); }
+Numeric &Numeric::inverse() {
+  _arithm.invert(_buffer);
+  return *this;
+}
+
+Numeric &Numeric::abs() {
+  if (_arithm.isSigned(_buffer)) {
+    _arithm.invert(_buffer);
+  }
+  return *this;
+}
+
+bool Numeric::isSigned() { return _arithm.isSigned(_buffer.splice()); }
 
 } // namespace KCrypt
 
 std::ostream &operator<<(std::ostream &stream, const KCrypt::Numeric &num) {
-  stream << num._io.toDecimal(num._buffer.splice());
+  stream << num._arithm.writeDecimal(num._buffer.splice());
   return stream;
 }
 
 std::istream &operator>>(std::istream &stream, KCrypt::Numeric &num) {
   std::string buffer;
   stream >> buffer;
-  num._buffer.reserve(num._io.decSizeInBinary(buffer.size()));
-  num._io.toComplement(buffer, num._buffer.splice());
+  num._arithm.readFromString(buffer, num._buffer);
   return stream;
 }

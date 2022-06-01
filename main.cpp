@@ -27,16 +27,11 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  KCrypt::BufferInstance::init();
-
-  KCrypt::BufferInstance &buffInst = KCrypt::BufferInstance::getInstance();
-
   KCrypt::CompEngine cmp;
   KCrypt::AddEngine add(cmp);
   KCrypt::IoEngine io(cmp, add);
 
-  NumericGeneratorFactory factory(io, add);
-  Logger _logger(std::cout, std::cerr, 5);
+  NumericGeneratorFactory factory(io, add); Logger _logger(std::cout, std::cerr, 5);
   Tester<KCrypt::Numeric> tester(_logger, factory);
 
   tester.addTest("Equality", Tests::equality);

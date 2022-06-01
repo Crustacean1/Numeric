@@ -19,7 +19,6 @@ Numeric RandomParameter::createInstance(std::default_random_engine &e) {
   buffer.clear();
   BufferView view(buffer.splice(_size));
 
-  std::cout<<"Creating: "<<std::endl;
   _io.randomize(view, e, _sign);
 
   return Numeric(std::move(buffer));

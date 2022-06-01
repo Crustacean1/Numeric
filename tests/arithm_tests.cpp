@@ -34,6 +34,7 @@ bool Tests::subtraction(Integer &a, Integer &b, Integer &c) {
 
 bool Tests::leftShift(Integer &a, Integer &shift, Integer &b) {
   a <<= shift;
+  std::cout<<"A: "<<a<<std::endl;
   return (b == a);
 }
 bool Tests::rightShift(Integer &a, Integer &shift, Integer &b) {
