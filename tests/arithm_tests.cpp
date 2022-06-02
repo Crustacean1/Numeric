@@ -182,11 +182,13 @@ bool Tests::nastyDivFloor(Integer &a, Integer &b) {
 bool Tests::modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
                              Integer &expected) {
   Integer d(modulo.modExp(base, exponent));
-  if(d==expected){return true;}
-  std::cout<<"Test: modExponentValue failed:"<<std::endl;
+  if (d == expected) {
+    return true;
+  }
+  std::cout << "Test: modExponentValue failed:" << std::endl;
   std::cout << "Base: " << base << " Exponent: " << exponent
             << " Modulo: " << modulo << " Result: " << d << std::endl;
-    return false;
+  return false;
 }
 
 bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c) {

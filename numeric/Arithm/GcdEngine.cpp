@@ -49,27 +49,25 @@ void GcdEngine::extendedGcd(const BufferView &a, const BufferView &b,
 void GcdEngine::computeResult(GcdExtension &ext, size_t offset1, size_t offset2,
                               const BufferView &a, const BufferView &b) {
 
-  while (offset2 < offset1) {
-    --offset1;
-    if (!isEven(ext.a)) {
-      makeExtensionsEven(ext);
-    }
-    _add.rightShift(ext.a, ext.a, 1);
-  }
-
-  while (offset1 < offset2) {
-    --offset2;
-    if (!isEven(ext.b)) {
-      makeExtensionsEven(ext);
-    }
-    _add.rightShift(ext.b, ext.b, 1);
-  }
+  reduceOneExtension(ext, ext.a, offset1 - offset2);
+  reduceOneExtension(ext, ext.b, offset2 - offset1);
 
   a.clear();
   b.clear();
 
   a.copy(ext.a);
   b.copy(ext.b);
+}
+
+void GcdEngine::reduceOneExtension(GcdExtension &ext,
+                                   const BufferView &extToHalve, int offset) {
+  while (offset > 0) {
+    --offset;
+    if (!isEven(extToHalve)) {
+      makeExtensionsEven(ext);
+    }
+    _add.rightShift(extToHalve, extToHalve, 1);
+  }
 }
 
 bool GcdEngine::iterate(GcdExtension &ext1, GcdExtension &ext2) {

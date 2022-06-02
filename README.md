@@ -22,7 +22,7 @@ Returns floor of a/b
 Binary algorithm
 ## Modular exponentation
 ## GCD
-Euclidean algorithm
+Extended Euclidean Algorithm
 # Operations in external modules
 ## Miller Rabin primality test
 ## RSA Key Generation
