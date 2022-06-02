@@ -16,6 +16,7 @@ void AddEngine::leftShift(const BufferView &a, const BufferView &b,
   size_t j = a.size - majorShift;
   _buffer.major = a.data[j - 1];
   _buffer.major <<= BufferView::WordSize;
+
   for (j = j - 1; j > 0; --i, --j) {
     _buffer.major += a.data[j - 1];
     b.data[i] = (_buffer.major >> complShift);

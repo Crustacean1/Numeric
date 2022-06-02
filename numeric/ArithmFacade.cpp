@@ -34,8 +34,7 @@ void ArithmFacade::invert(const BufferView &view) { _add.invert(view); }
 void ArithmFacade::extGcd(const BufferView &arg1, const BufferView &arg2,
                           const BufferView &output1,
                           const BufferView &output2) {
-  output1.clear();
-  output2.clear();
+  _gcd.extendedGcd(arg1, arg2, output1, output2);
 }
 
 void ArithmFacade::modExp(const BufferView &base, const BufferView &exp,

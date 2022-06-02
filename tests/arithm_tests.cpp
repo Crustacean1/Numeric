@@ -1,7 +1,7 @@
 #include "arithm_tests.h"
+#include "../tester/tester.h"
 #include <iostream>
 #include <string>
-#include "../tester/tester.h"
 
 void Tests::setUpAllTests(Tester<Integer> &tester) {
   tester.addTest("Equality", equality);
@@ -176,6 +176,11 @@ bool Tests::modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
 bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c, Integer &d) {
   auto [coe1, coe2] = a.extGcd(b);
 
+  std::cout << "Gcd Summary: " << std::endl;
+  std::cout << "A: " << a << std::endl;
+  std::cout << "B: " << b << std::endl;
+  std::cout << "Ext1: " << coe1 << std::endl;
+  std::cout << "Ext2: " << coe2 << std::endl;
   if (coe1.isSigned() == coe2.isSigned()) {
     return false;
   }

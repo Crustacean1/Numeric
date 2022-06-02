@@ -52,7 +52,7 @@ bool CompEngine::greater(const BufferView &a, const BufferView &b) const {
 
   for (; pos >= 0 && a.data[pos] == b.data[pos]; --pos) {
   }
-  return pos > 0 && a.data[pos] > b.data[pos];
+  return pos > -1 && a.data[pos] > b.data[pos];
 }
 
 bool CompEngine::lesser(const BufferView &a, const BufferView &b) const {
