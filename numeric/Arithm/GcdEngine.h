@@ -15,32 +15,39 @@ class GcdEngine {
     const BufferView &b;
   };
 
-  void reserveBuffers(size_t aSize, size_t bSize);
-  void gcdDebug(GcdExtension &ext);
-
-  void init(GcdExtension &a, const BufferView &view);
-
-  bool iterate(GcdExtension &a, GcdExtension &b, BufferView &src1,
-               BufferView &src2);
-
-  void subtract(GcdExtension &small, GcdExtension &big);
-
-  void halve(GcdExtension &ext1, const BufferView &src1,
-             const BufferView &src2);
-
-  bool isEven(const BufferView &ext);
-
-  CompEngine &_cmp;
-  AddEngine &_add;
-
   Buffer &_a1;
   Buffer &_a2;
 
   Buffer &_b1;
   Buffer &_b2;
 
-  Buffer &_c;
-  Buffer &_d;
+  Buffer &_corr1;
+  Buffer &_corr2;
+
+  BufferView _aCorrection;
+  BufferView _bCorrection;
+
+  void reserveBuffers(size_t aSize, size_t bSize);
+  void gcdDebug(GcdExtension &ext);
+
+  size_t init(GcdExtension &a, const BufferView &view);
+  void initCorrections(GcdExtension &a, GcdExtension &b);
+
+  bool iterate(GcdExtension &a, GcdExtension &b);
+
+  void subtract(GcdExtension &small, GcdExtension &big);
+
+  void makeExtensionsEven(GcdExtension &ext);
+
+  void halve(GcdExtension &ext1);
+
+  void computeResult(GcdExtension &ext, size_t offset1, size_t offset2,
+                     const BufferView &a, const BufferView &b);
+
+  bool isEven(const BufferView &ext);
+
+  CompEngine &_cmp;
+  AddEngine &_add;
 
 public:
   GcdEngine(CompEngine &cmp, AddEngine &add, Buffer &a1, Buffer &a2, Buffer &b1,

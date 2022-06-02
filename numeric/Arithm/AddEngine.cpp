@@ -34,6 +34,7 @@ void AddEngine::rightShift(const BufferView &a, const BufferView &b,
 
   size_t i = 0;
   size_t j = majorShift;
+
   _buffer.major = a.data[j];
 
   for (j = j + 1; j < a.size; ++i, ++j) {
@@ -41,10 +42,13 @@ void AddEngine::rightShift(const BufferView &a, const BufferView &b,
     b.data[i] = (_buffer.major >> minorShift);
     _buffer.major >>= BufferView::WordSize;
   }
+  size_t fill = _comparator.isSigned(b) * ~BufferView::BaseInt(0);
 
-  b.data[i++] = (_buffer.minor.low >> minorShift);
+  _buffer.minor.high = fill;
+
+  b.data[i++] = (_buffer.major >> minorShift);
   for (; i < b.size; ++i) {
-    b.data[i] = 0;
+    b.data[i] = fill;
   }
 }
 

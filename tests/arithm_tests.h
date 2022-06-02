@@ -4,14 +4,13 @@
 #include "../numeric/Numeric.h"
 #include "../tester/tester.h"
 
-template<typename T>
-class Tester;
+template <typename T> class Tester;
 
 namespace Tests {
 
 using Integer = KCrypt::Numeric;
 
-void setUpAllTests(Tester<Integer> & tester);
+void setUpAllTests(Tester<Integer> &tester);
 
 bool decimalConversion(Integer &a);
 
@@ -24,6 +23,7 @@ bool subtraction(Integer &a, Integer &b, Integer &c);
 bool leftShift(Integer &a, Integer &shift, Integer &b);
 bool rightShift(Integer &a, Integer &shift, Integer &b);
 bool anyShift(Integer &a, Integer &shift);
+bool rightShiftComplement(Integer &a, Integer &shift, Integer &c);
 
 bool mulPerf(Integer &a, Integer &b);
 bool basicMultiplication(Integer &a, Integer &b, Integer &c);
@@ -37,7 +37,7 @@ bool mulDivReciprocity(Integer &a, Integer &b);
 bool modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
                       Integer &expected);
 
-bool extGcdValue(Integer &a, Integer &b, Integer &c, Integer &d);
+bool extGcdValue(Integer &a, Integer &b, Integer &d);
 
 }; // namespace Tests
 

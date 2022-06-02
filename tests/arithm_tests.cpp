@@ -13,6 +13,7 @@ void Tests::setUpAllTests(Tester<Integer> &tester) {
   tester.addTest("LeftShiftValueTest", leftShift);
   tester.addTest("RightShiftValueTest", rightShift);
   tester.addTest("ShiftSelfTest", anyShift);
+  tester.addTest("NegativeShiftComplementTest", rightShiftComplement);
 
   tester.addTest("DivisionValueTest", basicDivision);
   tester.addTest("MultiplicationDivisionSelfTest", mulDivReciprocity);
@@ -76,6 +77,19 @@ bool Tests::anyShift(Integer &a, Integer &shift) {
   std::cout << "A: " << a.toBin() << " << " << shift << "\nB: " << d.toBin()
             << "\nC: " << b.toBin() << std::endl;
   return b == a;
+}
+
+bool Tests::rightShiftComplement(Integer &source, Integer &shift,
+                                 Integer &target) {
+  source.inverse();
+  target.inverse();
+  source >>= shift;
+  if (source == target) {
+    return true;
+  }
+  std::cout << "Source: " << source.toBin() << "\tTarget: " << target
+            << std::endl;
+  return false;
 }
 
 bool Tests::comparision(Integer &a, Integer &b) {
@@ -168,22 +182,38 @@ bool Tests::nastyDivFloor(Integer &a, Integer &b) {
 bool Tests::modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
                              Integer &expected) {
   Integer d(modulo.modExp(base, exponent));
+  if(d==expected){return true;}
+  std::cout<<"Test: modExponentValue failed:"<<std::endl;
   std::cout << "Base: " << base << " Exponent: " << exponent
             << " Modulo: " << modulo << " Result: " << d << std::endl;
-  return (d == expected);
+    return false;
 }
 
-bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c, Integer &d) {
+bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c) {
   auto [coe1, coe2] = a.extGcd(b);
 
-  std::cout << "Gcd Summary: " << std::endl;
-  std::cout << "A: " << a << std::endl;
-  std::cout << "B: " << b << std::endl;
-  std::cout << "Ext1: " << coe1 << std::endl;
-  std::cout << "Ext2: " << coe2 << std::endl;
   if (coe1.isSigned() == coe2.isSigned()) {
     return false;
   }
+  coe1.abs();
+  coe2.abs();
 
-  return (coe1.abs() == c && coe2.abs() == d);
+  Integer d(a.size() + b.size());
+  Integer e(a.size() + b.size());
+  d = a;
+  d *= coe2;
+  e = b;
+  e *= coe1;
+
+  Integer result(d.size());
+  result = d;
+  result -= e;
+  result.abs();
+  if (result == c) {
+    return true;
+  }
+
+  std::cout << "Test: extGcdValue failed: " << std::endl;
+  std::cout << "Result: " << result << " D: " << d << " E: " << e << std::endl;
+  return false;
 }
