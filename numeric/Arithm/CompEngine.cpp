@@ -55,6 +55,19 @@ bool CompEngine::greater(const BufferView &a, const BufferView &b) const {
   return pos > -1 && a.data[pos] > b.data[pos];
 }
 
+bool CompEngine::equal(const BufferView &a, BufferView::BaseInt b) const {
+  if (a.data[0] != b) {
+    return false;
+  }
+  auto fill = BufferView::BaseInt(-1) * (b >> BufferView::WordHighBit);
+  for (int i = 1; i < a.size; ++i) {
+    if (a.data[i] != fill) {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool CompEngine::lesser(const BufferView &a, const BufferView &b) const {
   BufferView::BaseInt aFill = isSigned(a) * BufferView::BaseInt(~0);
   BufferView::BaseInt bFill = isSigned(b) * BufferView::BaseInt(~0);

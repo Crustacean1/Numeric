@@ -13,6 +13,8 @@
 
 namespace KCrypt {
 
+class PrimalityEngine;
+
 class ArithmFacade {
 
   BufferInstance _buffInst;
@@ -64,7 +66,8 @@ public:
   std::string writeDecimal(const BufferView &buffer);
   std::string writeBinary(const BufferView &buffer);
 
-  bool millerRabinTest(const BufferView &suspect, const BufferView &witness);
+  PrimalityEngine * getPrimalityEngine();
+  //bool millerRabinTest(const BufferView &suspect, const BufferView &witness);
 };
 } // namespace KCrypt
 

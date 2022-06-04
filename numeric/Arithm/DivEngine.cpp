@@ -147,3 +147,28 @@ void DivEngine::newtonIteration(const BufferView &divisor,
   _add.rightShift(outerProductBuffer, outerProductBuffer, precision);
   inverse.copy(outerProductBuffer);
 }
+
+void DivEngine::fastModulo(const BufferView &arg, const BufferView &modulus,
+                           const BufferView &modInverse,
+                           const BufferView &result, size_t precision) {
+  _bDivBuffer.reserve(modulus.size);
+  _aDivBuffer.reserve(modulus.size * 2);
+
+  BufferView quotient(_bDivBuffer.splice(modulus.size));
+  BufferView subtractor(_aDivBuffer.splice(modulus.size * 2));
+
+  newtonDiv(arg, modInverse, quotient, precision);
+
+  _mul.kar(quotient, modulus, subtractor);
+  _add.subFromLeft(arg, subtractor);
+
+  // Temporary assert
+  if (_cmp.greaterOrEqual(arg, modulus)) {
+    IoEngine io(_cmp, _add);
+    std::cout << "Critical Error, invalid modulo operation for:" << std::endl;
+    std::cout << "Mod: " << io.toDecimal(modulus) << std::endl;
+    std::cout << "Arg: " << io.toDecimal(arg) << std::endl;
+  }
+
+  result.copy(arg);
+}

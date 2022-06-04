@@ -19,25 +19,24 @@ class DivEngine {
 
   DoubleBuffer _buffer;
 
-  void newtonIteration(const BufferView &a, const BufferView &x,
-                       size_t prec);
+  void newtonIteration(const BufferView &a, const BufferView &x, size_t prec);
   size_t divApprox(const BufferView &a, const BufferView &x);
 
 public:
-  DivEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul,
-            Buffer &aDivBuffer, Buffer &bDivBuff);
+  DivEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul, Buffer &aDivBuffer,
+            Buffer &bDivBuff);
 
   void div(const BufferView &dividend, const BufferView &divisor,
            const BufferView &output);
 
-  void mod(const BufferView &source, const BufferView &modulus,
-           const BufferView &output);
+  void fastModulo(const BufferView &arg, const BufferView &modulus,
+                  const BufferView &modInverse, const BufferView &result,
+                  size_t precision);
 
   void newtonDiv(const BufferView &dividend, const BufferView &inverse,
                  const BufferView &target, size_t precision);
 
-  size_t newtonInverse(const BufferView &divisor,
-                       const BufferView &inverse);
+  size_t newtonInverse(const BufferView &divisor, const BufferView &inverse);
 };
 
 } // namespace KCrypt

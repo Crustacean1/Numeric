@@ -18,25 +18,18 @@ class ExpEngine {
   MulEngine &_mul;
   DivEngine &_div;
 
-  Buffer &_buffer1;
-  Buffer &_buffer2;
   Buffer &_buffer3;
   Buffer &_buffer4;
-
 
   void reserveModExpBuffers(size_t modulusSize);
 
 public:
   ExpEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul, DivEngine &div,
-            Buffer &buffer1, Buffer &buffer2, Buffer &buffer3, Buffer &buffer4);
+            Buffer &buffer3, Buffer &buffer4);
 
-  void fastModulo(const BufferView &arg, const BufferView &modulus,
-                  const BufferView &modInverse, const BufferView &result,
-                  size_t precision);
-
-  void modExp(const BufferView &base, const BufferView &modulus,
-              const BufferView &exponent, const BufferView &result);
-
+  void fastModExp(const BufferView &base, const BufferView &exponent,
+                  const BufferView &modulus, const BufferView &modInverse,
+                  size_t binPoint, const BufferView &result);
 };
 } // namespace KCrypt
 #endif /*EXP_ENGINE*/

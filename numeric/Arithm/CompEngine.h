@@ -12,6 +12,7 @@ public:
   CompEngine();
 
   bool equal(const BufferView &a, const BufferView &b) const;
+  bool equal(const BufferView &a, BufferView::BaseInt b) const;
   bool greater(const BufferView &a, const BufferView &b) const;
   bool lesser(const BufferView &a, const BufferView &b) const;
   bool greaterOrEqual(const BufferView &a, const BufferView &b) const;

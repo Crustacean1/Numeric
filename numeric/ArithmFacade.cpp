@@ -1,4 +1,5 @@
 #include "ArithmFacade.h"
+#include "Arithm/PrimalityEngine.h"
 #include <iostream>
 
 using namespace KCrypt;
@@ -15,8 +16,7 @@ ArithmFacade &ArithmFacade::getInstance(size_t threadId) {
 ArithmFacade::ArithmFacade()
     : _buffInst(9), _cmp(), _add(_cmp), _mul(_cmp, _add, _buffInst[0]),
       _io(_cmp, _add), _div(_cmp, _add, _mul, _buffInst[1], _buffInst[2]),
-      _exp(_cmp, _add, _mul, _div, _buffInst[3], _buffInst[4], _buffInst[5],
-           _buffInst[6]),
+      _exp(_cmp, _add, _mul, _div, _buffInst[3], _buffInst[4]),
       _gcd(_cmp, _add, _buffInst[3], _buffInst[4], _buffInst[5], _buffInst[6],
            _buffInst[7], _buffInst[8]) {}
 
@@ -39,7 +39,10 @@ void ArithmFacade::extGcd(const BufferView &arg1, const BufferView &arg2,
 
 void ArithmFacade::modExp(const BufferView &base, const BufferView &exp,
                           const BufferView &modulus, const BufferView &output) {
-  _exp.modExp(base, exp, modulus, output);
+  _buffInst[5].reserve(modulus.size);
+  BufferView modInverse = _buffInst[5].splice(modulus.size);
+  size_t decPoint = _div.newtonInverse(modulus, modInverse);
+  _exp.fastModExp(base, exp, modulus, modInverse, decPoint, output);
 }
 
 void ArithmFacade::divide(const BufferView &dividend, const BufferView &divisor,
@@ -118,4 +121,9 @@ std::string ArithmFacade::writeDecimal(const BufferView &buffer) {
 }
 std::string ArithmFacade::writeBinary(const BufferView &buffer) {
   return _io.toBinary(buffer);
+}
+
+PrimalityEngine *ArithmFacade::getPrimalityEngine() {
+  return new PrimalityEngine(_cmp, _add, _div, _exp, _buffInst[5], _buffInst[6],
+                             _buffInst[7], _buffInst[8]);
 }
