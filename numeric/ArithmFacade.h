@@ -7,13 +7,12 @@
 #include "Arithm/ExpEngine.h"
 #include "Arithm/GcdEngine.h"
 #include "Arithm/MulEngine.h"
+#include "Arithm/PrimalityEngine.h"
 #include "BasicIo.h"
 
 #include "Buffer/BufferInstance.h"
 
 namespace KCrypt {
-
-class PrimalityEngine;
 
 class ArithmFacade {
 
@@ -26,6 +25,7 @@ class ArithmFacade {
   DivEngine _div;
   ExpEngine _exp;
   GcdEngine _gcd;
+  PrimalityEngine _pri;
 
   static ArithmFacade *_instance;
 
@@ -35,6 +35,16 @@ public:
   ArithmFacade(const ArithmFacade &) = delete;
 
   static ArithmFacade &getInstance(size_t threadId);
+
+  Buffer &getBuffer(size_t bufferNo);
+  AddEngine &getAdd();
+  CompEngine &getCmp();
+  MulEngine &getMul();
+  DivEngine &getDiv();
+  ExpEngine &getExp();
+  GcdEngine &getGcd();
+  IoEngine &getIo();
+  PrimalityEngine &getPri();
 
   bool isSigned(const BufferView &view);
   void abs(const BufferView &view);
@@ -65,9 +75,6 @@ public:
   void readFromString(const std::string &str, Buffer &buffer);
   std::string writeDecimal(const BufferView &buffer);
   std::string writeBinary(const BufferView &buffer);
-
-  PrimalityEngine * getPrimalityEngine();
-  //bool millerRabinTest(const BufferView &suspect, const BufferView &witness);
 };
 } // namespace KCrypt
 

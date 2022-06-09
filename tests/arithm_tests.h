@@ -39,6 +39,8 @@ bool modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
 
 bool extGcdValue(Integer &a, Integer &b, Integer &d);
 
+bool millerRabin(Integer & suspect, Integer & witness);
+
 }; // namespace Tests
 
 #endif /*TESTS*/

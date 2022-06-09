@@ -1,34 +1,47 @@
 #include "PrimalityEngine.h"
+#include "../BasicIo.h"
 #include "../Buffer/Buffer.h"
 #include "../Buffer/BufferView.h"
+#include "../Numeric.h"
+#include <iostream>
 
+#include "../ArithmFacade.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
 #include "DivEngine.h"
 #include "ExpEngine.h"
+#include "MulEngine.h"
 
 using namespace KCrypt;
 
-PrimalityEngine::PrimalityEngine(CompEngine &cmp, AddEngine &add,
-                                 DivEngine &div, ExpEngine &exp,
-                                 Buffer &modBuffer, Buffer &modInvBuffer,
-                                 Buffer &stumpBuffer, Buffer &resultBuffer)
-    : _cmp(cmp), _add(add), _div(div), _exp(exp), _modBuffer(modBuffer),
-      _modInvBuffer(modInvBuffer), _stumpBuffer(stumpBuffer),
-      _resultBuffer(resultBuffer), _modView(_modBuffer),
-      _modInvView(_modInvBuffer), _resultView(_resultBuffer),
-      _stumpView(_stumpBuffer) {}
+PrimalityEngine::PrimalityEngine(ArithmFacade &arithm)
+    : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _mul(arithm.getMul()),
+      _div(arithm.getDiv()), _exp(arithm.getExp()), _io(arithm.getIo()),
+      _modBuffer(arithm.getBuffer(5)), _modInvBuffer(arithm.getBuffer(6)),
+      _stumpBuffer(arithm.getBuffer(7)), _resultBuffer(arithm.getBuffer(8)),
+      _modView(_modBuffer), _modInvView(_modInvBuffer),
+      _resultView(_resultBuffer), _stumpView(_stumpBuffer) {}
 
 bool PrimalityEngine::test(const BufferView &witness) {
   _exp.fastModExp(witness, _stumpView, _modView, _modInvView, _binPoint,
                   _resultView);
+  std::cout << "Mod exponentat_ion: " << _io.toDecimal(witness) << "\t"
+            << _io.toDecimal(_stumpView) << "\t" << _io.toDecimal(_modView)
+            << "\t" << _io.toDecimal(_resultView) << std::endl;
   if (_cmp.equal(_resultView, BufferView::BaseInt(1))) {
     return true;
   }
-  for(size_t i = 0;i<_powerOf2;++i){
-    _add.leftShift(_resultView,_resultView,1);
-
+  _add.sub(_modView, 1);
+  for (size_t i = 0; i < _powerOf2; ++i) {
+    std::cout << "Shift mod: " << _io.toDecimal(_resultView) << std::endl;
+    if (_cmp.equal(_resultView, _modView)) {
+      _add.add(witness, 1);
+      return true;
+    }
+    _add.leftShift(_resultView, _resultView, 1);
   }
+  _add.add(_modView, 1);
+  return false;
 }
 
 void PrimalityEngine::setSuspect(BufferView &buffer) {

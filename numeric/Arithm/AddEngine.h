@@ -1,11 +1,12 @@
 #ifndef ADD_ENGINE
 #define ADD_ENGINE
 
-#include "../Buffer/BufferView.h"
 #include "../Buffer/Buffer.h"
+#include "../Buffer/BufferView.h"
 #include "CompEngine.h"
 
 namespace KCrypt {
+class ArithmFacade;
 
 class AddEngine {
 
@@ -13,7 +14,7 @@ class AddEngine {
   CompEngine &_comparator;
 
 public:
-  AddEngine(CompEngine &comp);
+  AddEngine(ArithmFacade &arithm);
 
   void leftShift(const BufferView &source, const BufferView &output,
                  size_t offset);

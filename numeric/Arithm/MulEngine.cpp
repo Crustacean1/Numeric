@@ -9,6 +9,7 @@
   }
 
 #include "MulEngine.h"
+#include "../ArithmFacade.h"
 #include "../BasicIo.h"
 #include "../Buffer/BufferInstance.h"
 #include "../Utils.h"
@@ -18,8 +19,9 @@
 
 namespace KCrypt {
 
-MulEngine::MulEngine(CompEngine &comp, AddEngine &add, Buffer &kBuffer)
-    : _comp(comp), _adder(add), karBuffer(kBuffer) {}
+MulEngine::MulEngine(ArithmFacade &arithm)
+    : _comp(arithm.getCmp()), _adder(arithm.getAdd()),
+      karBuffer(arithm.getBuffer(0)) {}
 
 void MulEngine::mul(const BufferView &b, const BufferView &a) {
   BufferView::BaseInt mulCache;

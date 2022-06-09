@@ -9,6 +9,7 @@ namespace KCrypt {
 class CompEngine;
 class AddEngine;
 class BufferInstance;
+class ArithmFacade;
 
 class MulEngine {
   DoubleBuffer _buffer;
@@ -23,7 +24,7 @@ class MulEngine {
              size_t level = 0);
 
 public:
-  MulEngine(CompEngine &comp, AddEngine &add, Buffer &kBuffer);
+  MulEngine(ArithmFacade &arithm);
 
   void mul(const BufferView &factor, const BufferView &product);
 

@@ -14,11 +14,8 @@ ArithmFacade &ArithmFacade::getInstance(size_t threadId) {
 }
 
 ArithmFacade::ArithmFacade()
-    : _buffInst(9), _cmp(), _add(_cmp), _mul(_cmp, _add, _buffInst[0]),
-      _io(_cmp, _add), _div(_cmp, _add, _mul, _buffInst[1], _buffInst[2]),
-      _exp(_cmp, _add, _mul, _div, _buffInst[3], _buffInst[4]),
-      _gcd(_cmp, _add, _buffInst[3], _buffInst[4], _buffInst[5], _buffInst[6],
-           _buffInst[7], _buffInst[8]) {}
+    : _buffInst(9), _cmp(), _add(*this), _mul(*this), _io(*this), _div(*this),
+      _exp(*this), _gcd(*this), _pri(*this) {}
 
 bool ArithmFacade::isSigned(const BufferView &view) {
   return _cmp.isSigned(view);
@@ -123,7 +120,12 @@ std::string ArithmFacade::writeBinary(const BufferView &buffer) {
   return _io.toBinary(buffer);
 }
 
-PrimalityEngine *ArithmFacade::getPrimalityEngine() {
-  return new PrimalityEngine(_cmp, _add, _div, _exp, _buffInst[5], _buffInst[6],
-                             _buffInst[7], _buffInst[8]);
-}
+Buffer &ArithmFacade::getBuffer(size_t i) { return _buffInst[i]; }
+AddEngine &ArithmFacade::getAdd() { return _add; }
+CompEngine &ArithmFacade::getCmp() { return _cmp; }
+MulEngine &ArithmFacade::getMul() { return _mul; }
+DivEngine &ArithmFacade::getDiv() { return _div; }
+ExpEngine &ArithmFacade::getExp() { return _exp; }
+GcdEngine &ArithmFacade::getGcd() { return _gcd; }
+IoEngine &ArithmFacade::getIo() { return _io; }
+PrimalityEngine &ArithmFacade::getPri() { return _pri; }

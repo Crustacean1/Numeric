@@ -7,6 +7,7 @@ namespace KCrypt {
 
 class AddEngine;
 class CompEngine;
+class ArithmFacade;
 
 class GcdEngine {
   struct GcdExtension {
@@ -52,8 +53,7 @@ class GcdEngine {
   AddEngine &_add;
 
 public:
-  GcdEngine(CompEngine &cmp, AddEngine &add, Buffer &a1, Buffer &a2, Buffer &b1,
-            Buffer &b2, Buffer &c, Buffer &d);
+  GcdEngine(ArithmFacade &arithm);
 
   void extendedGcd(const BufferView &a, const BufferView &b,
                    const BufferView &aCoeff, const BufferView &bCoeff);

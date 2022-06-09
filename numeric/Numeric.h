@@ -23,9 +23,9 @@ namespace KCrypt {
 class Numeric;
 
 // Notes:
-// - Has constant size thorough lifetime
-// - Results of operations are the same size as the source
-// - Thread safe (TODO)
+// - [x] Has constant size thorough lifetime
+// - [x] Results of operations are of the same size as the source
+// - [ ]Thread safe (TODO)
 
 class Numeric {
 
@@ -46,16 +46,18 @@ public:
   Numeric(Numeric &&num);
   Numeric(const Numeric &num);
 
+  Buffer & getBuffer();
   size_t size() const;
-  bool isSigned();
+
   std::string toDec();
   std::string toBin();
 
+  bool isSigned();
   Numeric & inverse();
   Numeric & abs();
+
   Numeric modExp(const Numeric & base, const Numeric & exp);
   std::tuple<Numeric,Numeric> extGcd(const Numeric & num);
-  bool testMillerRabin(const Numeric & witness);
 
   /*ASSIGNMENT OPERATORS*/
   Numeric &operator=(const Numeric &num);

@@ -12,12 +12,17 @@ class ExpEngine;
 class CompEngine;
 class AddEngine;
 class DivEngine;
+class MulEngine;
+class ArithmFacade;
+class IoEngine;
 
 class PrimalityEngine {
   CompEngine &_cmp;
   AddEngine &_add;
+  MulEngine &_mul;
   DivEngine &_div;
   ExpEngine &_exp;
+  IoEngine &_io;
 
   size_t _binPoint;
   size_t _powerOf2;
@@ -30,12 +35,10 @@ class PrimalityEngine {
   BufferView _modInvView;
   BufferView _modView;
   BufferView _stumpView;
-  BufferView &_resultView;
+  BufferView _resultView;
 
 public:
-  PrimalityEngine(CompEngine &cmp, AddEngine &add, DivEngine &div,
-                  ExpEngine &exp, Buffer &modBuffer, Buffer &modInvBuffer,
-                  Buffer &stumpBuffer, Buffer &resultBuffer);
+  PrimalityEngine(ArithmFacade &arithm);
 
   bool test(const BufferView &witness);
   void setSuspect(BufferView &buffer);

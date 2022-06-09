@@ -8,6 +8,7 @@ namespace KCrypt {
 class MulEngine;
 class AddEngine;
 class CompEngine;
+class ArithmFacade;
 
 class DivEngine {
   MulEngine &_mul;
@@ -23,8 +24,7 @@ class DivEngine {
   size_t divApprox(const BufferView &a, const BufferView &x);
 
 public:
-  DivEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul, Buffer &aDivBuffer,
-            Buffer &bDivBuff);
+  DivEngine(ArithmFacade &arithm);
 
   void div(const BufferView &dividend, const BufferView &divisor,
            const BufferView &output);

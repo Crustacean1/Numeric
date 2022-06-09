@@ -1,4 +1,5 @@
 #include "arithm_tests.h"
+#include "../numeric/Arithm/PrimalityEngine.h"
 #include "../tester/tester.h"
 #include <iostream>
 #include <string>
@@ -24,6 +25,7 @@ void Tests::setUpAllTests(Tester<Integer> &tester) {
   tester.addTest("ModularExponentiationValueTest", modExponentValue);
 
   tester.addTest("GcdValueTest", extGcdValue);
+  tester.addTest("TestMillerRabinValue", millerRabin);
 }
 
 bool Tests::decimalConversion(Integer &a) {
@@ -218,4 +220,16 @@ bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c) {
   std::cout << "Test: extGcdValue failed: " << std::endl;
   std::cout << "Result: " << result << " D: " << d << " E: " << e << std::endl;
   return false;
+}
+
+bool Tests::millerRabin(Integer &suspect, Integer &witness) {
+  auto primeTester = KCrypt::ArithmFacade::getInstance(0).getPrimalityTester();
+  std::cout << "Sus: " << suspect;
+  std::cout << " Wit: " << witness << std::endl;
+
+  primeTester.setSuspect(suspect.getBuffer());
+  bool result = primeTester.test(witness.getBuffer());
+  std::cout<<"Result: "<<result<<std::endl;
+
+  return result;
 }

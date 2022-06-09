@@ -14,6 +14,7 @@ namespace KCrypt {
 
 class CompEngine;
 class AddEngine;
+class ArithmFacade;
 
 class IoEngine {
   static constexpr size_t bcdBlockSize = 4;
@@ -43,15 +44,14 @@ class IoEngine {
   AddEngine &_add;
 
 public:
-  IoEngine(CompEngine &cmp, AddEngine &add);
-  IoEngine(const IoEngine &);
-  IoEngine(IoEngine &&);
+  IoEngine(ArithmFacade &arithm);
+  IoEngine(const IoEngine &) = delete;
+  IoEngine(IoEngine &&) = delete;
 
   enum class Sign { Random, Signed, Unsigned };
 
-  void randomize(const BufferView &num,
-                       std::default_random_engine &engine,
-                       Sign sign = Sign::Random);
+  void randomize(const BufferView &num, std::default_random_engine &engine,
+                 Sign sign = Sign::Random);
 
   size_t decSizeInBinary(size_t size) const;
   size_t binSizeInDecimal(size_t size) const;

@@ -155,6 +155,8 @@ Numeric &Numeric::abs() {
 
 bool Numeric::isSigned() { return _arithm.isSigned(_buffer.splice()); }
 
+Buffer &Numeric::getBuffer() { return _buffer; }
+
 } // namespace KCrypt
 
 std::ostream &operator<<(std::ostream &stream, const KCrypt::Numeric &num) {
