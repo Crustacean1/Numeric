@@ -223,12 +223,12 @@ bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c) {
 }
 
 bool Tests::millerRabin(Integer &suspect, Integer &witness) {
-  auto primeTester = KCrypt::ArithmFacade::getInstance(0).getPrimalityTester();
+  KCrypt::PrimalityEngine primeTester(KCrypt::ArithmFacade::getInstance(0));
   std::cout << "Sus: " << suspect;
   std::cout << " Wit: " << witness << std::endl;
 
-  primeTester.setSuspect(suspect.getBuffer());
-  bool result = primeTester.test(witness.getBuffer());
+  primeTester.setSuspect(suspect);
+  bool result = primeTester.test(witness);
   std::cout<<"Result: "<<result<<std::endl;
 
   return result;

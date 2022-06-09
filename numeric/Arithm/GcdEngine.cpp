@@ -1,4 +1,5 @@
 #include "GcdEngine.h"
+#include "../ArithmFacade.h"
 #include "../BasicIo.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
@@ -7,23 +8,15 @@
 
 using namespace KCrypt;
 
-GcdEngine::GcdEngine(CompEngine &cmp, AddEngine &add, Buffer &a1, Buffer &a2,
-                     Buffer &b1, Buffer &b2, Buffer &c, Buffer &d)
-    : _cmp(cmp), _add(add), _a1(a1), _b1(b1), _a2(a2), _b2(b2), _corr1(c),
-      _corr2(d), _aCorrection(_corr1), _bCorrection(_corr2) {}
-
-void GcdEngine::gcdDebug(GcdExtension &ext) {
-  IoEngine io(_cmp, _add);
-  std::cout << "Ext: " << io.toDecimal(ext.value)
-            << "\nA: " << io.toDecimal(ext.a) << "\nB: " << io.toDecimal(ext.b)
-            << std::endl;
-}
+GcdEngine::GcdEngine(ArithmFacade &arithm)
+    : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _a1(arithm.getBuffer(0)),
+      _b1(arithm.getBuffer(1)), _a2(arithm.getBuffer(2)),
+      _b2(arithm.getBuffer(3)), _corr1(arithm.getBuffer(4)),
+      _corr2(arithm.getBuffer(5)), _aCorrection(_corr1), _bCorrection(_corr2) {}
 
 void GcdEngine::extendedGcd(const BufferView &a, const BufferView &b,
                             const BufferView &aCoeff,
                             const BufferView &bCoeff) {
-
-  IoEngine io(_cmp, _add);
 
   reserveBuffers(a.size, b.size);
 
@@ -83,7 +76,6 @@ bool GcdEngine::iterate(GcdExtension &ext1, GcdExtension &ext2) {
 }
 
 size_t GcdEngine::init(GcdExtension &ext, const BufferView &view) {
-  IoEngine io(_cmp, _add);
   ext.a.clear();
   ext.b.clear();
 

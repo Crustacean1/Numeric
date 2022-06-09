@@ -11,6 +11,7 @@ class DivEngine;
 class AddEngine;
 class CompEngine;
 class ArithmFacade;
+class IoEngine;
 
 class ExpEngine {
 
@@ -18,9 +19,10 @@ class ExpEngine {
   AddEngine &_add;
   MulEngine &_mul;
   DivEngine &_div;
+  IoEngine & _io;
 
-  Buffer &_buffer3;
-  Buffer &_buffer4;
+  Buffer &_buffer;
+  BufferView _value;
 
   void reserveModExpBuffers(size_t modulusSize);
 

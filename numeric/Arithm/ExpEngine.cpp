@@ -1,4 +1,5 @@
 #include "ExpEngine.h"
+#include "../ArithmFacade.h"
 #include "../BasicIo.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
@@ -8,10 +9,10 @@
 
 using namespace KCrypt;
 
-ExpEngine::ExpEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul,
-                     DivEngine &div, Buffer &buffer3, Buffer &buffer4)
-    : _cmp(cmp), _add(add), _mul(mul), _div(div), _buffer4(buffer4),
-      _buffer3(buffer3) {}
+ExpEngine::ExpEngine(ArithmFacade &arithm)
+    : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _mul(arithm.getMul()),
+      _io(arithm.getIo()), _div(arithm.getDiv()), _buffer(arithm.getBuffer(3)),
+      _value(_buffer) {}
 
 void ExpEngine::fastModExp(const BufferView &base, const BufferView &exponent,
                            const BufferView &modulus,
@@ -19,8 +20,6 @@ void ExpEngine::fastModExp(const BufferView &base, const BufferView &exponent,
                            const BufferView &result) {
 
   reserveModExpBuffers(modulus.size);
-
-  BufferView value(_buffer3.splice(modulus.size));
 
   result.clear();
   result.data[0] = 1;
@@ -31,17 +30,17 @@ void ExpEngine::fastModExp(const BufferView &base, const BufferView &exponent,
     currentDigit = exponent.data[i / BufferView::WordSize];
     currentDigit >>= (i % BufferView::WordSize);
 
-    _mul.kar(result, result, value);
-    _div.fastModulo(value, modulus, modInverse, result, binPoint);
+    _mul.kar(result, result, _value);
+    _div.fastModulo(_value, modulus, modInverse, result, binPoint);
 
     if (currentDigit & 1) {
-      _mul.kar(result, base, value);
-      _div.fastModulo(value, modulus, modInverse, result, binPoint);
+      _mul.kar(result, base, _value);
+      _div.fastModulo(_value, modulus, modInverse, result, binPoint);
     }
   }
 }
 
 void ExpEngine::reserveModExpBuffers(size_t modulusSize) {
-  _buffer3.reserve(modulusSize * 2);
-  _buffer4.reserve(modulusSize * 2);
+  _buffer.reserve(modulusSize * 2);
+  _value = _buffer.splice(modulusSize * 2);
 }

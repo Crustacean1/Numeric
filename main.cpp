@@ -2,9 +2,9 @@
 #include <iostream>
 #include <string>
 
-#include "numeric/BasicIo.h"
 #include "numeric/Buffer/BufferInstance.h"
 #include "numeric/Numeric.h"
+#include "numeric/ArithmFacade.h"
 #include "tester/logger.h"
 
 #include "tests/ArgumentGenerator/NumericGeneratorFactory.h"
@@ -28,11 +28,7 @@ int main(int argc, char **argv) {
     std::cout << "Found: " << testFiles.size() << " test files" << std::endl;
   }
 
-  KCrypt::CompEngine cmp;
-  KCrypt::AddEngine add(cmp);
-  KCrypt::IoEngine io(cmp, add);
-
-  NumericGeneratorFactory factory(io, add);
+  NumericGeneratorFactory factory(KCrypt::ArithmFacade::getInstance(0));
   Logger _logger(std::cout, std::cerr, 5);
   Tester<KCrypt::Numeric> tester(_logger, factory);
 

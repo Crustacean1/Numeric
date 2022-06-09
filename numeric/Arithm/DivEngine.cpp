@@ -1,4 +1,5 @@
 #include "DivEngine.h"
+#include "../ArithmFacade.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
 #include "MulEngine.h"
@@ -8,9 +9,9 @@
 
 using namespace KCrypt;
 
-DivEngine::DivEngine(CompEngine &cmp, AddEngine &add, MulEngine &mul,
-                     Buffer &buff1, Buffer &buff2)
-    : _cmp(cmp), _add(add), _mul(mul), _aDivBuffer(buff1), _bDivBuffer(buff2) {}
+DivEngine::DivEngine(ArithmFacade &arithm)
+    : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _mul(arithm.getMul()),
+      _aDivBuffer(arithm.getBuffer(1)), _bDivBuffer(arithm.getBuffer(2)) {}
 
 void DivEngine::div(const BufferView &a, const BufferView &b,
                     const BufferView &c) {
@@ -57,8 +58,6 @@ void DivEngine::div(const BufferView &a, const BufferView &b,
 void DivEngine::newtonDiv(const BufferView &dividend, const BufferView &inverse,
                           const BufferView &output, size_t invPrecision) {
 
-  IoEngine io(_cmp, _add);
-
   _aDivBuffer.reserve(inverse.size << 1);
   const BufferView &buff = _aDivBuffer.splice(inverse.size << 1);
 
@@ -104,7 +103,6 @@ size_t DivEngine::divApprox(const BufferView &divisor,
 size_t DivEngine::newtonInverse(const BufferView &divisor,
                                 const BufferView &inverse) {
 
-  IoEngine io(_cmp, _add);
 
   _aDivBuffer.reserve((inverse.size * 2));
   _bDivBuffer.reserve((inverse.size * 4));
@@ -164,10 +162,7 @@ void DivEngine::fastModulo(const BufferView &arg, const BufferView &modulus,
 
   // Temporary assert
   if (_cmp.greaterOrEqual(arg, modulus)) {
-    IoEngine io(_cmp, _add);
     std::cout << "Critical Error, invalid modulo operation for:" << std::endl;
-    std::cout << "Mod: " << io.toDecimal(modulus) << std::endl;
-    std::cout << "Arg: " << io.toDecimal(arg) << std::endl;
   }
 
   result.copy(arg);

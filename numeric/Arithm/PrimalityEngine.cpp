@@ -17,50 +17,61 @@ using namespace KCrypt;
 PrimalityEngine::PrimalityEngine(ArithmFacade &arithm)
     : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _mul(arithm.getMul()),
       _div(arithm.getDiv()), _exp(arithm.getExp()), _io(arithm.getIo()),
-      _modBuffer(arithm.getBuffer(5)), _modInvBuffer(arithm.getBuffer(6)),
-      _stumpBuffer(arithm.getBuffer(7)), _resultBuffer(arithm.getBuffer(8)),
-      _modView(_modBuffer), _modInvView(_modInvBuffer),
-      _resultView(_resultBuffer), _stumpView(_stumpBuffer) {}
+      _modulusBuffer(arithm.getBuffer(5)),
+      _modulusInverseBuffer(arithm.getBuffer(6)),
+      _mulResultBuffer(arithm.getBuffer(7)), _resultBuffer(arithm.getBuffer(8)),
+      _modulus(_modulusBuffer), _modulusInverse(_modulusInverseBuffer),
+      _result(_resultBuffer), _mulResult(_mulResultBuffer) {}
 
-bool PrimalityEngine::test(const BufferView &witness) {
-  _exp.fastModExp(witness, _stumpView, _modView, _modInvView, _binPoint,
-                  _resultView);
-  std::cout << "Mod exponentat_ion: " << _io.toDecimal(witness) << "\t"
-            << _io.toDecimal(_stumpView) << "\t" << _io.toDecimal(_modView)
-            << "\t" << _io.toDecimal(_resultView) << std::endl;
-  if (_cmp.equal(_resultView, BufferView::BaseInt(1))) {
+bool PrimalityEngine::test(Numeric &witness) {
+
+  auto &witnessBuffer = witness.getBuffer();
+
+  std::cout<<"Base: "<<_io.toDecimal(_mulResult)<<std::endl;
+  _exp.fastModExp(witnessBuffer, _mulResult.splice(_result.size), _modulus,
+                  _modulusInverse, _binPoint, _result);
+
+  std::cout << "Mod exponentation: " << _io.toDecimal(witnessBuffer) << "\t"
+            << _io.toDecimal(_modulus) << "\t" << _io.toDecimal(_result)
+            << std::endl;
+
+  if (_cmp.equal(_mulResult, BufferView::BaseInt(1))) {
     return true;
   }
-  _add.sub(_modView, 1);
+
   for (size_t i = 0; i < _powerOf2; ++i) {
-    std::cout << "Shift mod: " << _io.toDecimal(_resultView) << std::endl;
-    if (_cmp.equal(_resultView, _modView)) {
-      _add.add(witness, 1);
+    std::cout << "Shift mod: " << _io.toDecimal(_result) << std::endl;
+    _add.add(_result, 1);
+    if (_cmp.equal(_result, _modulus)) {
       return true;
     }
-    _add.leftShift(_resultView, _resultView, 1);
+    _add.sub(_result,1);
+    _mul.kar(_result, _result, _mulResult);
+    std::cout << "Mul mod: " << _io.toDecimal(_mulResult) << std::endl;
+    _div.fastModulo(_mulResult, _modulus, _modulusInverse, _result, _binPoint);
   }
-  _add.add(_modView, 1);
   return false;
 }
 
-void PrimalityEngine::setSuspect(BufferView &buffer) {
-  _modBuffer.reserve(buffer.size);
-  _stumpBuffer.reserve(buffer.size);
-  _modInvBuffer.reserve(buffer.size);
-  _resultBuffer.reserve(buffer.size);
+void PrimalityEngine::setSuspect(Numeric &buffer) {
+  size_t baseSize = buffer.size();
 
-  _modView = _modBuffer.splice(buffer.size);
-  _modInvView = _modInvBuffer.splice(buffer.size);
-  _stumpView = _stumpBuffer.splice(buffer.size);
-  _resultView = _resultBuffer.splice(buffer.size);
+  _modulusBuffer.reserve(baseSize);
+  _mulResultBuffer.reserve(baseSize * 2);
+  _modulusInverseBuffer.reserve(baseSize * 2);
+  _resultBuffer.reserve(baseSize);
 
-  _modView.copy(buffer);
-  _stumpView.copy(buffer);
+  _modulus = _modulusBuffer.splice(baseSize);
+  _modulusInverse = _modulusInverseBuffer.splice(baseSize * 2);
+  _mulResult = _mulResultBuffer.splice(baseSize * 2);
+  _result = _resultBuffer.splice(baseSize);
 
-  _add.sub(_stumpView, 1);
-  _powerOf2 = _cmp.rightOffset(_stumpView);
-  _add.rightShift(_modView, _stumpView, _powerOf2);
+  _modulus.copy(buffer.getBuffer());
+  _mulResult.copy(buffer.getBuffer());
 
-  _binPoint = _div.newtonInverse(_modView, _modInvView);
+  _add.sub(_mulResult, 1);
+  _powerOf2 = _cmp.rightOffset(_mulResult);
+  _add.rightShift(_modulus, _mulResult, _powerOf2);
+
+  _binPoint = _div.newtonInverse(_modulus, _modulusInverse);
 }

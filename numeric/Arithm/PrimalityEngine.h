@@ -7,6 +7,7 @@ namespace KCrypt {
 
 class Buffer;
 class BufferView;
+class Numeric;
 
 class ExpEngine;
 class CompEngine;
@@ -27,21 +28,21 @@ class PrimalityEngine {
   size_t _binPoint;
   size_t _powerOf2;
 
-  Buffer &_modBuffer;
-  Buffer &_modInvBuffer;
-  Buffer &_stumpBuffer;
+  Buffer &_modulusBuffer;
+  Buffer &_modulusInverseBuffer;
+  Buffer &_mulResultBuffer;
   Buffer &_resultBuffer;
 
-  BufferView _modInvView;
-  BufferView _modView;
-  BufferView _stumpView;
-  BufferView _resultView;
+  BufferView _modulusInverse;
+  BufferView _modulus;
+  BufferView _mulResult;
+  BufferView _result;
 
 public:
   PrimalityEngine(ArithmFacade &arithm);
 
-  bool test(const BufferView &witness);
-  void setSuspect(BufferView &buffer);
+  bool test(Numeric &witness);
+  void setSuspect(Numeric &buffer);
 };
 } // namespace KCrypt
 
