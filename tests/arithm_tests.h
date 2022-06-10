@@ -34,12 +34,16 @@ bool nastyDivFloor(Integer &a, Integer &b);
 
 bool mulDivReciprocity(Integer &a, Integer &b);
 
+bool smallModulo(Integer &source, Integer &modulo, Integer &result);
+
 bool modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
                       Integer &expected);
 
 bool extGcdValue(Integer &a, Integer &b, Integer &d);
 
-bool millerRabin(Integer & suspect, Integer & witness);
+bool millerRabin(Integer &suspect, Integer &witness);
+
+bool keyGeneration(Integer & size);
 
 }; // namespace Tests
 

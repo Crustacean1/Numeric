@@ -24,8 +24,12 @@ void Tests::setUpAllTests(Tester<Integer> &tester) {
 
   tester.addTest("ModularExponentiationValueTest", modExponentValue);
 
+  tester.addTest("SmallModuloValueTest", smallModulo);
+
   tester.addTest("GcdValueTest", extGcdValue);
   tester.addTest("TestMillerRabinValue", millerRabin);
+
+  tester.addTest("RsaKeyGeneration",keyGeneration);
 }
 
 bool Tests::decimalConversion(Integer &a) {
@@ -184,6 +188,16 @@ bool Tests::nastyDivFloor(Integer &a, Integer &b) {
 bool Tests::modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
                              Integer &expected) {
   Integer d(modulo.modExp(base, exponent));
+  std::cout<<"Var sizes: "<<std::endl;
+  std::cout<<"base: "<<base.size()<<std::endl;
+  std::cout<<"exponent: "<<exponent.size()<<std::endl;
+  std::cout<<"modulo: "<<modulo.size()<<std::endl;
+  std::cout<<"expected: "<<expected.size()<<std::endl;
+  std::cout<<"d: "<<d.size()<<std::endl;
+
+  std::cout<<"BASE: "<<base<<"\nEXP: "<<exponent<<"\nMOD: "<<modulo<<"\nEXPECTED: "<<expected<<std::endl;
+  std::cout<<"MOD_EXP_VALUE: "<<d<<std::endl;
+
   if (d == expected) {
     return true;
   }
@@ -224,12 +238,27 @@ bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c) {
 
 bool Tests::millerRabin(Integer &suspect, Integer &witness) {
   KCrypt::PrimalityEngine primeTester(KCrypt::ArithmFacade::getInstance(0));
-  std::cout << "Sus: " << suspect;
-  std::cout << " Wit: " << witness << std::endl;
 
-  primeTester.setSuspect(suspect);
-  bool result = primeTester.test(witness);
-  std::cout<<"Result: "<<result<<std::endl;
+  primeTester.setSuspect(suspect.getBuffer());
+  bool result = primeTester.test(witness.getBuffer());
 
   return result;
+}
+
+bool Tests::smallModulo(Integer &source, Integer &modulo, Integer &result) {
+  size_t smallModulo = modulo.getBuffer().data[0];
+
+  auto testResult = KCrypt::ArithmFacade::getInstance(0).getDiv().modulo(
+      source.getBuffer(), smallModulo);
+  std::cout << "Test result: " << testResult << std::endl;
+  return testResult == result.getBuffer().data[0];
+}
+
+bool Tests::keyGeneration(Integer &size) {
+  size_t keySize = size.getBuffer().data[0];
+  std::cout<<"key size: "<<keySize<<std::endl;
+  auto &rsa = KCrypt::ArithmFacade::getInstance(0).getRsa();
+  Integer a, b, c;
+  rsa.generateKey(keySize, a.getBuffer(), b.getBuffer(), c.getBuffer());
+  return false;
 }

@@ -43,5 +43,6 @@ int main(int argc, char **argv) {
     tester.readStream(file);
     result |= tester.execute();
   }
+  KCrypt::ArithmFacade::releaseInstance(0);
   return result;
 }

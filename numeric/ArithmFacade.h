@@ -8,7 +8,8 @@
 #include "Arithm/GcdEngine.h"
 #include "Arithm/MulEngine.h"
 #include "Arithm/PrimalityEngine.h"
-#include "BasicIo.h"
+#include "Arithm/RsaEngine.h"
+#include "Arithm/IoEngine.h"
 
 #include "Buffer/BufferInstance.h"
 
@@ -26,6 +27,7 @@ class ArithmFacade {
   ExpEngine _exp;
   GcdEngine _gcd;
   PrimalityEngine _pri;
+  RsaEngine _rsa;
 
   static ArithmFacade *_instance;
 
@@ -35,6 +37,7 @@ public:
   ArithmFacade(const ArithmFacade &) = delete;
 
   static ArithmFacade &getInstance(size_t threadId);
+  static void releaseInstance(size_t threadId);
 
   Buffer &getBuffer(size_t bufferNo);
   AddEngine &getAdd();
@@ -45,6 +48,7 @@ public:
   GcdEngine &getGcd();
   IoEngine &getIo();
   PrimalityEngine &getPri();
+  RsaEngine &getRsa();
 
   bool isSigned(const BufferView &view);
   void abs(const BufferView &view);

@@ -1,5 +1,5 @@
 #include "PrimalityEngine.h"
-#include "../BasicIo.h"
+#include "IoEngine.h"
 #include "../Buffer/Buffer.h"
 #include "../Buffer/BufferView.h"
 #include "../Numeric.h"
@@ -23,38 +23,31 @@ PrimalityEngine::PrimalityEngine(ArithmFacade &arithm)
       _modulus(_modulusBuffer), _modulusInverse(_modulusInverseBuffer),
       _result(_resultBuffer), _mulResult(_mulResultBuffer) {}
 
-bool PrimalityEngine::test(Numeric &witness) {
+bool PrimalityEngine::test(const BufferView &witness) {
 
-  auto &witnessBuffer = witness.getBuffer();
-
-  std::cout<<"Base: "<<_io.toDecimal(_mulResult)<<std::endl;
-  _exp.fastModExp(witnessBuffer, _mulResult.splice(_result.size), _modulus,
+  _exp.fastModExp(witness, _mulResult.splice(_result.size), _modulus,
                   _modulusInverse, _binPoint, _result);
 
-  std::cout << "Mod exponentation: " << _io.toDecimal(witnessBuffer) << "\t"
-            << _io.toDecimal(_modulus) << "\t" << _io.toDecimal(_result)
-            << std::endl;
+  //std::cout<<"RESULT: "<<_io.toDecimal(_result)<<std::endl;
 
-  if (_cmp.equal(_mulResult, BufferView::BaseInt(1))) {
+  if (_cmp.equal(_result, BufferView::BaseInt(1))) {
     return true;
   }
 
   for (size_t i = 0; i < _powerOf2; ++i) {
-    std::cout << "Shift mod: " << _io.toDecimal(_result) << std::endl;
     _add.add(_result, 1);
     if (_cmp.equal(_result, _modulus)) {
       return true;
     }
-    _add.sub(_result,1);
+    _add.sub(_result, 1);
     _mul.kar(_result, _result, _mulResult);
-    std::cout << "Mul mod: " << _io.toDecimal(_mulResult) << std::endl;
     _div.fastModulo(_mulResult, _modulus, _modulusInverse, _result, _binPoint);
   }
   return false;
 }
 
-void PrimalityEngine::setSuspect(Numeric &buffer) {
-  size_t baseSize = buffer.size();
+void PrimalityEngine::setSuspect(const BufferView &buffer) {
+  size_t baseSize = buffer.size;
 
   _modulusBuffer.reserve(baseSize);
   _mulResultBuffer.reserve(baseSize * 2);
@@ -66,8 +59,8 @@ void PrimalityEngine::setSuspect(Numeric &buffer) {
   _mulResult = _mulResultBuffer.splice(baseSize * 2);
   _result = _resultBuffer.splice(baseSize);
 
-  _modulus.copy(buffer.getBuffer());
-  _mulResult.copy(buffer.getBuffer());
+  _modulus.copy(buffer);
+  _mulResult.copy(buffer);
 
   _add.sub(_mulResult, 1);
   _powerOf2 = _cmp.rightOffset(_mulResult);

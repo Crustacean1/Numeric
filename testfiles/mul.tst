@@ -36,3 +36,7 @@ MultiplicationDivisionSelfTest{
   case(100) : unsigned(32) unsigned(32);
 }
 
+SmallModuloValueTest{
+  assert: value(871584379632187569843216329857319875631874) value(432652) value(269338);
+}
+

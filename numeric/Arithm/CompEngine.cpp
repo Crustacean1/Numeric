@@ -148,8 +148,8 @@ size_t CompEngine::leftOffset(const BufferView &a) const {
   int i, j;
   for (i = a.size - 1; i > -1 && a.data[i] == 0; --i) {
   }
-  for (j = BufferView::WordSize - 1; j > -1 && ((a.data[i] >> j) & 1) == 0;
-       --j) {
+  for (j = BufferView::WordSize - 1;
+       j > -1 && i >= 0 && ((a.data[i] >> j) & 1) == 0; --j) {
   }
   return (a.size - i - 1) * BufferView::WordSize +
          (BufferView::WordSize - j - 1);

@@ -4,9 +4,6 @@
 #include "CompEngine.h"
 #include "MulEngine.h"
 
-#include "../BasicIo.h"
-#include <iostream>
-
 using namespace KCrypt;
 
 DivEngine::DivEngine(ArithmFacade &arithm)
@@ -103,7 +100,6 @@ size_t DivEngine::divApprox(const BufferView &divisor,
 size_t DivEngine::newtonInverse(const BufferView &divisor,
                                 const BufferView &inverse) {
 
-
   _aDivBuffer.reserve((inverse.size * 2));
   _bDivBuffer.reserve((inverse.size * 4));
 
@@ -160,10 +156,18 @@ void DivEngine::fastModulo(const BufferView &arg, const BufferView &modulus,
   _mul.kar(quotient, modulus, subtractor);
   _add.subFromLeft(arg, subtractor);
 
-  // Temporary assert
-  if (_cmp.greaterOrEqual(arg, modulus)) {
-    std::cout << "Critical Error, invalid modulo operation for:" << std::endl;
-  }
-
   result.copy(arg);
+}
+
+BufferView::BaseInt DivEngine::modulo(const BufferView &view,
+                                      BufferView::BaseInt modulus) {
+  BufferView::BufferInt result = 0;
+  BufferView::BufferInt modulusBuffer = modulus;
+
+  for (int i = view.size - 1; i >= 0; --i) {
+    result <<= BufferView::WordSize;
+    result += view.data[i];
+    result %= modulusBuffer;
+  }
+  return result;
 }

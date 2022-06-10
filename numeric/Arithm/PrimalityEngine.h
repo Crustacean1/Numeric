@@ -41,8 +41,8 @@ class PrimalityEngine {
 public:
   PrimalityEngine(ArithmFacade &arithm);
 
-  bool test(Numeric &witness);
-  void setSuspect(Numeric &buffer);
+  bool test(const BufferView &witness);
+  void setSuspect(const BufferView &buffer);
 };
 } // namespace KCrypt
 

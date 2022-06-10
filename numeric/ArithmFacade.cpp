@@ -13,9 +13,15 @@ ArithmFacade &ArithmFacade::getInstance(size_t threadId) {
   return *_instance;
 }
 
+void ArithmFacade::releaseInstance(size_t threadId){
+  if(_instance != nullptr){
+    delete _instance;
+  }
+}
+
 ArithmFacade::ArithmFacade()
-    : _buffInst(9), _cmp(), _add(*this), _mul(*this), _io(*this), _div(*this),
-      _exp(*this), _gcd(*this), _pri(*this) {}
+    : _buffInst(10), _cmp(), _add(*this), _mul(*this), _io(*this), _div(*this),
+      _exp(*this), _gcd(*this), _pri(*this), _rsa(*this) {}
 
 bool ArithmFacade::isSigned(const BufferView &view) {
   return _cmp.isSigned(view);
@@ -129,3 +135,4 @@ ExpEngine &ArithmFacade::getExp() { return _exp; }
 GcdEngine &ArithmFacade::getGcd() { return _gcd; }
 IoEngine &ArithmFacade::getIo() { return _io; }
 PrimalityEngine &ArithmFacade::getPri() { return _pri; }
+RsaEngine &ArithmFacade::getRsa() { return _rsa; }

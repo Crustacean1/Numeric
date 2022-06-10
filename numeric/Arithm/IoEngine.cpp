@@ -3,10 +3,10 @@
 #include <ostream>
 #include <string>
 
-#include "Arithm/AddEngine.h"
-#include "Arithm/CompEngine.h"
-#include "ArithmFacade.h"
-#include "BasicIo.h"
+#include "../ArithmFacade.h"
+#include "AddEngine.h"
+#include "CompEngine.h"
+#include "IoEngine.h"
 
 namespace KCrypt {
 
@@ -59,7 +59,7 @@ void IoEngine::toComplement(std::string str, const BufferView &view) const {
 
 std::string IoEngine::toDecimal(const BufferView &buffer) const {
   bool sign = _cmp.isSigned(buffer);
-  // sign = false;
+  sign = false;
 
   size_t outputSize = binSizeInDecimal(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];

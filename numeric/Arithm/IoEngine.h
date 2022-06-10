@@ -5,8 +5,8 @@
 #include <random>
 #include <string>
 
-#include "Buffer/Buffer.h"
-#include "Buffer/BufferView.h"
+#include "../Buffer/Buffer.h"
+#include "../Buffer/BufferView.h"
 
 class Logger;
 

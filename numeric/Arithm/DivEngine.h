@@ -33,6 +33,9 @@ public:
                   const BufferView &modInverse, const BufferView &result,
                   size_t precision);
 
+  BufferView::BaseInt modulo(const BufferView &arg,
+                             BufferView::BaseInt modulus);
+
   void newtonDiv(const BufferView &dividend, const BufferView &inverse,
                  const BufferView &target, size_t precision);
 
