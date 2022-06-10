@@ -29,7 +29,9 @@ void Tests::setUpAllTests(Tester<Integer> &tester) {
   tester.addTest("GcdValueTest", extGcdValue);
   tester.addTest("TestMillerRabinValue", millerRabin);
 
-  tester.addTest("RsaKeyGeneration",keyGeneration);
+  tester.addTest("RsaKeyGenerationTest", keyGeneration);
+
+  tester.addTest("RsaReversalSelfTest", isRsaReversible);
 }
 
 bool Tests::decimalConversion(Integer &a) {
@@ -188,15 +190,16 @@ bool Tests::nastyDivFloor(Integer &a, Integer &b) {
 bool Tests::modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
                              Integer &expected) {
   Integer d(modulo.modExp(base, exponent));
-  std::cout<<"Var sizes: "<<std::endl;
-  std::cout<<"base: "<<base.size()<<std::endl;
-  std::cout<<"exponent: "<<exponent.size()<<std::endl;
-  std::cout<<"modulo: "<<modulo.size()<<std::endl;
-  std::cout<<"expected: "<<expected.size()<<std::endl;
-  std::cout<<"d: "<<d.size()<<std::endl;
+  std::cout << "Var sizes: " << std::endl;
+  std::cout << "base: " << base.size() << std::endl;
+  std::cout << "exponent: " << exponent.size() << std::endl;
+  std::cout << "modulo: " << modulo.size() << std::endl;
+  std::cout << "expected: " << expected.size() << std::endl;
+  std::cout << "d: " << d.size() << std::endl;
 
-  std::cout<<"BASE: "<<base<<"\nEXP: "<<exponent<<"\nMOD: "<<modulo<<"\nEXPECTED: "<<expected<<std::endl;
-  std::cout<<"MOD_EXP_VALUE: "<<d<<std::endl;
+  std::cout << "BASE: " << base << "\nEXP: " << exponent << "\nMOD: " << modulo
+            << "\nEXPECTED: " << expected << std::endl;
+  std::cout << "MOD_EXP_VALUE: " << d << std::endl;
 
   if (d == expected) {
     return true;
@@ -256,9 +259,30 @@ bool Tests::smallModulo(Integer &source, Integer &modulo, Integer &result) {
 
 bool Tests::keyGeneration(Integer &size) {
   size_t keySize = size.getBuffer().data[0];
-  std::cout<<"key size: "<<keySize<<std::endl;
+  std::cout << "key size: " << keySize << std::endl;
   auto &rsa = KCrypt::ArithmFacade::getInstance(0).getRsa();
   Integer a, b, c;
   rsa.generateKey(keySize, a.getBuffer(), b.getBuffer(), c.getBuffer());
   return false;
+}
+
+bool Tests::isRsaReversible(Integer &size, Integer &randomWord) {
+  size_t keySize = size.getBuffer().data[0];
+  auto &rsa = KCrypt::ArithmFacade::getInstance(0).getRsa();
+  Integer priv, pub, mod;
+
+  rsa.generateKey(keySize, pub.getBuffer(), priv.getBuffer(), mod.getBuffer());
+
+  rsa.setKey(priv.getBuffer(), mod.getBuffer());
+
+  Integer d(keySize);
+  Integer e(keySize);
+
+  rsa.apply(randomWord.getBuffer(), d.getBuffer());
+
+  rsa.setKey(pub.getBuffer(), mod.getBuffer());
+
+  rsa.apply(d.getBuffer(), e.getBuffer());
+
+  return (e == randomWord);
 }

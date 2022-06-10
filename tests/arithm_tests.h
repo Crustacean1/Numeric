@@ -45,6 +45,8 @@ bool millerRabin(Integer &suspect, Integer &witness);
 
 bool keyGeneration(Integer & size);
 
+bool isRsaReversible(Integer & keySize, Integer & randomWord);
+
 }; // namespace Tests
 
 #endif /*TESTS*/

@@ -14,8 +14,8 @@ using namespace KCrypt;
 RsaEngine::RsaEngine(ArithmFacade &arithm)
     : _io(arithm.getIo()), _cmp(arithm.getCmp()), _add(arithm.getAdd()),
       _mul(arithm.getMul()), _div(arithm.getDiv()), _exp(arithm.getExp()),
-      _gcd(arithm.getGcd()), _pri(arithm.getPri()),
-      _witnessBuffer(arithm.getBuffer(9)), _witness(_witnessBuffer),
+      _gcd(arithm.getGcd()), _pri(arithm.getPri()), _witness(_buffers[0]),
+      _keyExp(_buffers[1]), _keyMod(_buffers[2]), _keyModInv(_buffers[3]),
       _certainityFactor(1),
       _engine(3214), _primes{2,  3,  5,  7,  11, 13, 17, 19, 23, 29, 31, 37,
                              41, 43, 47, 53, 59, 61, 71, 73, 79, 83, 89, 97} {}
@@ -45,36 +45,90 @@ void RsaEngine::generatePrime(const BufferView &prime) {
     _io.randomize(prime, _engine, IoEngine::Sign::Random);
   }
   prime.data[0] |= BufferView::BaseInt(1);
-  while (!isPrime(prime)) {
+  std::cout<<"Starting search from: "<<_io.toDecimal(prime)<<std::endl;
+  for (int i = 0;!isPrime(prime);++i) {
     _add.add(prime, 2);
   }
+  std::cout<<"Found: "<<_io.toDecimal(prime)<<std::endl;
 }
 
+// Refactor to accept 2 primes instead for better structuring of parallelism
 void RsaEngine::generateKey(size_t keyLength, Buffer &exp1, Buffer &exp2,
                             Buffer &modulus) {
   exp1.reserve(keyLength);
   exp2.reserve(keyLength);
   modulus.reserve(keyLength);
 
-  _witnessBuffer.reserve(keyLength / 2);
-  _witness = _witnessBuffer.splice(keyLength / 2);
+  resizePrimeBuffers(keyLength);
 
   Buffer prime1(keyLength / 2);
   Buffer prime2(keyLength / 2);
+
   Buffer invariantExponent(keyLength);
 
   generatePrime(prime1);
   generatePrime(prime2);
 
-  _mul.kar(prime1, prime2, modulus);
+  computeKeyModulus(prime1, prime2, modulus);
+  computePublicKeyExp(exp1);
+  computeExponentInvariant(prime1, prime2, invariantExponent);
+  computePrivateKeyExp(exp1, invariantExponent, exp2);
+}
 
+void RsaEngine::setKey(const BufferView &exp, const BufferView &modulus) {
+  resizeKeyBuffers(modulus.size);
+
+  _keyExp.copy(exp);
+  _keyMod.copy(modulus);
+  _keyModPrec = _div.newtonInverse(_keyMod, _keyModInv);
+}
+
+void RsaEngine::apply(const BufferView &input, const BufferView &output) {
+  _exp.fastModExp(input, _keyExp, _keyMod, _keyModInv, _keyModPrec, output);
+}
+
+void RsaEngine::computePublicKeyExp(const BufferView &buffer) {
+  buffer.data[0] = 1;
+  buffer.data[0] <<= 16;
+  buffer.data[0] += 1;
+}
+
+void RsaEngine::computeKeyModulus(const BufferView &prime1,
+                                  const BufferView &prime2,
+                                  const BufferView &modulus) {
+  _mul.kar(prime1, prime2, modulus);
+}
+
+void RsaEngine::computeExponentInvariant(const BufferView &prime1,
+                                         const BufferView &prime2,
+                                         const BufferView &inv) {
   _add.sub(prime1, 1);
   _add.sub(prime2, 1);
-  _mul.kar(prime1, prime2, invariantExponent);
+  _mul.kar(prime1, prime2, inv);
 
-  size_t invariantOffset = _cmp.rightOffset(invariantExponent);
-  _add.rightShift(invariantExponent, invariantExponent, invariantOffset);
+  size_t invariantOffset = _cmp.rightOffset(inv);
+  _add.rightShift(inv, inv, invariantOffset);
+}
 
+void RsaEngine::computePrivateKeyExp(const BufferView &pubExp,
+                                     const BufferView &invExp,
+                                     const BufferView &key) {
+  Buffer discard(invExp.size);
+  _gcd.extendedGcd(invExp, pubExp, discard, key);
+}
+
+void RsaEngine::resizeKeyBuffers(size_t keyLength) {
+  _buffers[1].resize(keyLength);
+  _buffers[2].resize(keyLength);
+  _buffers[3].resize(keyLength * 2); // May be too strict...
+  _keyExp = _buffers[1].splice(keyLength);
+  _keyMod = _buffers[2].splice(keyLength);
+  _keyModInv = _buffers[3].splice(keyLength * 2);
+}
+
+void RsaEngine::resizePrimeBuffers(size_t keyLength) {
+  _buffers[0].resize(keyLength);
+  _witness = _buffers[0].splice(keyLength);
 }
 
 RsaEngine::~RsaEngine() {}

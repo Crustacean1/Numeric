@@ -26,28 +26,50 @@ class RsaEngine {
   float _certainityFactor;
 
   CompEngine &_cmp;
-  AddEngine & _add;
-  MulEngine & _mul;
-  DivEngine & _div;
+  AddEngine &_add;
+  MulEngine &_mul;
+  DivEngine &_div;
   ExpEngine &_exp;
   GcdEngine &_gcd;
   IoEngine &_io;
   PrimalityEngine &_pri;
 
-  Buffer & _witnessBuffer;
-  BufferView _witness;
+  Buffer _buffers[4];
 
-  bool isPrime(const BufferView & prime);
+  BufferView _witness;
+  BufferView _keyExp;
+  BufferView _keyMod;
+  BufferView _keyModInv;
+
+  size_t _keyModPrec;
+
+  bool isPrime(const BufferView &prime);
   void generatePrime(const BufferView &prime);
+
+  void computeKeyModulus(const BufferView &prime1, const BufferView &prime2,
+                         const BufferView &modulus);
+
+  void computeExponentInvariant(const BufferView &fct1, const BufferView &fct2,
+                                const BufferView &inv);
+
+  void computePrivateKeyExp(const BufferView &privExp, const BufferView &invExp,
+                            const BufferView &key);
+
+  void computePublicKeyExp(const BufferView &buffer);
+
+  void resizePrimeBuffers(size_t primeSize);
+  void resizeKeyBuffers(size_t keySize);
 
 public:
   RsaEngine(ArithmFacade &arithm);
 
   void generateKey(size_t keyLength, Buffer &exp1, Buffer &exp2, Buffer &mod);
 
-  // It must be ensured that input is less then mod, see: block padding
-  void apply(const BufferView &input, const BufferView &exp,
-             const BufferView &mod, const BufferView &output);
+  void setKey(const BufferView &exp, const BufferView &modulus);
+
+  // Input must be padded beforehand: [data][random 8 bits][empty 8 bits]
+  void apply(const BufferView &input, const BufferView &output);
+
   ~RsaEngine();
 };
 
