@@ -71,6 +71,10 @@ void RsaEngine::generateKey(size_t keyLength, Buffer &exp1, Buffer &exp2,
   _add.sub(prime1, 1);
   _add.sub(prime2, 1);
   _mul.kar(prime1, prime2, invariantExponent);
+
+  size_t invariantOffset = _cmp.rightOffset(invariantExponent);
+  _add.rightShift(invariantExponent, invariantExponent, invariantOffset);
+
 }
 
 RsaEngine::~RsaEngine() {}
