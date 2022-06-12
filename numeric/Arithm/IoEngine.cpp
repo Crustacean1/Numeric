@@ -59,7 +59,7 @@ void IoEngine::toComplement(std::string str, const BufferView &view) const {
 
 std::string IoEngine::toDecimal(const BufferView &buffer) const {
   bool sign = _cmp.isSigned(buffer);
-  sign = false;
+  //sign = false;
 
   size_t outputSize = binSizeInDecimal(buffer.size);
   unsigned char *output = new unsigned char[outputSize + 1];

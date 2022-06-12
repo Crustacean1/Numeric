@@ -1,6 +1,3 @@
-RsaKeyGenerationTest{
-  assert: value(32);
-}
 RsaReversalSelfTest{
-  assert: value(4) value(21);
+  case(100): value(64) unsigned(4);
 }

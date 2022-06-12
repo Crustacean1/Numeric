@@ -1,18 +1,25 @@
 #include "GcdEngine.h"
 #include "../ArithmFacade.h"
-#include "IoEngine.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
+#include "IoEngine.h"
 
 #include <iostream>
 
 using namespace KCrypt;
 
 GcdEngine::GcdEngine(ArithmFacade &arithm)
-    : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _a1(arithm.getBuffer(0)),
-      _b1(arithm.getBuffer(1)), _a2(arithm.getBuffer(2)),
-      _b2(arithm.getBuffer(3)), _corr1(arithm.getBuffer(4)),
-      _corr2(arithm.getBuffer(5)), _aCorrection(_corr1), _bCorrection(_corr2) {}
+    : _io(arithm.getIo()), _cmp(arithm.getCmp()), _add(arithm.getAdd()),
+      _a1(arithm.getBuffer(0)), _b1(arithm.getBuffer(1)),
+      _a2(arithm.getBuffer(2)), _b2(arithm.getBuffer(3)),
+      _corr1(arithm.getBuffer(4)), _corr2(arithm.getBuffer(5)),
+      _aCorrection(_corr1), _bCorrection(_corr2) {}
+
+void GcdEngine::gcdDebug(GcdExtension &ext) {
+  std::cout << "value: " << _io.toDecimal(ext.value)
+            << "\tA: " << _io.toDecimal(ext.a)
+            << "\tB: " << _io.toDecimal(ext.b) << std::endl;
+}
 
 void GcdEngine::extendedGcd(const BufferView &a, const BufferView &b,
                             const BufferView &aCoeff,
@@ -42,8 +49,8 @@ void GcdEngine::extendedGcd(const BufferView &a, const BufferView &b,
 void GcdEngine::computeResult(GcdExtension &ext, size_t offset1, size_t offset2,
                               const BufferView &a, const BufferView &b) {
 
-  reduceOneExtension(ext, ext.a, offset1 - offset2);
-  reduceOneExtension(ext, ext.b, offset2 - offset1);
+  reduceOneExtension(ext, ext.a, _aCorrection, offset1 - offset2);
+  reduceOneExtension(ext, ext.b, _bCorrection, offset2 - offset1);
 
   a.clear();
   b.clear();
@@ -53,13 +60,16 @@ void GcdEngine::computeResult(GcdExtension &ext, size_t offset1, size_t offset2,
 }
 
 void GcdEngine::reduceOneExtension(GcdExtension &ext,
-                                   const BufferView &extToHalve, int offset) {
+                                   const BufferView &extToHalve,
+                                   const BufferView &correctionToDouble,
+                                   int offset) {
   while (offset > 0) {
-    --offset;
     if (!isEven(extToHalve)) {
       makeExtensionsEven(ext);
     }
     _add.rightShift(extToHalve, extToHalve, 1);
+    _add.leftShift(correctionToDouble, correctionToDouble, 1);
+    --offset;
   }
 }
 

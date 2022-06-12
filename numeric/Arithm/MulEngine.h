@@ -20,8 +20,7 @@ class MulEngine {
   Buffer &karBuffer;
 
   void karIt(const BufferView &factorA, const BufferView &factorB,
-             const BufferView &product, const BufferView &buffer,
-             size_t level = 0);
+             const BufferView &product, const BufferView &buffer);
 
 public:
   MulEngine(ArithmFacade &arithm);

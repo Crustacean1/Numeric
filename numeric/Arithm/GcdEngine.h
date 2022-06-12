@@ -8,6 +8,7 @@ namespace KCrypt {
 class AddEngine;
 class CompEngine;
 class ArithmFacade;
+class IoEngine;
 
 class GcdEngine {
   struct GcdExtension {
@@ -45,12 +46,13 @@ class GcdEngine {
   void computeResult(GcdExtension &ext, size_t offset1, size_t offset2,
                      const BufferView &a, const BufferView &b);
   void reduceOneExtension(GcdExtension &ext, const BufferView &extToHalve,
-                          int offset);
+                          const BufferView &correctionToDouble, int offset);
 
   bool isEven(const BufferView &ext);
 
   CompEngine &_cmp;
   AddEngine &_add;
+  IoEngine &_io;
 
 public:
   GcdEngine(ArithmFacade &arithm);

@@ -50,7 +50,7 @@ void MulEngine::kar(const BufferView &a, const BufferView &b,
 }
 
 void MulEngine::karIt(const BufferView &a, const BufferView &b,
-                      const BufferView &c, const BufferView &d, size_t level) {
+                      const BufferView &c, const BufferView &d) {
 
   size_t pivot = (a.size >> 1);
   size_t majorPivot = a.size;
@@ -82,8 +82,8 @@ void MulEngine::karIt(const BufferView &a, const BufferView &b,
   const BufferView &yBuffer = d.splice(majorPivot, majorPivot + 1);
   const BufferView &rBuffer = d.splice(bufferPivot, bufferPivot);
 
-  karIt(la, lb, lc, rBuffer, level + 1);
-  karIt(ha, hb, hc, rBuffer, level + 1);
+  karIt(la, lb, lc, rBuffer);
+  karIt(ha, hb, hc, rBuffer);
 
   lBuffer.copy(ha);
   _adder.subFromLeft(lBuffer, la);
@@ -100,7 +100,7 @@ void MulEngine::karIt(const BufferView &a, const BufferView &b,
     _adder.invert(lBuffer);
   }
 
-  karIt(lBuffer, hBuffer, xBuffer, rBuffer, level + 1);
+  karIt(lBuffer, hBuffer, xBuffer, rBuffer);
 
   yBuffer.data[yBuffer.size - 1] = 0;
 
