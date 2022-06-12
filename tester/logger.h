@@ -25,7 +25,6 @@ public:
   template <typename... Q> void logError(unsigned char verbosity, Q... q);
   template <typename... Q> void success(unsigned char verbosity, Q... q);
   template <typename... Q> void fail(unsigned char verbosity, Q... q);
-  template <typename T> void progress(T current, T total);
 };
 
 template <typename... Q>
@@ -54,15 +53,12 @@ template <typename... Q> void Logger::logInfo(unsigned char verbosity, Q... q) {
   newlineLog(_infoStream, verbosity, "[INFO]: ", std::forward<Q>(q)...);
 }
 template <typename... Q> void Logger::success(unsigned char verbosity, Q... q) {
-  newlineLog(_infoStream, verbosity, colorString("passed", 102),
+  newlineLog(_infoStream, verbosity, colorString("[PASSED]", 102),
              std::forward<Q>(q)...);
 }
 template <typename... Q> void Logger::fail(unsigned char verbosity, Q... q) {
-  newlineLog(_infoStream, verbosity, colorString("fail", 101),
+  newlineLog(_infoStream, verbosity, colorString("[FAILED]", 101),
              std::forward<Q>(q)...);
-}
-template <typename T> void Logger::progress(T current, T total) {
-  flushLog(_infoStream, 0, current, " / ", total, "\r");
 }
 
 #endif /*LOGGER*/

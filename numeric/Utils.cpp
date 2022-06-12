@@ -1,10 +1,10 @@
-#include "utils.h"
+#include "Utils.h"
 
-size_t KUtils::min(size_t a,size_t b){
+size_t K::min(size_t a,size_t b){
   auto comp = a<b;
   return comp*a + (!comp)*b;
 }
-size_t KUtils::max(size_t a,size_t b){
+size_t K::max(size_t a,size_t b){
   auto comp = a>b;
   return comp*a + (!comp)*b;
 }

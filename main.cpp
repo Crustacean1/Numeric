@@ -2,47 +2,47 @@
 #include <iostream>
 #include <string>
 
-#include "numeric/basicio.h"
-#include "numeric/numeric.h"
+#include "numeric/Buffer/BufferInstance.h"
+#include "numeric/Numeric.h"
+#include "numeric/ArithmFacade.h"
 #include "tester/logger.h"
 
-#include "tester/tester.h"
+#include "tests/ArgumentGenerator/NumericGeneratorFactory.h"
 #include "tests/arithm_tests.h"
 
+#include "tester/TestBrowser.h"
+#include "tester/tester.h"
+
 int main(int argc, char **argv) {
-  if (argc != 2) {
-    std::cerr << "Invalid argument count, proper syntax is: ./Numeric "
-                 "[test_file_name]"
-              << std::endl;
-    return -1;
+  Logger logger(std::cout, std::cerr, 5);
+
+  std::vector<std::string> testFiles;
+
+  if (argc > 1) {
+    for (int i = 1; i < argc; ++i) {
+      testFiles.emplace_back(argv[i]);
+    }
+  } else {
+    TestBrowser testBrowser("tst");
+    testFiles = testBrowser.getTestsFromDir("testfiles");
+    std::cout << "Found: " << testFiles.size() << " test files" << std::endl;
   }
 
-  Logger logger(std::cout, std::cerr, 5);
-  Tester<Tests::Integer, BasicIo> tester(logger);
+  NumericGeneratorFactory factory(KCrypt::ArithmFacade::getInstance(0));
+  Logger _logger(std::cout, std::cerr, 5);
+  Tester<KCrypt::Numeric> tester(_logger, factory);
 
-  tester.addTest("stringIdempotency", Tests::stringIdempotency);
-  tester.addTest("equality", Tests::equality);
-  tester.addTest("comparision", Tests::comparision);
-  tester.addTest("addition", Tests::addition);
-  tester.addTest("subtraction", Tests::subtraction);
-  tester.addTest("leftShift", Tests::leftShift);
-  tester.addTest("rightShift", Tests::rightShift);
-  tester.addTest("anyShift", Tests::anyShift);
-  tester.addTest("basicMul", Tests::basicMultiplication);
-  tester.addTest("basicDiv", Tests::basicDivision);
-  tester.addTest("mulDivReciprocity", Tests::mulDivReciprocity);
-  tester.addTest("mulPerf", Tests::mulPerf);
+  Tests::setUpAllTests(tester);
 
   int result = 0;
-  for (int i = 1; i < argc && result == 0; ++i) {
-    std::ifstream testFile(argv[i]);
-    if (!testFile) {
-      std::cerr << "Failed to open test file: " << argv[i] << " now closing"
-                << std::endl;
-      return -1;
-    }
-    tester.readStream(testFile);
-    result = tester.execute();
+  for (const auto &testFile : testFiles) {
+    _logger.logInfo(2, "File: ", testFile);
+    _logger.logInfo(2, "----------------------------------------");
+
+    std::ifstream file(testFile);
+    tester.readStream(file);
+    result |= tester.execute();
   }
+  KCrypt::ArithmFacade::releaseInstance(0);
   return result;
 }

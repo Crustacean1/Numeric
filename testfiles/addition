@@ -1,7 +1,0 @@
-
-addition{
-  case(100): unsigned(10) signed(8);
-}
-subtraction{
-  assert: value(850395763712691800) value(850395763712691800) value(0);
-}

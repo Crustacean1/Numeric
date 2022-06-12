@@ -5,4 +5,5 @@
 Numeric
 build/
 Testing/
-.ccls-cache
+.ccls-cache/
+vgcore.*
