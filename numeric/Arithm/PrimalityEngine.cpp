@@ -1,8 +1,8 @@
 #include "PrimalityEngine.h"
-#include "IoEngine.h"
 #include "../Buffer/Buffer.h"
 #include "../Buffer/BufferView.h"
 #include "../Numeric.h"
+#include "IoEngine.h"
 #include <iostream>
 
 #include "../ArithmFacade.h"
@@ -17,18 +17,29 @@ using namespace KCrypt;
 PrimalityEngine::PrimalityEngine(ArithmFacade &arithm)
     : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _mul(arithm.getMul()),
       _div(arithm.getDiv()), _exp(arithm.getExp()), _io(arithm.getIo()),
-      _modulusBuffer(arithm.getBuffer(5)),
-      _modulusInverseBuffer(arithm.getBuffer(6)),
-      _mulResultBuffer(arithm.getBuffer(7)), _resultBuffer(arithm.getBuffer(8)),
-      _modulus(_modulusBuffer), _modulusInverse(_modulusInverseBuffer),
-      _result(_resultBuffer), _mulResult(_mulResultBuffer) {}
+      _modulusBuffer(1), _modulusInverseBuffer(1), _mulResultBuffer(1),
+      _resultBuffer(1), _witnessBuffer(1), _modulus(_modulusBuffer),
+      _modulusInverse(_modulusInverseBuffer), _result(_resultBuffer),
+      _witness(_witnessBuffer),
+      _mulResult(_mulResultBuffer), _primes{2,  3,  5,  7,  11, 13, 17, 19,
+                                            23, 29, 31, 37, 41, 43, 47, 53,
+                                            59, 61, 71, 73, 79, 83, 89, 97} {}
 
-bool PrimalityEngine::test(const BufferView &witness) {
+bool PrimalityEngine::fastPrimeTest(const BufferView &candidate) {
+  for (const auto smallPrime : _primes) {
+    if (_div.modulo(candidate, smallPrime) == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool PrimalityEngine::millerRabinTest(const BufferView &witness) {
 
   _exp.fastModExp(witness, _mulResult.splice(_result.size), _modulus,
                   _modulusInverse, _binPoint, _result);
 
-  //std::cout<<"RESULT: "<<_io.toDecimal(_result)<<std::endl;
+  // std::cout<<"RESULT: "<<_io.toDecimal(_result)<<std::endl;
 
   if (_cmp.equal(_result, BufferView::BaseInt(1))) {
     return true;

@@ -21,7 +21,7 @@ file(GLOB TEST_PARAMS  "./tests/ArgumentGenerator/*.cpp")
 
 add_executable(NumericTester main.cpp ${TEST_SOURCES} ${TEST_PARAMS})
 
-target_link_libraries(NumericTester PUBLIC Numeric)
+target_link_libraries(NumericTester PUBLIC numeric)
 target_link_libraries(NumericTester PUBLIC Tester)
 
 do_test("NumericTester" "addition")

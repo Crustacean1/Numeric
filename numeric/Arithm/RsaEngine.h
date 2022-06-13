@@ -22,8 +22,6 @@ class CompEngine;
 
 class RsaEngine {
   std::default_random_engine _engine;
-  std::vector<BufferView::BaseInt> _primes;
-  float _certainityFactor;
 
   CompEngine &_cmp;
   AddEngine &_add;
@@ -36,15 +34,12 @@ class RsaEngine {
 
   Buffer _buffers[4];
 
-  BufferView _witness;
   BufferView _keyExp;
   BufferView _keyMod;
   BufferView _keyModInv;
 
   size_t _keyModPrec;
 
-  bool isPrime(const BufferView &prime);
-  void generatePrime(const BufferView &prime);
 
   void computeKeyModulus(const BufferView &prime1, const BufferView &prime2,
                          const BufferView &modulus);
@@ -63,7 +58,8 @@ class RsaEngine {
 public:
   RsaEngine(ArithmFacade &arithm);
 
-  void generateKey(size_t keyLength, Buffer &exp1, Buffer &exp2, Buffer &mod);
+  void generateKey(const BufferView &prime1, const BufferView &prime2,
+                   Buffer &exp1, Buffer &exp2, Buffer &mod);
 
   void setKey(const BufferView &exp, const BufferView &modulus);
 

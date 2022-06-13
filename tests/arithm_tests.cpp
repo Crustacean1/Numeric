@@ -243,7 +243,7 @@ bool Tests::millerRabin(Integer &suspect, Integer &witness) {
   KCrypt::PrimalityEngine primeTester(KCrypt::ArithmFacade::getInstance(0));
 
   primeTester.setSuspect(suspect.getBuffer());
-  bool result = primeTester.test(witness.getBuffer());
+  bool result = primeTester.millerRabinTest(witness.getBuffer());
 
   return result;
 }
@@ -262,45 +262,48 @@ bool Tests::keyGeneration(Integer &size) {
   std::cout << "key size: " << keySize << std::endl;
   auto &rsa = KCrypt::ArithmFacade::getInstance(0).getRsa();
   Integer a, b, c;
-  rsa.generateKey(keySize, a.getBuffer(), b.getBuffer(), c.getBuffer());
+  //rsa.generateKey(keySize, a.getBuffer(), b.getBuffer(), c.getBuffer());
   return false;
 }
 
 bool Tests::isRsaReversible(Integer &size, Integer &randomWord) {
-  std::cout<<"\n\n\n\nSTART:"<<std::endl;
-  size_t keySize = size.getBuffer().data[0];
+  //TODO: Create mock prime generator in place of multithreaded one in RsaDemo
+  //std::cout<<"\n\n\n\nSTART:"<<std::endl;
+  /*size_t keySize = size.getBuffer().data[0];
   auto &rsa = KCrypt::ArithmFacade::getInstance(0).getRsa();
   Integer priv, pub, mod;
 
+  
   rsa.generateKey(keySize, pub.getBuffer(), priv.getBuffer(), mod.getBuffer());
 
-  std::cout << "Original value: " << randomWord << std::endl;
-  std::cout << "Keys generated, setting private key" << std::endl;
+  //std::cout << "Original value: " << randomWord << std::endl;
+  //std::cout << "Keys generated, setting private key" << std::endl;
 
-  std::cout << "Public key: " << pub << std::endl;
-  std::cout << "Private key: " << priv << std::endl;
-  std::cout << "Modulus: " << mod << std::endl;
+  //std::cout << "Public key: " << pub << std::endl;
+  //std::cout << "Private key: " << priv << std::endl;
+  //std::cout << "Modulus: " << mod << std::endl;
 
   rsa.setKey(priv.getBuffer(), mod.getBuffer());
 
-  std::cout << "Private key set, applying encryption" << std::endl;
+  //std::cout << "Private key set, applying encryption" << std::endl;
 
   Integer d(keySize);
   Integer e(keySize);
 
   rsa.apply(randomWord.getBuffer(), d.getBuffer());
 
-  std::cout << "Encryption applied, setting public key" << std::endl;
-  std::cout << "Encrypted d: " << d << std::endl;
+  //std::cout << "Encryption applied, setting public key" << std::endl;
+  //std::cout << "Encrypted d: " << d << std::endl;
 
   rsa.setKey(pub.getBuffer(), mod.getBuffer());
 
-  std::cout << "Public key applied, decrypting" << std::endl;
+  //std::cout << "Public key applied, decrypting" << std::endl;
 
   rsa.apply(d.getBuffer(), e.getBuffer());
 
-  std::cout << "Message decrypted, comparing" << std::endl;
-  std::cout << "Decrypted e: " << e << std::endl;
+  //std::cout << "Message decrypted, comparing" << std::endl;
+  //std::cout << "Decrypted e: " << e << std::endl;
 
-  return (e == randomWord);
+  return (e == randomWord);*/
+  return false;
 }

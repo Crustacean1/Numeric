@@ -44,6 +44,8 @@ void MulEngine::mul(const BufferView &b, const BufferView &a) {
 
 void MulEngine::kar(const BufferView &a, const BufferView &b,
                     const BufferView &c) {
+  /*c.copy(a);
+  mul(b,c);*/
   karBuffer.reserve(a.size << 2);
   c.clear();
   karIt(a, b, c, karBuffer.splice(0, a.size << 2));

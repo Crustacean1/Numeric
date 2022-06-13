@@ -1,3 +1,3 @@
 RsaReversalSelfTest{
-  case(100): value(64) unsigned(4);
+  case(10): value(32) unsigned(4);
 }
