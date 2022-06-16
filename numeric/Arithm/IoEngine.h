@@ -14,7 +14,7 @@ namespace KCrypt {
 
 class CompEngine;
 class AddEngine;
-class ArithmFacade;
+class ArithmInjector;
 
 class IoEngine {
   static constexpr size_t bcdBlockSize = 4;
@@ -44,7 +44,7 @@ class IoEngine {
   AddEngine &_add;
 
 public:
-  IoEngine(ArithmFacade &arithm);
+  IoEngine(ArithmInjector & injector);
   IoEngine(const IoEngine &) = delete;
   IoEngine(IoEngine &&) = delete;
 

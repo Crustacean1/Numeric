@@ -10,7 +10,7 @@ class MulEngine;
 class DivEngine;
 class AddEngine;
 class CompEngine;
-class ArithmFacade;
+class ArithmInjector;
 class IoEngine;
 
 class ExpEngine {
@@ -21,13 +21,13 @@ class ExpEngine {
   DivEngine &_div;
   IoEngine & _io;
 
-  Buffer &_buffer;
+  Buffer _buffer;
   BufferView _value;
 
   void reserveModExpBuffers(size_t modulusSize);
 
 public:
-  ExpEngine(ArithmFacade &arithm);
+  ExpEngine(ArithmInjector & injector);
 
   void fastModExp(const BufferView &base, const BufferView &exponent,
                   const BufferView &modulus, const BufferView &modInverse,

@@ -1,54 +1,28 @@
 #ifndef ARITHM_FACADE
 #define ARITHM_FACADE
 
-#include "Arithm/AddEngine.h"
-#include "Arithm/CompEngine.h"
-#include "Arithm/DivEngine.h"
-#include "Arithm/ExpEngine.h"
-#include "Arithm/GcdEngine.h"
-#include "Arithm/MulEngine.h"
-#include "Arithm/PrimalityEngine.h"
-#include "Arithm/RsaEngine.h"
-#include "Arithm/IoEngine.h"
-
-#include "Buffer/BufferInstance.h"
+#include "ArithmInjector.h"
+#include "Buffer/Buffer.h"
+#include "Buffer/BufferView.h"
+#include <string>
 
 namespace KCrypt {
 
 class ArithmFacade {
+  Buffer & _tmpBuffer;
 
-  BufferInstance _buffInst;
-
-  IoEngine _io;
-  CompEngine _cmp;
-  AddEngine _add;
-  MulEngine _mul;
-  DivEngine _div;
-  ExpEngine _exp;
-  GcdEngine _gcd;
-  PrimalityEngine _pri;
-  RsaEngine _rsa;
-
-  static ArithmFacade *_instance;
-
-  ArithmFacade();
+  CompEngine &_cmp;
+  AddEngine &_add;
+  IoEngine &_io;
+  MulEngine &_mul;
+  DivEngine &_div;
+  GcdEngine &_gcd;
+  ExpEngine &_exp;
 
 public:
+  ArithmFacade();
   ArithmFacade(const ArithmFacade &) = delete;
-
-  static ArithmFacade &getInstance(size_t threadId);
-  static void releaseInstance(size_t threadId);
-
-  Buffer &getBuffer(size_t bufferNo);
-  AddEngine &getAdd();
-  CompEngine &getCmp();
-  MulEngine &getMul();
-  DivEngine &getDiv();
-  ExpEngine &getExp();
-  GcdEngine &getGcd();
-  IoEngine &getIo();
-  PrimalityEngine &getPri();
-  RsaEngine &getRsa();
+  ArithmFacade &operator=(const ArithmFacade &) = delete;
 
   bool isSigned(const BufferView &view);
   void abs(const BufferView &view);

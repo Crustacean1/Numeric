@@ -9,7 +9,7 @@
 namespace KCrypt {
 
 class Numeric;
-class ArithmFacade;
+class ArithmInjector;
 
 class ExpEngine;
 class AddEngine;
@@ -21,18 +21,12 @@ class IoEngine;
 class CompEngine;
 
 class RsaEngine {
-  std::default_random_engine _engine;
-  std::vector<BufferView::BaseInt> _primes;
-  float _certainityFactor;
-
   CompEngine &_cmp;
   AddEngine &_add;
   MulEngine &_mul;
   DivEngine &_div;
   ExpEngine &_exp;
   GcdEngine &_gcd;
-  IoEngine &_io;
-  PrimalityEngine &_pri;
 
   Buffer _buffers[4];
 
@@ -42,9 +36,6 @@ class RsaEngine {
   BufferView _keyModInv;
 
   size_t _keyModPrec;
-
-  bool isPrime(const BufferView &prime);
-  void generatePrime(const BufferView &prime);
 
   void computeKeyModulus(const BufferView &prime1, const BufferView &prime2,
                          const BufferView &modulus);
@@ -61,9 +52,10 @@ class RsaEngine {
   void resizeKeyBuffers(size_t keySize);
 
 public:
-  RsaEngine(ArithmFacade &arithm);
+  RsaEngine(ArithmInjector & injector);
 
-  void generateKey(size_t keyLength, Buffer &exp1, Buffer &exp2, Buffer &mod);
+  void generateKey(const BufferView &prime1, const BufferView &prime2,
+                   Buffer &exp1, Buffer &exp2, Buffer &mod);
 
   void setKey(const BufferView &exp, const BufferView &modulus);
 

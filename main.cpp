@@ -4,7 +4,6 @@
 
 #include "numeric/Buffer/BufferInstance.h"
 #include "numeric/Numeric.h"
-#include "numeric/ArithmFacade.h"
 #include "tester/logger.h"
 
 #include "tests/ArgumentGenerator/NumericGeneratorFactory.h"
@@ -28,7 +27,7 @@ int main(int argc, char **argv) {
     std::cout << "Found: " << testFiles.size() << " test files" << std::endl;
   }
 
-  NumericGeneratorFactory factory(KCrypt::ArithmFacade::getInstance(0));
+  NumericGeneratorFactory factory;
   Logger _logger(std::cout, std::cerr, 5);
   Tester<KCrypt::Numeric> tester(_logger, factory);
 
@@ -41,8 +40,9 @@ int main(int argc, char **argv) {
 
     std::ifstream file(testFile);
     tester.readStream(file);
+    std::cout<<"Starting execution"<<std::endl;
     result |= tester.execute();
   }
-  KCrypt::ArithmFacade::releaseInstance(0);
+  KCrypt::ArithmInjector::releaseInstances();
   return result;
 }

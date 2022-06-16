@@ -1,5 +1,6 @@
 #include "NumericGeneratorFactory.h"
 #include "../../numeric/Arithm/IoEngine.h"
+#include "../../numeric/ArithmInjector.h"
 #include "../../tester/syntaxnode.h"
 #include "BinaryParameter.h"
 #include "RandomParameter.h"
@@ -9,8 +10,9 @@
 
 using namespace KCrypt;
 
-NumericGeneratorFactory::NumericGeneratorFactory(ArithmFacade &arithm)
-    : _io(arithm.getIo()), _add(arithm.getAdd()) {}
+NumericGeneratorFactory::NumericGeneratorFactory()
+    : _io(ArithmInjector::getInstance().getIo()),
+      _add(ArithmInjector::getInstance().getAdd()) {}
 
 ArgumentGenerator<Numeric> *NumericGeneratorFactory::create(SyntaxNode &node) {
   if (node.data == "random" || node.data == "signed" ||

@@ -7,7 +7,7 @@ namespace KCrypt {
 
 class AddEngine;
 class CompEngine;
-class ArithmFacade;
+class ArithmInjector;
 class IoEngine;
 
 class GcdEngine {
@@ -17,14 +17,14 @@ class GcdEngine {
     const BufferView &b;
   };
 
-  Buffer &_a1;
-  Buffer &_a2;
+  Buffer _a1;
+  Buffer _a2;
 
-  Buffer &_b1;
-  Buffer &_b2;
+  Buffer _b1;
+  Buffer _b2;
 
-  Buffer &_corr1;
-  Buffer &_corr2;
+  Buffer _corr1;
+  Buffer _corr2;
 
   BufferView _aCorrection;
   BufferView _bCorrection;
@@ -55,7 +55,7 @@ class GcdEngine {
   IoEngine &_io;
 
 public:
-  GcdEngine(ArithmFacade &arithm);
+  GcdEngine(ArithmInjector & injector);
 
   void extendedGcd(const BufferView &a, const BufferView &b,
                    const BufferView &aCoeff, const BufferView &bCoeff);

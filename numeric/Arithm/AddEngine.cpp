@@ -2,10 +2,11 @@
 #include "../ArithmFacade.h"
 #include "../Utils.h"
 #include <iostream>
+#include "../ArithmInjector.h"
 
 namespace KCrypt {
 
-AddEngine::AddEngine(ArithmFacade &arithm)
+AddEngine::AddEngine(ArithmInjector & arithm)
     : _comparator(arithm.getCmp()) {}
 
 void AddEngine::leftShift(const BufferView &a, const BufferView &b,

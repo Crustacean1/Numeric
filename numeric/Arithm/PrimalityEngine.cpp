@@ -1,11 +1,11 @@
 #include "PrimalityEngine.h"
-#include "IoEngine.h"
 #include "../Buffer/Buffer.h"
 #include "../Buffer/BufferView.h"
 #include "../Numeric.h"
+#include "IoEngine.h"
 #include <iostream>
 
-#include "../ArithmFacade.h"
+#include "../ArithmInjector.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
 #include "DivEngine.h"
@@ -14,21 +14,20 @@
 
 using namespace KCrypt;
 
-PrimalityEngine::PrimalityEngine(ArithmFacade &arithm)
-    : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _mul(arithm.getMul()),
-      _div(arithm.getDiv()), _exp(arithm.getExp()), _io(arithm.getIo()),
-      _modulusBuffer(arithm.getBuffer(5)),
-      _modulusInverseBuffer(arithm.getBuffer(6)),
-      _mulResultBuffer(arithm.getBuffer(7)), _resultBuffer(arithm.getBuffer(8)),
+PrimalityEngine::PrimalityEngine(ArithmInjector &injector)
+    : _cmp(injector.getCmp()), _add(injector.getAdd()), _mul(injector.getMul()),
+      _div(injector.getDiv()), _exp(injector.getExp()), _modulusBuffer(1),
+      _modulusInverseBuffer(1), _mulResultBuffer(1), _resultBuffer(1),
       _modulus(_modulusBuffer), _modulusInverse(_modulusInverseBuffer),
-      _result(_resultBuffer), _mulResult(_mulResultBuffer) {}
+      _result(_resultBuffer),
+      _mulResult(_mulResultBuffer), _primes{2,  3,  5,  7,  11, 13, 17, 19,
+                                            23, 29, 31, 37, 41, 43, 47, 53,
+                                            59, 61, 71, 73, 79, 83, 89, 97} {}
 
-bool PrimalityEngine::test(const BufferView &witness) {
+bool PrimalityEngine::millerRabinTest(const BufferView &witness) {
 
   _exp.fastModExp(witness, _mulResult.splice(_result.size), _modulus,
                   _modulusInverse, _binPoint, _result);
-
-  //std::cout<<"RESULT: "<<_io.toDecimal(_result)<<std::endl;
 
   if (_cmp.equal(_result, BufferView::BaseInt(1))) {
     return true;
@@ -45,6 +44,22 @@ bool PrimalityEngine::test(const BufferView &witness) {
   }
   return false;
 }
+
+bool PrimalityEngine::fastModuloTest(const BufferView &candidate) {
+  for (const auto smallPrime : _primes) {
+    if (_div.modulo(candidate, smallPrime) == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/*void PrimalityEngine::nextPrime(const BufferView &prime) {
+  prime.data[0] |= BufferView::BaseInt(1);
+  for (int i = 0; !isPrime(prime); ++i) {
+    _add.add(prime, 2);
+  }
+}*/
 
 void PrimalityEngine::setSuspect(const BufferView &buffer) {
   size_t baseSize = buffer.size;

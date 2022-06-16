@@ -1,7 +1,6 @@
-#include <iostream>
 #include <random>
 
-#include "../ArithmFacade.h"
+#include "../ArithmInjector.h"
 #include "ExpEngine.h"
 #include "GcdEngine.h"
 #include "IoEngine.h"
@@ -11,75 +10,33 @@
 
 using namespace KCrypt;
 
-RsaEngine::RsaEngine(ArithmFacade &arithm)
-    : _io(arithm.getIo()), _cmp(arithm.getCmp()), _add(arithm.getAdd()),
-      _mul(arithm.getMul()), _div(arithm.getDiv()), _exp(arithm.getExp()),
-      _gcd(arithm.getGcd()), _pri(arithm.getPri()), _witness(_buffers[0]),
-      _keyExp(_buffers[1]), _keyMod(_buffers[2]), _keyModInv(_buffers[3]),
-      _certainityFactor(1),
-      _engine(4315), _primes{2,  3,  5,  7,  11, 13, 17, 19, 23, 29, 31, 37,
-                             41, 43, 47, 53, 59, 61, 71, 73, 79, 83, 89, 97} {}
-
-bool RsaEngine::isPrime(const BufferView &prime) {
-  for (const auto smallPrime : _primes) {
-    if (_div.modulo(prime, smallPrime) == 0) {
-      return false;
-    }
-  }
-
-  _pri.setSuspect(prime);
-
-  for (size_t i = 0; i < prime.size * _certainityFactor; ++i) {
-    _io.randomize(_witness, _engine, IoEngine::Sign::Unsigned);
-    bool testResult = _pri.test(_witness);
-    if (!testResult) {
-      return false;
-    }
-  }
-  return true;
-}
-
-void RsaEngine::generatePrime(const BufferView &prime) {
-  prime.clear();
-  while (_cmp.leftOffset(prime) > 8) {
-    _io.randomize(prime, _engine, IoEngine::Sign::Unsigned);
-  }
-  prime.data[0] |= BufferView::BaseInt(1);
-  //std::cout << "Starting search from: " << _io.toDecimal(prime) << std::endl;
-  for (int i = 0; !isPrime(prime); ++i) {
-    _add.add(prime, 2);
-  }
-  //std::cout << "Found: " << _io.toDecimal(prime) << std::endl;
-}
+RsaEngine::RsaEngine(ArithmInjector &injector)
+    : _cmp(injector.getCmp()), _add(injector.getAdd()), _mul(injector.getMul()),
+      _div(injector.getDiv()), _exp(injector.getExp()), _gcd(injector.getGcd()),
+      _witness(_buffers[0]), _keyExp(_buffers[1]), _keyMod(_buffers[2]),
+      _keyModInv(_buffers[3]) {}
 
 // Refactor to accept 2 primes instead for better structuring of parallelism
-void RsaEngine::generateKey(size_t keyLength, Buffer &exp1, Buffer &exp2,
-                            Buffer &modulus) {
+void RsaEngine::generateKey(const BufferView &prime1, const BufferView &prime2,
+                            Buffer &exp1, Buffer &exp2, Buffer &modulus) {
+
+  size_t keyLength = prime1.size + prime2.size;
+
   exp1.reserve(keyLength);
   exp2.reserve(keyLength);
   modulus.reserve(keyLength);
 
   resizePrimeBuffers(keyLength);
 
-  Buffer prime1(keyLength / 2);
-  Buffer prime2(keyLength / 2);
-
   Buffer invariantExponent(keyLength);
-
-  generatePrime(prime1);
-  generatePrime(prime2);
 
   computeKeyModulus(prime1, prime2, modulus);
 
-  //std::cout << "Modulus computed" << std::endl;
   computePublicKeyExp(exp1);
 
-  //std::cout << "exp computed" << std::endl;
   computeExponentInvariant(prime1, prime2, invariantExponent);
 
-  //std::cout << "inv computed" << std::endl;
   computePrivateKeyExp(exp1, invariantExponent, exp2);
-  //std::cout << "exp2 computed" << std::endl;
 }
 
 void RsaEngine::setKey(const BufferView &exp, const BufferView &modulus) {
@@ -113,7 +70,6 @@ void RsaEngine::computeExponentInvariant(const BufferView &prime1,
   _add.sub(prime1, 1);
   _add.sub(prime2, 1);
   _mul.kar(prime1, prime2, inv);
-
 }
 
 void RsaEngine::computePrivateKeyExp(const BufferView &pubExp,
@@ -123,9 +79,9 @@ void RsaEngine::computePrivateKeyExp(const BufferView &pubExp,
   Buffer discard(invExp.size);
   _gcd.extendedGcd(invExp, pubExp, discard, key);
 
-  if(_cmp.isSigned(key)){
-    _add.addToRight(invExp,key);
-    _add.subFromRight(pubExp,discard);
+  if (_cmp.isSigned(key)) {
+    _add.addToRight(invExp, key);
+    _add.subFromRight(pubExp, discard);
   }
 }
 

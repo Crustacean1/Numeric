@@ -14,12 +14,12 @@ namespace KCrypt {
 Numeric::Numeric() : Numeric(Buffer(1)) {}
 
 Numeric::Numeric(const BufferView &buffer)
-    : _arithm(ArithmFacade::getInstance(0)), _buffer(buffer.size) {
+    :  _buffer(buffer.size) {
   _buffer.splice().copy(buffer);
 }
 
 Numeric::Numeric(Buffer &&bufferHandle)
-    : _arithm(ArithmFacade::getInstance(0)), _buffer(std::move(bufferHandle)) {}
+    : _buffer(std::move(bufferHandle)) {}
 
 Numeric::Numeric(size_t size, BufferView::BaseInt defaultValue)
     : Numeric(Buffer(size)) {

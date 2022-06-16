@@ -1,17 +1,20 @@
 #include "ExpEngine.h"
-#include "../ArithmFacade.h"
-#include "IoEngine.h"
+#include "../ArithmInjector.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
 #include "DivEngine.h"
+#include "IoEngine.h"
 #include "MulEngine.h"
 #include <iostream>
 
 using namespace KCrypt;
 
-ExpEngine::ExpEngine(ArithmFacade &arithm)
-    : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _mul(arithm.getMul()),
-      _io(arithm.getIo()), _div(arithm.getDiv()), _buffer(arithm.getBuffer(3)),
+ExpEngine::ExpEngine(ArithmInjector & injector)
+    : _cmp(injector.getCmp()),
+      _add(injector.getAdd()),
+      _mul(injector.getMul()),
+      _io(injector.getIo()),
+      _div(injector.getDiv()), _buffer(1),
       _value(_buffer) {}
 
 void ExpEngine::fastModExp(const BufferView &base, const BufferView &exponent,

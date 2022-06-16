@@ -1,5 +1,5 @@
 #include "GcdEngine.h"
-#include "../ArithmFacade.h"
+#include "../ArithmInjector.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
 #include "IoEngine.h"
@@ -8,11 +8,9 @@
 
 using namespace KCrypt;
 
-GcdEngine::GcdEngine(ArithmFacade &arithm)
-    : _io(arithm.getIo()), _cmp(arithm.getCmp()), _add(arithm.getAdd()),
-      _a1(arithm.getBuffer(0)), _b1(arithm.getBuffer(1)),
-      _a2(arithm.getBuffer(2)), _b2(arithm.getBuffer(3)),
-      _corr1(arithm.getBuffer(4)), _corr2(arithm.getBuffer(5)),
+GcdEngine::GcdEngine(ArithmInjector &injector)
+    : _io(injector.getIo()), _cmp(injector.getCmp()), _add(injector.getAdd()),
+      _a1(1), _b1(1), _a2(1), _b2(1), _corr1(1), _corr2(1),
       _aCorrection(_corr1), _bCorrection(_corr2) {}
 
 void GcdEngine::gcdDebug(GcdExtension &ext) {

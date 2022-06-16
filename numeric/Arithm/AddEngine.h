@@ -6,7 +6,7 @@
 #include "CompEngine.h"
 
 namespace KCrypt {
-class ArithmFacade;
+class ArithmInjector;
 
 class AddEngine {
 
@@ -14,7 +14,7 @@ class AddEngine {
   CompEngine &_comparator;
 
 public:
-  AddEngine(ArithmFacade &arithm);
+  AddEngine(ArithmInjector &arithm);
 
   void leftShift(const BufferView &source, const BufferView &output,
                  size_t offset);

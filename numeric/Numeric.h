@@ -4,13 +4,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <tuple>
 
-#include "Buffer/Buffer.h"
 #include "ArithmFacade.h"
+#include "Buffer/Buffer.h"
 
 namespace KCrypt {
-
 
 class Numeric;
 } // namespace KCrypt
@@ -29,7 +29,7 @@ class Numeric;
 
 class Numeric {
 
-  ArithmFacade & _arithm;
+  mutable ArithmFacade _arithm;
 
   Buffer _buffer;
 
@@ -46,18 +46,18 @@ public:
   Numeric(Numeric &&num);
   Numeric(const Numeric &num);
 
-  Buffer & getBuffer();
+  Buffer &getBuffer();
   size_t size() const;
 
   std::string toDec();
   std::string toBin();
 
   bool isSigned();
-  Numeric & inverse();
-  Numeric & abs();
+  Numeric &inverse();
+  Numeric &abs();
 
-  Numeric modExp(const Numeric & base, const Numeric & exp);
-  std::tuple<Numeric,Numeric> extGcd(const Numeric & num);
+  Numeric modExp(const Numeric &base, const Numeric &exp);
+  std::tuple<Numeric, Numeric> extGcd(const Numeric &num);
 
   /*ASSIGNMENT OPERATORS*/
   Numeric &operator=(const Numeric &num);

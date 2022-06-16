@@ -1,8 +1,13 @@
 #include "arithm_tests.h"
 #include "../numeric/Arithm/PrimalityEngine.h"
+#include "../numeric/Arithm/RsaEngine.h"
+#include "../numeric/ArithmInjector.h"
 #include "../tester/tester.h"
+#include "mock_prime_generator.h"
 #include <iostream>
 #include <string>
+
+MockPrimeGenerator primeGenerator;
 
 void Tests::setUpAllTests(Tester<Integer> &tester) {
   tester.addTest("Equality", equality);
@@ -197,9 +202,10 @@ bool Tests::modExponentValue(Integer &base, Integer &exponent, Integer &modulo,
   std::cout << "expected: " << expected.size() << std::endl;
   std::cout << "d: " << d.size() << std::endl;
 
-  std::cout << "BASE: " << base << "\nEXP: " << exponent << "\nMOD: " << modulo
+  /*std::cout << "BASE: " << base << "\nEXP: " << exponent << "\nMOD: " <<
+  modulo
             << "\nEXPECTED: " << expected << std::endl;
-  std::cout << "MOD_EXP_VALUE: " << d << std::endl;
+  std::cout << "MOD_EXP_VALUE: " << d << std::endl;*/
 
   if (d == expected) {
     return true;
@@ -240,10 +246,10 @@ bool Tests::extGcdValue(Integer &a, Integer &b, Integer &c) {
 }
 
 bool Tests::millerRabin(Integer &suspect, Integer &witness) {
-  KCrypt::PrimalityEngine primeTester(KCrypt::ArithmFacade::getInstance(0));
+  KCrypt::PrimalityEngine primeTester(KCrypt::ArithmInjector::getInstance());
 
   primeTester.setSuspect(suspect.getBuffer());
-  bool result = primeTester.test(witness.getBuffer());
+  bool result = primeTester.millerRabinTest(witness.getBuffer());
 
   return result;
 }
@@ -251,7 +257,7 @@ bool Tests::millerRabin(Integer &suspect, Integer &witness) {
 bool Tests::smallModulo(Integer &source, Integer &modulo, Integer &result) {
   size_t smallModulo = modulo.getBuffer().data[0];
 
-  auto testResult = KCrypt::ArithmFacade::getInstance(0).getDiv().modulo(
+  auto testResult = KCrypt::ArithmInjector::getInstance().getDiv().modulo(
       source.getBuffer(), smallModulo);
   std::cout << "Test result: " << testResult << std::endl;
   return testResult == result.getBuffer().data[0];
@@ -260,47 +266,54 @@ bool Tests::smallModulo(Integer &source, Integer &modulo, Integer &result) {
 bool Tests::keyGeneration(Integer &size) {
   size_t keySize = size.getBuffer().data[0];
   std::cout << "key size: " << keySize << std::endl;
-  auto &rsa = KCrypt::ArithmFacade::getInstance(0).getRsa();
+  KCrypt::RsaEngine rsa(KCrypt::ArithmInjector::getInstance());
   Integer a, b, c;
-  rsa.generateKey(keySize, a.getBuffer(), b.getBuffer(), c.getBuffer());
+  // rsa.generateKey(keySize, a.getBuffer(), b.getBuffer(), c.getBuffer());
   return false;
 }
 
 bool Tests::isRsaReversible(Integer &size, Integer &randomWord) {
-  std::cout<<"\n\n\n\nSTART:"<<std::endl;
+  //std::cout << "\n\n\n\nSTART:" << std::endl;
   size_t keySize = size.getBuffer().data[0];
-  auto &rsa = KCrypt::ArithmFacade::getInstance(0).getRsa();
+  KCrypt::RsaEngine rsa(KCrypt::ArithmInjector::getInstance());
   Integer priv, pub, mod;
 
-  rsa.generateKey(keySize, pub.getBuffer(), priv.getBuffer(), mod.getBuffer());
+  auto prime1 = primeGenerator.createPrime(keySize / 2);
+  auto prime2 = primeGenerator.createPrime(keySize / 2);
 
-  std::cout << "Original value: " << randomWord << std::endl;
-  std::cout << "Keys generated, setting private key" << std::endl;
+  //std::cout << "Prime1: " << prime1 << std::endl;
+  //std::cout << "Prime2: " << prime2 << std::endl;
 
-  std::cout << "Public key: " << pub << std::endl;
-  std::cout << "Private key: " << priv << std::endl;
-  std::cout << "Modulus: " << mod << std::endl;
+  rsa.generateKey(prime1.getBuffer(), prime2.getBuffer(), pub.getBuffer(),
+                  priv.getBuffer(), mod.getBuffer());
+
+  //std::cout << "Original value: " << randomWord << std::endl;
+  //std::cout << "Keys generated, setting private key" << std::endl;
+
+  //std::cout << "Public key: " << pub << std::endl;
+  //std::cout << "Private key: " << priv << std::endl;
+  //std::cout << "Modulus: " << mod << std::endl;
 
   rsa.setKey(priv.getBuffer(), mod.getBuffer());
 
-  std::cout << "Private key set, applying encryption" << std::endl;
+  //std::cout << "Private key set, applying encryption" << std::endl;
 
   Integer d(keySize);
   Integer e(keySize);
 
   rsa.apply(randomWord.getBuffer(), d.getBuffer());
 
-  std::cout << "Encryption applied, setting public key" << std::endl;
-  std::cout << "Encrypted d: " << d << std::endl;
+  //std::cout << "Encryption applied, setting public key" << std::endl;
+  //std::cout << "Encrypted d: " << d << std::endl;
 
   rsa.setKey(pub.getBuffer(), mod.getBuffer());
 
-  std::cout << "Public key applied, decrypting" << std::endl;
+  //std::cout << "Public key applied, decrypting" << std::endl;
 
   rsa.apply(d.getBuffer(), e.getBuffer());
 
-  std::cout << "Message decrypted, comparing" << std::endl;
-  std::cout << "Decrypted e: " << e << std::endl;
+  //std::cout << "Message decrypted, comparing" << std::endl;
+  //std::cout << "Decrypted e: " << e << std::endl;
 
   return (e == randomWord);
 }

@@ -1,14 +1,16 @@
 #include "DivEngine.h"
-#include "../ArithmFacade.h"
+#include "../ArithmInjector.h"
 #include "AddEngine.h"
 #include "CompEngine.h"
 #include "MulEngine.h"
 
 using namespace KCrypt;
 
-DivEngine::DivEngine(ArithmFacade &arithm)
-    : _cmp(arithm.getCmp()), _add(arithm.getAdd()), _mul(arithm.getMul()),
-      _aDivBuffer(arithm.getBuffer(1)), _bDivBuffer(arithm.getBuffer(2)) {}
+DivEngine::DivEngine(ArithmInjector & injector)
+    : _cmp(injector.getCmp()),
+      _add(injector.getAdd()),
+      _mul(injector.getMul()), _aDivBuffer(1),
+      _bDivBuffer(1) {}
 
 void DivEngine::div(const BufferView &a, const BufferView &b,
                     const BufferView &c) {

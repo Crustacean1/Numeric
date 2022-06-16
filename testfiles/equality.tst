@@ -5,7 +5,7 @@ Equality{
   assert: binary(10101010) binary(10101010);
 }
 ComparisionSelfTest{
-    assert: value(10) value(9);
-    assert: value(1) value(-1);
-    assert: value(1024) value(0);
-  }
+  assert: value(10) value(9);
+  assert: value(1) value(-1);
+  assert: value(1024) value(0);
+}

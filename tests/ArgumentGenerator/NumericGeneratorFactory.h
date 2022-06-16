@@ -1,7 +1,6 @@
 #ifndef NUMERIC_GENERATOR_FACTORY
 #define NUMERIC_GENERATOR_FACTORY
 
-#include "../../numeric/ArithmFacade.h"
 #include "../../tester/argument/ArgumentGeneratorFactory.h"
 
 namespace KCrypt {
@@ -15,7 +14,7 @@ class NumericGeneratorFactory
   KCrypt::AddEngine &_add;
 
 public:
-  NumericGeneratorFactory(KCrypt::ArithmFacade &arithm);
+  NumericGeneratorFactory();
   ArgumentGenerator<KCrypt::Numeric> *create(SyntaxNode &node) override;
 };
 
