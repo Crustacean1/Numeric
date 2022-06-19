@@ -7,6 +7,7 @@
 #include "MulEngine.h"
 #include "PrimalityEngine.h"
 #include "RsaEngine.h"
+#include <stdexcept>
 
 using namespace KCrypt;
 
@@ -16,7 +17,6 @@ RsaEngine::RsaEngine(ArithmInjector &injector)
       _witness(_buffers[0]), _keyExp(_buffers[1]), _keyMod(_buffers[2]),
       _keyModInv(_buffers[3]), _inputBuffer(_buffers[4]) {}
 
-// Refactor to accept 2 primes instead for better structuring of parallelism
 void RsaEngine::generateKey(const BufferView &prime1, const BufferView &prime2,
                             Buffer &exp1, Buffer &exp2, Buffer &modulus) {
 
@@ -48,6 +48,16 @@ void RsaEngine::setKey(const BufferView &exp, const BufferView &modulus) {
 }
 
 void RsaEngine::apply(const BufferView &input, const BufferView &output) {
+  if (_cmp.equal(_keyExp, 0)) {
+    throw std::runtime_error(
+        "what the fuck man" + std::to_string(_keyExp.size) + std::string(" ") +
+        std::to_string(_buffers[0].size) + std::string(" ") +
+        std::to_string(_buffers[1].size) + std::string(" ") +
+        std::to_string(_buffers[2].size) + std::string(" ") +
+        std::to_string(_buffers[3].size) + std::string(" ") +
+        std::to_string(_buffers[1].data[0]) + std::string(" ") +
+        std::to_string(_keyExp.data[0]));
+  }
   _inputBuffer.copy(input);
   _exp.fastModExp(_inputBuffer, _keyExp, _keyMod, _keyModInv, _keyModPrec,
                   output);
@@ -88,6 +98,9 @@ void RsaEngine::computePrivateKeyExp(const BufferView &pubExp,
 }
 
 void RsaEngine::resizeKeyBuffers(size_t keyLength) {
+  if (keyLength == 4) {
+    throw std::runtime_error("WTF");
+  }
   _buffers[1].resize(keyLength);
   _buffers[2].resize(keyLength);
   _buffers[3].resize(keyLength * 2); // May be too strict...

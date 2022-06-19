@@ -7,6 +7,8 @@ using namespace KCrypt;
 std::unordered_map<std::thread::id, ArithmInjector *>
     ArithmInjector::_instances;
 
+std::mutex ArithmInjector::_injectorMutex;
+
 ArithmInjector &ArithmInjector::getInstance(std::thread::id id) {
   auto it = _instances.find(id);
   if (it == _instances.end()) {
@@ -18,6 +20,7 @@ ArithmInjector &ArithmInjector::getInstance(std::thread::id id) {
 }
 
 ArithmInjector &ArithmInjector::getInstance() {
+  std::unique_lock<std::mutex> lock(_injectorMutex);
   return getInstance(std::this_thread::get_id());
 }
 

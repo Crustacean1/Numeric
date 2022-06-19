@@ -13,6 +13,7 @@
 #include "Arithm/RsaEngine.h"
 
 #include <thread>
+#include <mutex>
 #include <unordered_map>
 
 namespace KCrypt {
@@ -20,6 +21,7 @@ namespace KCrypt {
 class ArithmInjector {
 
   static std::unordered_map<std::thread::id, ArithmInjector *> _instances;
+  static std::mutex _injectorMutex;
 
   PrimalityEngine _pri;
   CompEngine _cmp;
@@ -32,13 +34,13 @@ class ArithmInjector {
   RsaEngine _rsa;
 
   Buffer _tmpBuffer;
+  static ArithmInjector &getInstance(std::thread::id id);
 
 public:
   ArithmInjector();
   ArithmInjector(const ArithmInjector &) = delete;
   ArithmInjector &operator=(const ArithmInjector &) = delete;
 
-  static ArithmInjector &getInstance(std::thread::id id);
   static ArithmInjector &getInstance();
 
   static void releaseInstances();
