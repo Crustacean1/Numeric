@@ -28,12 +28,13 @@ class RsaEngine {
   ExpEngine &_exp;
   GcdEngine &_gcd;
 
-  Buffer _buffers[4];
+  Buffer _buffers[5];
 
   BufferView _witness;
   BufferView _keyExp;
   BufferView _keyMod;
   BufferView _keyModInv;
+  BufferView _inputBuffer;
 
   size_t _keyModPrec;
 
@@ -52,7 +53,7 @@ class RsaEngine {
   void resizeKeyBuffers(size_t keySize);
 
 public:
-  RsaEngine(ArithmInjector & injector);
+  RsaEngine(ArithmInjector &injector);
 
   void generateKey(const BufferView &prime1, const BufferView &prime2,
                    Buffer &exp1, Buffer &exp2, Buffer &mod);

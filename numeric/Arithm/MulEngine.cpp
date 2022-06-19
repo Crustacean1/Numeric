@@ -10,7 +10,6 @@
 
 #include "MulEngine.h"
 #include "../ArithmInjector.h"
-#include "../Buffer/BufferInstance.h"
 #include "../Utils.h"
 #include "AddEngine.h"
 #include "CompEngine.h"

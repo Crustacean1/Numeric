@@ -29,9 +29,8 @@ void ArithmInjector::releaseInstances() {
 }
 
 ArithmInjector::ArithmInjector()
-    : _cmp(), _add(*this), _mul(*this), _io(*this), _div(*this), _exp(*this), _gcd(*this) {
-  std::cout << "Bad news" << std::endl;
-}
+    : _cmp(), _add(*this), _mul(*this), _io(*this), _div(*this), _exp(*this),
+      _gcd(*this), _rsa(*this), _pri(*this) {}
 
 AddEngine &ArithmInjector::getAdd() { return _add; }
 CompEngine &ArithmInjector::getCmp() { return _cmp; }
@@ -41,3 +40,5 @@ ExpEngine &ArithmInjector::getExp() { return _exp; }
 GcdEngine &ArithmInjector::getGcd() { return _gcd; }
 IoEngine &ArithmInjector::getIo() { return _io; }
 Buffer &ArithmInjector::getTmp() { return _tmpBuffer; }
+RsaEngine &ArithmInjector::getRsa() { return _rsa; }
+PrimalityEngine &ArithmInjector::getPrim() { return _pri; }

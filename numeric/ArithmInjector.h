@@ -9,8 +9,8 @@
 #include "Arithm/GcdEngine.h"
 #include "Arithm/IoEngine.h"
 #include "Arithm/MulEngine.h"
-
-#include "Buffer/BufferInstance.h"
+#include "Arithm/PrimalityEngine.h"
+#include "Arithm/RsaEngine.h"
 
 #include <thread>
 #include <unordered_map>
@@ -19,8 +19,9 @@ namespace KCrypt {
 
 class ArithmInjector {
 
-  static std::unordered_map<std::thread::id, ArithmInjector*> _instances;
+  static std::unordered_map<std::thread::id, ArithmInjector *> _instances;
 
+  PrimalityEngine _pri;
   CompEngine _cmp;
   IoEngine _io;
   AddEngine _add;
@@ -28,6 +29,7 @@ class ArithmInjector {
   DivEngine _div;
   ExpEngine _exp;
   GcdEngine _gcd;
+  RsaEngine _rsa;
 
   Buffer _tmpBuffer;
 
@@ -49,6 +51,8 @@ public:
   GcdEngine &getGcd();
   IoEngine &getIo();
   Buffer &getTmp();
+  RsaEngine &getRsa();
+  PrimalityEngine &getPrim();
 };
 } // namespace KCrypt
 

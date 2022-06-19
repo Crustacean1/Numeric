@@ -14,7 +14,7 @@ RsaEngine::RsaEngine(ArithmInjector &injector)
     : _cmp(injector.getCmp()), _add(injector.getAdd()), _mul(injector.getMul()),
       _div(injector.getDiv()), _exp(injector.getExp()), _gcd(injector.getGcd()),
       _witness(_buffers[0]), _keyExp(_buffers[1]), _keyMod(_buffers[2]),
-      _keyModInv(_buffers[3]) {}
+      _keyModInv(_buffers[3]), _inputBuffer(_buffers[4]) {}
 
 // Refactor to accept 2 primes instead for better structuring of parallelism
 void RsaEngine::generateKey(const BufferView &prime1, const BufferView &prime2,
@@ -48,7 +48,9 @@ void RsaEngine::setKey(const BufferView &exp, const BufferView &modulus) {
 }
 
 void RsaEngine::apply(const BufferView &input, const BufferView &output) {
-  _exp.fastModExp(input, _keyExp, _keyMod, _keyModInv, _keyModPrec, output);
+  _inputBuffer.copy(input);
+  _exp.fastModExp(_inputBuffer, _keyExp, _keyMod, _keyModInv, _keyModPrec,
+                  output);
 }
 
 void RsaEngine::computePublicKeyExp(const BufferView &buffer) {
@@ -89,9 +91,11 @@ void RsaEngine::resizeKeyBuffers(size_t keyLength) {
   _buffers[1].resize(keyLength);
   _buffers[2].resize(keyLength);
   _buffers[3].resize(keyLength * 2); // May be too strict...
+  _buffers[4].resize(keyLength);
   _keyExp = _buffers[1].splice(keyLength);
   _keyMod = _buffers[2].splice(keyLength);
   _keyModInv = _buffers[3].splice(keyLength * 2);
+  _inputBuffer = _buffers[4].splice(keyLength);
 }
 
 void RsaEngine::resizePrimeBuffers(size_t keyLength) {

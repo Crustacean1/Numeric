@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 
-#include "numeric/Buffer/BufferInstance.h"
 #include "numeric/Numeric.h"
 #include "tester/logger.h"
 
@@ -40,7 +39,7 @@ int main(int argc, char **argv) {
 
     std::ifstream file(testFile);
     tester.readStream(file);
-    std::cout<<"Starting execution"<<std::endl;
+    std::cout << "Starting execution" << std::endl;
     result |= tester.execute();
   }
   KCrypt::ArithmInjector::releaseInstances();

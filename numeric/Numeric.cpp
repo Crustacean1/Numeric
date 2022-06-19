@@ -39,6 +39,10 @@ Numeric &Numeric::operator=(const Numeric &num) {
   _buffer.splice().copy(num._buffer.splice());
   return *this;
 }
+Numeric &Numeric::operator=(Numeric &&num) {
+  _buffer = std::move(num._buffer);
+  return *this;
+}
 
 bool Numeric::operator==(const Numeric &num) const {
   return _arithm.equal(_buffer, num._buffer);
