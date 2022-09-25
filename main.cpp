@@ -13,6 +13,7 @@
 #include "tester/TestBrowser.h"
 #include "tester/tester.h"
 
+//Test of gitea uploading
 int main(int argc, char **argv) {
   Logger logger(std::cout, std::cerr, 5);
 
